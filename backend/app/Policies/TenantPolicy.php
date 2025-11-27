@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Tenant;
+use App\Models\User;
+
+class TenantPolicy
+{
+    public function manage(User $user, Tenant $tenant): bool
+    {
+        return $user->isSuperAdmin() || ($user->isTenantAdmin() && $tenant->user_id === $user->id);
+    }
+}
