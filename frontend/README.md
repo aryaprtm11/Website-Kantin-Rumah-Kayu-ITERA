@@ -9,6 +9,8 @@ Website pemesanan makanan dan minuman untuk Kantin Rumah Kayu ITERA.
 - **Vite** - Build tool yang cepat
 - **Vue Router** - Routing untuk aplikasi
 - **Axios** - HTTP client untuk API calls
+- **Composition API** - Modern Vue patterns
+- **Clean Architecture** - Scalable & maintainable
 
 ## 📦 Instalasi
 
@@ -66,7 +68,7 @@ Base URL API: `http://localhost:8000/api/v1`
 
 ## ✨ Fitur
 
-### Halaman Home (MVP - Iterasi 1)
+### Halaman Home (MVP - Iterasi 1) ✅
 
 - ✅ Navbar dengan branding
 - ✅ Hero section yang menarik
@@ -75,6 +77,19 @@ Base URL API: `http://localhost:8000/api/v1`
 - ✅ Responsive design untuk mobile dan desktop
 - ✅ Loading state dan error handling
 - ✅ Animasi yang smooth
+
+### Authentication (MVP - Iterasi 1) ✅ NEW!
+
+- ✅ **Halaman Login** - Modern split-screen design
+- ✅ **Halaman Register** - User registration
+- ✅ **JWT Authentication** - Secure token-based auth
+- ✅ **Persistent Login** - localStorage persistence
+- ✅ **Navbar Integration** - Show user name & logout
+- ✅ **Route Guards** - Protected routes
+- ✅ **Error Handling** - User-friendly messages
+- ✅ **Loading States** - Smooth UX
+
+📚 **[Login Guide](../LOGIN_GUIDE.md)** | **[Auth Documentation](AUTH_DOCUMENTATION.md)**
 
 ## 🎨 Design Features
 

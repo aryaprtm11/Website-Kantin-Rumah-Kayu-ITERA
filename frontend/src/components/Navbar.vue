@@ -2,10 +2,10 @@
   <nav class="navbar">
     <div class="nav-container">
       <!-- Brand Section -->
-      <div class="nav-brand">
+      <router-link to="/" class="nav-brand">
         <h1>{{ APP_NAME }}</h1>
         <p class="tagline">{{ APP_TAGLINE }}</p>
-      </div>
+      </router-link>
       
       <!-- Navigation Links -->
       <div class="nav-links">
@@ -17,9 +17,22 @@
         >
           {{ link.label }}
         </a>
-        <button class="btn-primary" @click="handleLogin">
-          Login
-        </button>
+        
+        <!-- Auth Buttons - Show based on auth state -->
+        <template v-if="!isAuthenticated">
+          <router-link to="/login" class="btn-primary">
+            Login
+          </router-link>
+        </template>
+        
+        <template v-else>
+          <div class="user-menu">
+            <span class="user-name">👤 {{ userName }}</span>
+            <button class="btn-logout" @click="handleLogout">
+              Logout
+            </button>
+          </div>
+        </template>
       </div>
     </div>
   </nav>
@@ -30,7 +43,14 @@
  * Navbar Component
  * Main navigation bar with branding and links
  * Sticky positioned at the top of the page
+ * Shows login/logout based on authentication state
  */
+
+import { useRouter } from 'vue-router';
+import { useAuth } from '../composables/useAuth';
+
+const router = useRouter();
+const { isAuthenticated, userName, logout } = useAuth();
 
 // Constants
 const APP_NAME = '🏠 Kantin RK ITERA';
@@ -44,12 +64,15 @@ const navLinks = [
 ];
 
 /**
- * Handle login button click
- * TODO: Implement login functionality in next iteration
+ * Handle logout
  */
-const handleLogin = () => {
-  console.log('Login clicked - to be implemented');
-  // Future: Navigate to login page or open modal
+const handleLogout = async () => {
+  try {
+    await logout();
+    router.push('/');
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
 };
 </script>
 
@@ -71,6 +94,11 @@ const handleLogin = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.nav-brand {
+  text-decoration: none;
+  color: inherit;
 }
 
 .nav-brand h1 {
@@ -131,6 +159,34 @@ const handleLogin = () => {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-name {
+  color: white;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.btn-logout {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {
