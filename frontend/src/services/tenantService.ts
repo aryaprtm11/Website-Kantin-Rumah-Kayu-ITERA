@@ -51,8 +51,10 @@ export class TenantService {
    * @param tenant - Tenant object
    * @returns boolean indicating if tenant is active
    */
-  static isActive(tenant: Tenant): boolean {
-    return tenant.is_active;
+  static isOpen(tenant: Tenant): boolean {
+    return tenant.is_open;
   }
 }
+
+
 

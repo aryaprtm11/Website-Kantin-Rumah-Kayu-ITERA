@@ -78,7 +78,7 @@ Base URL API: `http://localhost:8000/api/v1`
 - ✅ Loading state dan error handling
 - ✅ Animasi yang smooth
 
-### Authentication (MVP - Iterasi 1) ✅ NEW!
+### Authentication (MVP - Iterasi 1) ✅
 
 - ✅ **Halaman Login** - Modern split-screen design
 - ✅ **Halaman Register** - User registration
@@ -89,7 +89,18 @@ Base URL API: `http://localhost:8000/api/v1`
 - ✅ **Error Handling** - User-friendly messages
 - ✅ **Loading States** - Smooth UX
 
-📚 **[Login Guide](../LOGIN_GUIDE.md)** | **[Auth Documentation](AUTH_DOCUMENTATION.md)**
+### Dashboard System (MVP - Iterasi 1) ✅ NEW!
+
+- ✅ **Dashboard Admin** - Super admin management panel
+- ✅ **Dashboard Tenant** - Kantin owner panel
+- ✅ **Sidebar Navigation** - Collapsible & responsive
+- ✅ **Stats Cards** - Overview statistics
+- ✅ **Role-Based Access** - Route protection by role
+- ✅ **Auto Redirect** - Based on user role after login
+- ✅ **Order Management** - Pending orders display
+- ✅ **Menu Management** - Menu grid display
+
+📚 **[Dashboard Guide](../DASHBOARD_GUIDE.md)** | **[Environment Guide](ENV_GUIDE.md)**
 
 ## 🎨 Design Features
 

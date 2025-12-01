@@ -18,7 +18,11 @@ const API_CONFIG = {
 const api = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   timeout: API_CONFIG.TIMEOUT,
-  headers: API_CONFIG.HEADERS,
+  headers: {
+    ...API_CONFIG.HEADERS,
+    'Accept': 'application/json',
+  },
+  withCredentials: false,
 });
 
 /**

@@ -125,7 +125,8 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
-import type { LoginCredentials } from '../services/authService';
+import { AuthService, type LoginCredentials } from '../services/authService';
+import { getRoleValue } from '../utils/roleHelper';
 
 const router = useRouter();
 const { login, loading, error, clearError } = useAuth();
@@ -147,8 +148,19 @@ const handleSubmit = async () => {
   try {
     await login(formData.value);
     
-    // Redirect to home after successful login
-    router.push('/');
+    // Redirect based on user role
+    const user = AuthService.getUser();
+    const userRole = user ? getRoleValue(user.role) : '';
+    
+    if (userRole === 'superadmin') {
+      router.push('/admin/dashboard');
+    } else if (userRole === 'tenant_admin') {
+      router.push('/tenant/dashboard');
+    } else if (userRole === 'customer') {
+      router.push('/customer/dashboard');
+    } else {
+      router.push('/');
+    }
   } catch (err) {
     // Error already handled in composable
     console.error('Login failed:', err);
@@ -498,4 +510,6 @@ const handleSubmit = async () => {
   }
 }
 </style>
+
+
 

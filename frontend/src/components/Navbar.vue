@@ -27,7 +27,9 @@
         
         <template v-else>
           <div class="user-menu">
-            <span class="user-name">👤 {{ userName }}</span>
+            <router-link to="/customer/dashboard" class="user-name">
+              👤 {{ userName }}
+            </router-link>
             <button class="btn-logout" @click="handleLogout">
               Logout
             </button>

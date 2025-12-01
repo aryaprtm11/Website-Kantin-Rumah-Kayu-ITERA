@@ -5,6 +5,7 @@
 
 import api from '../config/api';
 import type { ApiResponse } from '../types';
+import { normalizeUser } from '../utils/roleHelper';
 
 export interface LoginCredentials {
   email: string;
@@ -23,6 +24,7 @@ export interface User {
   name: string;
   email: string;
   email_verified_at: string | null;
+  role: string;
   created_at: string;
   updated_at: string;
 }
@@ -51,20 +53,25 @@ export class AuthService {
    */
   static async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await api.post<ApiResponse<AuthResponse>>(
+      const response = await api.post(
         this.ENDPOINTS.LOGIN,
         credentials
       );
-      
-      const authData = response.data.data;
-      
+
+      // Normalize different possible response shapes:
+      // { user, token } or { data: { user, token } }
+      const authData = this.normalizeAuthResponse(response.data);
+
       // Store token and user in localStorage
       this.setToken(authData.token);
       this.setUser(authData.user);
-      
+
       return authData;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Login gagal';
+      console.error('Login error full:', error);
+      console.error('Login error response:', error.response);
+      
+      const message = error.response?.data?.message || error.message || 'Login gagal';
       throw new Error(message);
     }
   }
@@ -76,20 +83,25 @@ export class AuthService {
    */
   static async register(data: RegisterData): Promise<AuthResponse> {
     try {
-      const response = await api.post<ApiResponse<AuthResponse>>(
+      const response = await api.post(
         this.ENDPOINTS.REGISTER,
         data
       );
-      
-      const authData = response.data.data;
-      
+
+      // Normalize different possible response shapes:
+      // { user, token } or { data: { user, token } }
+      const authData = this.normalizeAuthResponse(response.data);
+
       // Store token and user
       this.setToken(authData.token);
       this.setUser(authData.user);
-      
+
       return authData;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Registrasi gagal';
+      console.error('Register error full:', error);
+      console.error('Register error response:', error.response);
+      
+      const message = error.response?.data?.message || error.message || 'Registrasi gagal';
       throw new Error(message);
     }
   }
@@ -140,10 +152,12 @@ export class AuthService {
 
   /**
    * Store user data in localStorage
+   * Normalize role dari Laravel Enum ke string
    * @param user - User object
    */
   static setUser(user: User): void {
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    const normalizedUser = normalizeUser(user);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(normalizedUser));
   }
 
   /**
@@ -176,5 +190,25 @@ export class AuthService {
   static isAuthenticated(): boolean {
     return !!this.getToken();
   }
+
+  /**
+   * Normalize auth response from backend to a consistent shape
+   * Supports both { user, token } and { data: { user, token } }
+   */
+  private static normalizeAuthResponse(payload: any): AuthResponse {
+    const data = payload?.data ?? payload;
+
+    if (!data?.user || !data?.token) {
+      console.error('Invalid auth response format:', payload);
+      throw new Error('Invalid response from server');
+    }
+
+    return {
+      user: data.user,
+      token: data.token,
+    };
+  }
 }
+
+
 

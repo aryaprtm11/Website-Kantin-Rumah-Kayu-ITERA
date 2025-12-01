@@ -160,7 +160,7 @@ const handleSubmit = async () => {
   try {
     await register(formData.value);
     
-    // Redirect to home after successful registration
+    // After registration, redirect to home (customer role)
     router.push('/');
   } catch (err) {
     // Error already handled in composable
@@ -456,4 +456,6 @@ const handleSubmit = async () => {
   }
 }
 </style>
+
+
 

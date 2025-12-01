@@ -25,31 +25,27 @@
           class="tenant-card"
         >
           <div class="tenant-image">
-            <img
-              v-if="tenant.logo"
-              :src="tenant.logo"
-              :alt="tenant.name"
-            />
-            <div v-else class="tenant-placeholder">
+            <div class="tenant-placeholder">
               🏪
             </div>
           </div>
           <div class="tenant-content">
             <h3 class="tenant-name">{{ tenant.name }}</h3>
-            <p class="tenant-description">{{ tenant.description }}</p>
+            <p class="tenant-hours">⏰ {{ tenant.opens_at }} - {{ tenant.closes_at }}</p>
             <div class="tenant-status">
               <span
-                :class="['status-badge', tenant.is_active ? 'active' : 'inactive']"
+                :class="['status-badge', tenant.is_open ? 'active' : 'inactive']"
               >
-                {{ tenant.is_active ? '🟢 Buka' : '🔴 Tutup' }}
+                {{ tenant.is_open ? '🟢 Buka' : '🔴 Tutup' }}
               </span>
             </div>
-            <button
+            <router-link 
+              :to="`/tenants/${tenant.id}`"
               class="btn-view-menu"
-              :disabled="!tenant.is_active"
+              :class="{ 'disabled': !tenant.is_open }"
             >
               Lihat Menu
-            </button>
+            </router-link>
           </div>
         </div>
       </div>
@@ -214,15 +210,12 @@ const NO_DATA_MESSAGE = INFO_MESSAGES.NO_TENANTS;
   margin-bottom: 0.5rem;
 }
 
-.tenant-description {
+.tenant-hours {
   font-size: 0.95rem;
   color: #718096;
   margin-bottom: 1rem;
   line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-weight: 500;
 }
 
 .tenant-status {
@@ -248,6 +241,7 @@ const NO_DATA_MESSAGE = INFO_MESSAGES.NO_TENANTS;
 }
 
 .btn-view-menu {
+  display: block;
   width: 100%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -257,16 +251,19 @@ const NO_DATA_MESSAGE = INFO_MESSAGES.NO_TENANTS;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  text-decoration: none;
+  text-align: center;
 }
 
-.btn-view-menu:hover:not(:disabled) {
+.btn-view-menu:hover:not(.disabled) {
   opacity: 0.9;
   transform: scale(1.02);
 }
 
-.btn-view-menu:disabled {
+.btn-view-menu.disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 @keyframes fadeIn {
