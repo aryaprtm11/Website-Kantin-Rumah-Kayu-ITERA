@@ -25,6 +25,8 @@ return [
         'http://127.0.0.1:5173',
         'http://127.0.0.1:5174',
         'http://localhost:3000',
+        'https://kantin-frontend-104030083079.asia-southeast2.run.app',
+        env('FRONTEND_URL'),
     ],
 
     'allowed_origins_patterns' => [],
@@ -38,4 +40,3 @@ return [
     'supports_credentials' => true,
 
 ];
-

@@ -1,0 +1,28 @@
+# Build stage
+FROM node:20-alpine as build-stage
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
+RUN npx vite build
+
+# Production stage
+FROM nginx:alpine as production-stage
+
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Configure Nginx to listen on port 8080 (Cloud Run default)
+# RUN sed -i 's/80/8080/g' /etc/nginx/conf.d/default.conf
+
+EXPOSE 8080
+
+CMD ["nginx", "-g", "daemon off;"]
