@@ -1,10 +1,6 @@
 <template>
   <!-- Cart Button (Floating) -->
-  <button 
-    v-if="itemCount > 0" 
-    class="cart-button" 
-    @click="toggleCart"
-  >
+  <button v-if="itemCount > 0" class="cart-button" @click="toggleCart">
     🛒
     <span class="cart-badge">{{ itemCount }}</span>
   </button>
@@ -33,26 +29,26 @@
                 <h4 class="item-name">{{ item.name }}</h4>
                 <p class="item-price">{{ formatCurrency(item.price) }}</p>
               </div>
-              
+
               <div class="item-controls">
                 <div class="quantity-controls">
-                  <button 
-                    class="btn-qty" 
+                  <button
+                    class="btn-qty"
                     @click="decreaseQuantity(item.menuId)"
                   >
                     −
                   </button>
                   <span class="quantity">{{ item.quantity }}</span>
-                  <button 
-                    class="btn-qty" 
+                  <button
+                    class="btn-qty"
                     @click="increaseQuantity(item.menuId)"
                     :disabled="item.quantity >= item.stock"
                   >
                     +
                   </button>
                 </div>
-                <button 
-                  class="btn-remove" 
+                <button
+                  class="btn-remove"
                   @click="removeFromCart(item.menuId)"
                   title="Hapus"
                 >
@@ -72,15 +68,15 @@
               <span class="total-label">Total:</span>
               <span class="total-price">{{ formatCurrency(totalPrice) }}</span>
             </div>
-            
-            <button 
-              class="btn-checkout" 
+
+            <button
+              class="btn-checkout"
               @click="handleCheckout"
               :disabled="isProcessing"
             >
-              {{ isProcessing ? 'Memproses...' : 'Checkout' }}
+              {{ isProcessing ? "Memproses..." : "Checkout" }}
             </button>
-            
+
             <button class="btn-clear" @click="confirmClear">
               Kosongkan Keranjang
             </button>
@@ -92,11 +88,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useCart } from '../composables/useCart';
-import { useAuth } from '../composables/useAuth';
-import api from '../config/api';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useCart } from "../composables/useCart";
+import { useAuth } from "../composables/useAuth";
+import api from "../config/api";
 
 const router = useRouter();
 const { isAuthenticated } = useAuth();
@@ -116,9 +112,9 @@ const {
 const isProcessing = ref(false);
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
   }).format(amount);
 };
@@ -138,7 +134,7 @@ const decreaseQuantity = (menuId: number) => {
 };
 
 const confirmClear = () => {
-  if (confirm('Yakin ingin mengosongkan keranjang?')) {
+  if (confirm("Yakin ingin mengosongkan keranjang?")) {
     clearCart();
   }
 };
@@ -146,8 +142,8 @@ const confirmClear = () => {
 const handleCheckout = async () => {
   // Check if user is logged in
   if (!isAuthenticated.value) {
-    if (confirm('Anda harus login terlebih dahulu. Login sekarang?')) {
-      router.push('/login');
+    if (confirm("Anda harus login terlebih dahulu. Login sekarang?")) {
+      router.push("/login");
     }
     return;
   }
@@ -158,7 +154,7 @@ const handleCheckout = async () => {
     // Prepare order data
     const orderData = {
       tenant_id: currentTenant.value,
-      type: 'pickup',
+      type: "pickup",
       items: cartItems.value.map((item) => ({
         menu_id: item.menuId,
         qty: item.quantity,
@@ -166,20 +162,21 @@ const handleCheckout = async () => {
     };
 
     // Create order
-    const response = await api.post('/orders', orderData);
-    
+    const response = await api.post("/orders", orderData);
+    console.log("Order created:", response.data);
+
     // Success
-    alert('Pesanan berhasil dibuat! Silakan lakukan pembayaran.');
-    
+    alert("Pesanan berhasil dibuat! Silakan lakukan pembayaran.");
+
     // Clear cart
     clearCart();
     closeCart();
-    
+
     // Redirect to customer dashboard
-    router.push('/customer/dashboard');
+    router.push("/customer/dashboard");
   } catch (error: any) {
-    console.error('Checkout error:', error);
-    const message = error.response?.data?.message || 'Gagal membuat pesanan';
+    console.error("Checkout error:", error);
+    const message = error.response?.data?.message || "Gagal membuat pesanan";
     alert(message);
   } finally {
     isProcessing.value = false;
@@ -501,4 +498,3 @@ const handleCheckout = async () => {
   }
 }
 </style>
-

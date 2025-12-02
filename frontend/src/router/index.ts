@@ -1,96 +1,96 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../views/Home.vue';
-import Login from '../views/Login.vue';
-import Register from '../views/Register.vue';
-import AdminDashboard from '../views/dashboard/AdminDashboard.vue';
-import TenantDashboard from '../views/dashboard/TenantDashboard.vue';
-import CustomerDashboard from '../views/dashboard/CustomerDashboard.vue';
-import CustomerOrders from '../views/customer/CustomerOrders.vue';
-import TenantMenus from '../views/tenant/TenantMenus.vue';
-import TenantOrders from '../views/tenant/TenantOrders.vue';
-import TenantDetail from '../views/TenantDetail.vue';
-import { AuthService } from '../services/authService';
-import { getRoleValue } from '../utils/roleHelper';
+import { createRouter, createWebHistory } from "vue-router";
+import Home from "../views/Home.vue";
+import Login from "../views/Login.vue";
+import Register from "../views/Register.vue";
+import AdminDashboard from "../views/dashboard/AdminDashboard.vue";
+import TenantDashboard from "../views/dashboard/TenantDashboard.vue";
+import CustomerDashboard from "../views/dashboard/CustomerDashboard.vue";
+import CustomerOrders from "../views/customer/CustomerOrders.vue";
+import TenantMenus from "../views/tenant/TenantMenus.vue";
+import TenantOrders from "../views/tenant/TenantOrders.vue";
+import TenantDetail from "../views/TenantDetail.vue";
+import { AuthService } from "../services/authService";
+import { getRoleValue } from "../utils/roleHelper";
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
+    path: "/",
+    name: "Home",
     component: Home,
   },
   {
-    path: '/tenants/:id',
-    name: 'TenantDetail',
+    path: "/tenants/:id",
+    name: "TenantDetail",
     component: TenantDetail,
   },
   {
-    path: '/login',
-    name: 'Login',
+    path: "/login",
+    name: "Login",
     component: Login,
-    meta: { 
+    meta: {
       requiresGuest: true,
     },
   },
   {
-    path: '/register',
-    name: 'Register',
+    path: "/register",
+    name: "Register",
     component: Register,
-    meta: { 
+    meta: {
       requiresGuest: true,
     },
   },
   {
-    path: '/admin/dashboard',
-    name: 'AdminDashboard',
+    path: "/admin/dashboard",
+    name: "AdminDashboard",
     component: AdminDashboard,
-    meta: { 
+    meta: {
       requiresAuth: true,
-      requiresRole: 'superadmin',
+      requiresRole: "superadmin",
     },
   },
   {
-    path: '/tenant/dashboard',
-    name: 'TenantDashboard',
+    path: "/tenant/dashboard",
+    name: "TenantDashboard",
     component: TenantDashboard,
-    meta: { 
+    meta: {
       requiresAuth: true,
-      requiresRole: 'tenant_admin',
+      requiresRole: "tenant_admin",
     },
   },
   {
-    path: '/customer/dashboard',
-    name: 'CustomerDashboard',
+    path: "/customer/dashboard",
+    name: "CustomerDashboard",
     component: CustomerDashboard,
-    meta: { 
+    meta: {
       requiresAuth: true,
-      requiresRole: 'customer',
+      requiresRole: "customer",
     },
   },
   {
-    path: '/customer/orders',
-    name: 'CustomerOrders',
+    path: "/customer/orders",
+    name: "CustomerOrders",
     component: CustomerOrders,
-    meta: { 
+    meta: {
       requiresAuth: true,
-      requiresRole: 'customer',
+      requiresRole: "customer",
     },
   },
   {
-    path: '/tenant/menus',
-    name: 'TenantMenus',
+    path: "/tenant/menus",
+    name: "TenantMenus",
     component: TenantMenus,
-    meta: { 
+    meta: {
       requiresAuth: true,
-      requiresRole: 'tenant_admin',
+      requiresRole: "tenant_admin",
     },
   },
   {
-    path: '/tenant/orders',
-    name: 'TenantOrders',
+    path: "/tenant/orders",
+    name: "TenantOrders",
     component: TenantOrders,
-    meta: { 
+    meta: {
       requiresAuth: true,
-      requiresRole: 'tenant_admin',
+      requiresRole: "tenant_admin",
     },
   },
 ];
@@ -104,53 +104,52 @@ const router = createRouter({
  * Navigation guard
  * Handle authentication and role-based access
  */
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const isAuthenticated = AuthService.isAuthenticated();
   const currentUser = AuthService.getUser();
-  const userRole = currentUser ? getRoleValue(currentUser.role) : '';
-  
+  const userRole = currentUser ? getRoleValue(currentUser.role) : "";
+
   // Redirect authenticated users away from guest-only pages
   if (to.meta.requiresGuest && isAuthenticated) {
     // Redirect based on role
-    if (userRole === 'superadmin') {
-      next('/admin/dashboard');
-    } else if (userRole === 'tenant_admin') {
-      next('/tenant/dashboard');
-    } else if (userRole === 'customer') {
-      next('/customer/dashboard');
+    if (userRole === "superadmin") {
+      next("/admin/dashboard");
+    } else if (userRole === "tenant_admin") {
+      next("/tenant/dashboard");
+    } else if (userRole === "customer") {
+      next("/customer/dashboard");
     } else {
-      next('/');
+      next("/");
     }
     return;
   }
-  
+
   // Redirect unauthenticated users to login
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login');
+    next("/login");
     return;
   }
-  
+
   // Check role-based access
   if (to.meta.requiresRole && currentUser) {
     const requiredRole = to.meta.requiresRole as string;
-    
+
     if (userRole !== requiredRole) {
       // Unauthorized - redirect to appropriate dashboard
-      if (userRole === 'superadmin') {
-        next('/admin/dashboard');
-      } else if (userRole === 'tenant_admin') {
-        next('/tenant/dashboard');
-      } else if (userRole === 'customer') {
-        next('/customer/dashboard');
+      if (userRole === "superadmin") {
+        next("/admin/dashboard");
+      } else if (userRole === "tenant_admin") {
+        next("/tenant/dashboard");
+      } else if (userRole === "customer") {
+        next("/customer/dashboard");
       } else {
-        next('/');
+        next("/");
       }
       return;
     }
   }
-  
+
   next();
 });
 
 export default router;
-

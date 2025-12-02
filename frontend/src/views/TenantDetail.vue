@@ -2,34 +2,34 @@
   <div class="page">
     <Navbar />
     <CartSidebar />
-    
+
     <!-- Floating Cart Button -->
-    <button 
-      v-if="totalItems > 0" 
-      class="floating-cart-btn" 
-      @click="openCart"
-    >
-      🛒 {{ totalItems }} item
+    <button v-if="itemCount > 0" class="floating-cart-btn" @click="openCart">
+      🛒 {{ itemCount }} item
       <span class="cart-total">{{ formatCurrency(totalPrice) }}</span>
     </button>
-    
+
     <div class="tenant-detail-page">
       <!-- Tenant Header -->
       <div class="tenant-header">
         <div class="container">
           <button class="btn-back" @click="goBack">← Kembali</button>
-          
+
           <div v-if="loadingTenant" class="loading">
             <div class="spinner"></div>
           </div>
-          
+
           <div v-else-if="tenant" class="tenant-info">
             <div class="tenant-icon">🏪</div>
             <div>
               <h1 class="tenant-name">{{ tenant.name }}</h1>
-              <p class="tenant-hours">⏰ {{ tenant.opens_at }} - {{ tenant.closes_at }}</p>
-              <span :class="['status-badge', tenant.is_open ? 'open' : 'closed']">
-                {{ tenant.is_open ? '🟢 Buka' : '🔴 Tutup' }}
+              <p class="tenant-hours">
+                ⏰ {{ tenant.opens_at }} - {{ tenant.closes_at }}
+              </p>
+              <span
+                :class="['status-badge', tenant.is_open ? 'open' : 'closed']"
+              >
+                {{ tenant.is_open ? "🟢 Buka" : "🔴 Tutup" }}
               </span>
             </div>
           </div>
@@ -62,34 +62,40 @@
 
           <!-- Menu Grid -->
           <div v-else class="menu-grid">
-            <div 
-              v-for="menu in menus" 
-              :key="menu.id" 
+            <div
+              v-for="menu in menus"
+              :key="menu.id"
               class="menu-card"
               :class="{ 'out-of-stock': menu.stock === 0 }"
             >
               <div class="menu-image">
-                <img v-if="menu.photo_url" :src="menu.photo_url" :alt="menu.name" />
+                <img
+                  v-if="menu.photo_url"
+                  :src="menu.photo_url"
+                  :alt="menu.name"
+                />
                 <div v-else class="menu-placeholder">🍽️</div>
-                <div v-if="menu.stock === 0" class="stock-badge out">
-                  Habis
-                </div>
+                <div v-if="menu.stock === 0" class="stock-badge out">Habis</div>
                 <div v-else-if="menu.stock < 5" class="stock-badge low">
                   Stok Terbatas
                 </div>
               </div>
-              
+
               <div class="menu-content">
                 <h3 class="menu-name">{{ menu.name }}</h3>
-                <p class="menu-category" v-if="menu.category">{{ getCategoryLabel(menu.category) }}</p>
+                <p class="menu-category" v-if="menu.category">
+                  {{ getCategoryLabel(menu.category) }}
+                </p>
                 <div class="menu-footer">
-                  <span class="menu-price">{{ formatCurrency(menu.price) }}</span>
-                  <button 
-                    class="btn-order" 
+                  <span class="menu-price">{{
+                    formatCurrency(menu.price)
+                  }}</span>
+                  <button
+                    class="btn-order"
                     :disabled="menu.stock === 0 || !tenant?.is_open"
                     @click="addToCart(menu)"
                   >
-                    {{ menu.stock === 0 ? 'Habis' : 'Pesan' }}
+                    {{ menu.stock === 0 ? "Habis" : "Pesan" }}
                   </button>
                 </div>
               </div>
@@ -105,17 +111,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import Navbar from '../components/Navbar.vue';
-import Footer from '../components/Footer.vue';
-import Cart from '../components/Cart.vue';
-import { useCart } from '../composables/useCart';
-import api from '../config/api';
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import Navbar from "../components/Navbar.vue";
+import Footer from "../components/Footer.vue";
+import Cart from "../components/Cart.vue";
+import { useCart } from "../composables/useCart";
+import api from "../config/api";
 
 const route = useRoute();
 const router = useRouter();
-const { addToCart: addItemToCart, canAddItem } = useCart();
+const {
+  addToCart: addItemToCart,
+  canAddItem,
+  itemCount,
+  totalPrice,
+  openCart,
+} = useCart();
 
 const tenant = ref<any>(null);
 const menus = ref<any[]>([]);
@@ -126,19 +138,19 @@ const error = ref<string | null>(null);
 const tenantId = route.params.id;
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
   }).format(amount);
 };
 
 const getCategoryLabel = (category: string) => {
   const labels: Record<string, string> = {
-    main: 'Makanan Utama',
-    snack: 'Snack',
-    drink: 'Minuman',
-    dessert: 'Dessert',
+    main: "Makanan Utama",
+    snack: "Snack",
+    drink: "Minuman",
+    dessert: "Dessert",
   };
   return labels[category] || category;
 };
@@ -148,9 +160,11 @@ const fetchTenant = async () => {
   try {
     const response = await api.get(`/tenants?limit=100`);
     const tenants = response.data.data || response.data;
-    tenant.value = tenants.find((t: any) => t.id === parseInt(tenantId as string));
+    tenant.value = tenants.find(
+      (t: any) => t.id === parseInt(tenantId as string)
+    );
   } catch (err) {
-    console.error('Error fetching tenant:', err);
+    console.error("Error fetching tenant:", err);
   } finally {
     loadingTenant.value = false;
   }
@@ -163,26 +177,28 @@ const fetchMenus = async () => {
     const response = await api.get(`/tenants/${tenantId}/menus`);
     menus.value = response.data.data || response.data;
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Gagal memuat menu';
-    console.error('Error fetching menus:', err);
+    error.value = err.response?.data?.message || "Gagal memuat menu";
+    console.error("Error fetching menus:", err);
   } finally {
     loadingMenus.value = false;
   }
 };
 
 const goBack = () => {
-  router.push('/');
+  router.push("/");
 };
 
 const addToCart = (menu: any) => {
   if (!tenant.value) {
-    alert('Data kantin belum dimuat');
+    alert("Data kantin belum dimuat");
     return;
   }
 
   // Check if can add item (same tenant validation)
   if (!canAddItem(tenant.value.id)) {
-    alert('Keranjang sudah berisi item dari kantin lain. Harap checkout atau kosongkan keranjang terlebih dahulu.');
+    alert(
+      "Keranjang sudah berisi item dari kantin lain. Harap checkout atau kosongkan keranjang terlebih dahulu."
+    );
     return;
   }
 
@@ -321,7 +337,9 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .empty-icon {
@@ -490,4 +508,3 @@ onMounted(() => {
   }
 }
 </style>
-

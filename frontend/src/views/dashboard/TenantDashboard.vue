@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-layout">
     <Sidebar :menu-items="tenantMenuItems" />
-    
+
     <main class="dashboard-main">
       <div class="dashboard-header">
         <div>
@@ -54,27 +54,41 @@
         <section class="section-card" v-if="pendingOrders.length > 0">
           <div class="section-header">
             <h2 class="section-title">🔔 Pesanan Perlu Diproses</h2>
-            <span class="badge badge-danger">{{ pendingOrders.length }} pesanan</span>
+            <span class="badge badge-danger"
+              >{{ pendingOrders.length }} pesanan</span
+            >
           </div>
 
           <div class="orders-grid">
-            <div v-for="order in pendingOrders" :key="order.id" class="order-card urgent">
+            <div
+              v-for="order in pendingOrders"
+              :key="order.id"
+              class="order-card urgent"
+            >
               <div class="order-header">
                 <h3 class="order-id">#{{ order.id }}</h3>
-                <span class="order-time">{{ formatTime(order.created_at) }}</span>
+                <span class="order-time">{{
+                  formatTime(order.created_at)
+                }}</span>
               </div>
               <div class="order-customer">
                 <span class="customer-icon">👤</span>
                 {{ order.user?.name }}
               </div>
               <div class="order-items">
-                <p v-for="item in order.items" :key="item.id" class="order-item">
+                <p
+                  v-for="item in order.items"
+                  :key="item.id"
+                  class="order-item"
+                >
                   <span class="item-qty">{{ item.quantity }}x</span>
                   {{ item.menu?.name }}
                 </p>
               </div>
               <div class="order-footer">
-                <span class="order-total">{{ formatCurrency(order.total_price) }}</span>
+                <span class="order-total">{{
+                  formatCurrency(order.total_price)
+                }}</span>
                 <div class="order-actions">
                   <button class="btn-accept" @click="acceptOrder(order.id)">
                     ✓ Terima
@@ -128,8 +142,12 @@
                 <button class="btn-icon" @click="editMenu(menu)" title="Edit">
                   ✏️
                 </button>
-                <button class="btn-icon" @click="toggleMenuAvailability(menu)" :title="menu.is_available ? 'Nonaktifkan' : 'Aktifkan'">
-                  {{ menu.is_available ? '👁️' : '🚫' }}
+                <button
+                  class="btn-icon"
+                  @click="toggleMenuAvailability(menu)"
+                  :title="menu.is_available ? 'Nonaktifkan' : 'Aktifkan'"
+                >
+                  {{ menu.is_available ? "👁️" : "🚫" }}
                 </button>
               </div>
             </div>
@@ -171,7 +189,9 @@
                   <td>#{{ order.id }}</td>
                   <td>{{ order.user?.name }}</td>
                   <td>{{ order.items?.length || 0 }} item</td>
-                  <td class="amount">{{ formatCurrency(order.total_price) }}</td>
+                  <td class="amount">
+                    {{ formatCurrency(order.total_price) }}
+                  </td>
                   <td>
                     <span :class="['badge', getStatusClass(order.status)]">
                       {{ getStatusLabel(order.status) }}
@@ -189,22 +209,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useAuth } from '../../composables/useAuth';
-import Sidebar from '../../components/dashboard/Sidebar.vue';
-import StatsCard from '../../components/dashboard/StatsCard.vue';
-import api from '../../config/api';
+import { ref, computed, onMounted } from "vue";
+// import { useAuth } from '../../composables/useAuth';
+import Sidebar from "../../components/dashboard/Sidebar.vue";
+import StatsCard from "../../components/dashboard/StatsCard.vue";
+import api from "../../config/api";
 
-const { currentUser } = useAuth();
+// const { currentUser } = useAuth();
 
-const tenantName = computed(() => 'Warung Nusantara'); // TODO: Get from API
+const tenantName = computed(() => "Warung Nusantara"); // TODO: Get from API
 
 const tenantMenuItems = [
-  { path: '/tenant/dashboard', icon: '📊', label: 'Dashboard' },
-  { path: '/tenant/orders', icon: '📦', label: 'Pesanan' },
-  { path: '/tenant/menus', icon: '🍽️', label: 'Menu' },
-  { path: '/tenant/reports', icon: '📈', label: 'Laporan' },
-  { path: '/tenant/settings', icon: '⚙️', label: 'Pengaturan' },
+  { path: "/tenant/dashboard", icon: "📊", label: "Dashboard" },
+  { path: "/tenant/orders", icon: "📦", label: "Pesanan" },
+  { path: "/tenant/menus", icon: "🍽️", label: "Menu" },
+  { path: "/tenant/reports", icon: "📈", label: "Laporan" },
+  { path: "/tenant/settings", icon: "⚙️", label: "Pengaturan" },
 ];
 
 const stats = ref({
@@ -222,53 +242,53 @@ const loadingMenus = ref(false);
 const loadingOrders = ref(false);
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
   }).format(amount);
 };
 
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(date).toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 const formatTime = (date: string) => {
-  return new Date(date).toLocaleTimeString('id-ID', {
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(date).toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 const getStockClass = (stock: number) => {
-  if (stock === 0) return 'stock-empty';
-  if (stock < 5) return 'stock-low';
-  return 'stock-ok';
+  if (stock === 0) return "stock-empty";
+  if (stock < 5) return "stock-low";
+  return "stock-ok";
 };
 
 const getStatusClass = (status: string) => {
   const map: Record<string, string> = {
-    pending: 'badge-warning',
-    processing: 'badge-info',
-    ready: 'badge-success',
-    completed: 'badge-success',
-    cancelled: 'badge-danger',
+    pending: "badge-warning",
+    processing: "badge-info",
+    ready: "badge-success",
+    completed: "badge-success",
+    cancelled: "badge-danger",
   };
-  return map[status] || 'badge-secondary';
+  return map[status] || "badge-secondary";
 };
 
 const getStatusLabel = (status: string) => {
   const map: Record<string, string> = {
-    pending: 'Menunggu',
-    processing: 'Diproses',
-    ready: 'Siap',
-    completed: 'Selesai',
-    cancelled: 'Dibatalkan',
+    pending: "Menunggu",
+    processing: "Diproses",
+    ready: "Siap",
+    completed: "Selesai",
+    cancelled: "Dibatalkan",
   };
   return map[status] || status;
 };
@@ -284,17 +304,17 @@ const fetchStats = async () => {
       orderGrowth: 12,
     };
   } catch (error) {
-    console.error('Error fetching stats:', error);
+    console.error("Error fetching stats:", error);
   }
 };
 
 const fetchMenus = async () => {
   loadingMenus.value = true;
   try {
-    const response = await api.get('/tenant/menus');
+    const response = await api.get("/tenant/menus");
     menus.value = response.data.data || response.data;
   } catch (error) {
-    console.error('Error fetching menus:', error);
+    console.error("Error fetching menus:", error);
     menus.value = [];
   } finally {
     loadingMenus.value = false;
@@ -308,14 +328,14 @@ const fetchOrders = async () => {
     pendingOrders.value = [];
     recentOrders.value = [];
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    console.error("Error fetching orders:", error);
   } finally {
     loadingOrders.value = false;
   }
 };
 
 const openAddMenuModal = () => {
-  alert('Fitur tambah menu akan segera hadir!');
+  alert("Fitur tambah menu akan segera hadir!");
 };
 
 const editMenu = (menu: any) => {
@@ -454,7 +474,9 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Orders Grid */
@@ -777,4 +799,3 @@ onMounted(() => {
   }
 }
 </style>
-

@@ -3,7 +3,7 @@
     <div class="sidebar-header">
       <h2 v-if="!isCollapsed" class="sidebar-title">🏠 Kantin RK</h2>
       <button @click="toggleSidebar" class="btn-toggle">
-        {{ isCollapsed ? '→' : '←' }}
+        {{ isCollapsed ? "→" : "←" }}
       </button>
     </div>
 
@@ -37,9 +37,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuth } from '../../composables/useAuth';
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { useAuth } from "../../composables/useAuth";
 
 const router = useRouter();
 const { currentUser, logout } = useAuth();
@@ -47,7 +47,8 @@ const { currentUser, logout } = useAuth();
 const isCollapsed = ref(false);
 
 // Props untuk menu items dari parent
-const props = defineProps<{
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+defineProps<{
   menuItems: Array<{
     path: string;
     icon: string;
@@ -55,8 +56,8 @@ const props = defineProps<{
   }>;
 }>();
 
-const userName = computed(() => currentUser.value?.name || 'User');
-const userRole = computed(() => currentUser.value?.role || 'customer');
+const userName = computed(() => currentUser.value?.name || "User");
+const userRole = computed(() => currentUser.value?.role || "customer");
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase());
 
 const toggleSidebar = () => {
@@ -65,7 +66,7 @@ const toggleSidebar = () => {
 
 const handleLogout = async () => {
   await logout();
-  router.push('/login');
+  router.push("/login");
 };
 </script>
 
@@ -247,4 +248,3 @@ const handleLogout = async () => {
   }
 }
 </style>
-

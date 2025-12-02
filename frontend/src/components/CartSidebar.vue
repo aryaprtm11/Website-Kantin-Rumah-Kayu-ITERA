@@ -12,34 +12,32 @@
       </div>
 
       <div v-else class="cart-content">
-        <div class="cart-tenant">
-          📍 {{ cartItems[0].tenant_name }}
-        </div>
+        <div class="cart-tenant">📍 {{ cartItems[0]?.tenantName }}</div>
 
         <div class="cart-items">
-          <div v-for="item in cartItems" :key="item.menu_id" class="cart-item">
+          <div v-for="item in cartItems" :key="item.menuId" class="cart-item">
             <div class="item-info">
               <h4>{{ item.name }}</h4>
               <p class="item-price">{{ formatCurrency(item.price) }}</p>
             </div>
             <div class="item-controls">
-              <button 
-                class="btn-qty" 
-                @click="updateQuantity(item.menu_id, item.quantity - 1)"
+              <button
+                class="btn-qty"
+                @click="updateQuantity(item.menuId, item.quantity - 1)"
               >
                 −
               </button>
               <span class="qty">{{ item.quantity }}</span>
-              <button 
-                class="btn-qty" 
-                @click="updateQuantity(item.menu_id, item.quantity + 1)"
+              <button
+                class="btn-qty"
+                @click="updateQuantity(item.menuId, item.quantity + 1)"
               >
                 +
               </button>
             </div>
-            <button 
-              class="btn-remove" 
-              @click="removeItem(item.menu_id)"
+            <button
+              class="btn-remove"
+              @click="removeItem(item.menuId)"
               title="Hapus"
             >
               🗑️
@@ -65,44 +63,46 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import { useCart } from '../composables/useCart';
-import { useAuth } from '../composables/useAuth';
-import api from '../config/api';
+import { useRouter } from "vue-router";
+import { useCart } from "../composables/useCart";
+import { useAuth } from "../composables/useAuth";
+import api from "../config/api";
 
 const router = useRouter();
-const { 
-  cartItems, 
-  isCartOpen, 
-  totalItems, 
+const {
+  cartItems,
+  isCartOpen,
+  itemCount: totalItems,
   totalPrice,
-  currentTenantId,
-  removeItem, 
-  updateQuantity, 
-  clearCart, 
-  closeCart 
+  currentTenant: currentTenantId,
+  removeFromCart: removeItem,
+  updateQuantity,
+  clearCart,
+  closeCart,
 } = useCart();
 
 const { isAuthenticated } = useAuth();
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
   }).format(amount);
 };
 
 const handleClear = () => {
-  if (confirm('Yakin ingin mengosongkan keranjang?')) {
+  if (confirm("Yakin ingin mengosongkan keranjang?")) {
     clearCart();
   }
 };
 
 const handleCheckout = async () => {
   if (!isAuthenticated.value) {
-    if (confirm('Anda harus login untuk melakukan pemesanan. Login sekarang?')) {
-      router.push('/login');
+    if (
+      confirm("Anda harus login untuk melakukan pemesanan. Login sekarang?")
+    ) {
+      router.push("/login");
     }
     return;
   }
@@ -110,22 +110,22 @@ const handleCheckout = async () => {
   try {
     const orderData = {
       tenant_id: currentTenantId.value,
-      type: 'pickup',
-      items: cartItems.value.map(item => ({
-        menu_id: item.menu_id,
+      type: "pickup",
+      items: cartItems.value.map((item) => ({
+        menu_id: item.menuId,
         qty: item.quantity,
       })),
     };
 
-    await api.post('/orders', orderData);
-    
-    alert('Pesanan berhasil dibuat! Silakan lakukan pembayaran di kantin.');
+    await api.post("/orders", orderData);
+
+    alert("Pesanan berhasil dibuat! Silakan lakukan pembayaran di kantin.");
     clearCart();
     closeCart();
-    router.push('/customer/dashboard');
+    router.push("/customer/dashboard");
   } catch (error: any) {
-    alert(error.response?.data?.message || 'Gagal membuat pesanan');
-    console.error('Checkout error:', error);
+    alert(error.response?.data?.message || "Gagal membuat pesanan");
+    console.error("Checkout error:", error);
   }
 };
 </script>
@@ -364,4 +364,3 @@ const handleCheckout = async () => {
   }
 }
 </style>
-

@@ -10,9 +10,9 @@
  * @example formatCurrency(50000) // "Rp 50.000"
  */
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
   }).format(amount);
 }
@@ -24,11 +24,11 @@ export function formatCurrency(amount: number): string {
  * @example formatDate('2025-11-29') // "29 November 2025"
  */
 export function formatDate(date: string | Date): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   }).format(dateObj);
 }
 
@@ -41,7 +41,7 @@ export function formatDate(date: string | Date): string {
  */
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
+  return text.slice(0, maxLength) + "...";
 }
 
 /**
@@ -54,7 +54,7 @@ export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
+  let timeout: ReturnType<typeof setTimeout>;
   return function executedFunction(...args: Parameters<T>) {
     const later = () => {
       clearTimeout(timeout);
@@ -81,6 +81,3 @@ export function isEmpty(str: string | null | undefined): boolean {
 export function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
-
-
-

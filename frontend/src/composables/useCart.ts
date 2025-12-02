@@ -3,7 +3,7 @@
  * Handles shopping cart state and operations
  */
 
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 
 export interface CartItem {
   menuId: number;
@@ -22,7 +22,7 @@ export function useCart() {
   /**
    * Add item to cart
    */
-  const addToCart = (item: Omit<CartItem, 'quantity'>) => {
+  const addToCart = (item: Omit<CartItem, "quantity">) => {
     const existingItem = cartItems.value.find(
       (cartItem) => cartItem.menuId === item.menuId
     );
@@ -32,7 +32,7 @@ export function useCart() {
       if (existingItem.quantity < item.stock) {
         existingItem.quantity++;
       } else {
-        alert('Stok tidak cukup');
+        alert("Stok tidak cukup");
       }
     } else {
       // Add new item to cart
@@ -50,9 +50,7 @@ export function useCart() {
    * Remove item from cart
    */
   const removeFromCart = (menuId: number) => {
-    cartItems.value = cartItems.value.filter(
-      (item) => item.menuId !== menuId
-    );
+    cartItems.value = cartItems.value.filter((item) => item.menuId !== menuId);
   };
 
   /**
@@ -66,7 +64,7 @@ export function useCart() {
       } else if (quantity <= item.stock) {
         item.quantity = quantity;
       } else {
-        alert('Stok tidak cukup');
+        alert("Stok tidak cukup");
       }
     }
   };
@@ -120,7 +118,7 @@ export function useCart() {
    * Computed: Current tenant (all items must be from same tenant)
    */
   const currentTenant = computed(() => {
-    return cartItems.value.length > 0 ? cartItems.value[0].tenantId : null;
+    return cartItems.value.length > 0 ? cartItems.value[0]?.tenantId : null;
   });
 
   /**
@@ -135,12 +133,12 @@ export function useCart() {
     // State
     cartItems,
     isCartOpen,
-    
+
     // Computed
     itemCount,
     totalPrice,
     currentTenant,
-    
+
     // Methods
     addToCart,
     removeFromCart,
