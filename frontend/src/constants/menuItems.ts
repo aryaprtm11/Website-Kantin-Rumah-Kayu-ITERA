@@ -16,5 +16,5 @@ export const ADMIN_MENU_ITEMS = [
   { icon: '📊', label: 'Dashboard', path: '/admin/dashboard' },
   { icon: '🏪', label: 'Kelola Tenant', path: '/admin/tenants' },
   { icon: '👥', label: 'Kelola User', path: '/admin/users' },
-  { icon: '📈', label: 'Laporan', path: '/admin/reports' },
+  { icon: '👤', label: 'Profil', path: '/admin/profile' },
 ];

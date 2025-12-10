@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-layout">
-    <Sidebar :menu-items="adminMenuItems" />
+    <Sidebar :menuItems="ADMIN_MENU_ITEMS" />
     
     <main class="dashboard-main">
       <div class="dashboard-header">
@@ -16,7 +16,7 @@
       </div>
 
       <div class="dashboard-content">
-        <!-- Stats Overview -->
+        <!-- Stats Overview - Hanya 2 Stats -->
         <section class="stats-grid">
           <StatsCard
             icon="🏪"
@@ -31,20 +31,6 @@
             label="Total Users"
             subtitle="Pengguna aktif"
             color="#f6ad55"
-          />
-          <StatsCard
-            icon="📦"
-            :value="stats.totalOrders"
-            label="Total Orders"
-            subtitle="Semua pesanan"
-            color="#48bb78"
-          />
-          <StatsCard
-            icon="💰"
-            :value="formatCurrency(stats.totalRevenue)"
-            label="Total Revenue"
-            subtitle="Pendapatan keseluruhan"
-            color="#9f7aea"
           />
         </section>
 
@@ -74,7 +60,7 @@
                   <th>Pemilik</th>
                   <th>Status</th>
                   <th>Jam Operasional</th>
-                  <th>Aksi</th>
+                  <th>Info</th>
                 </tr>
               </thead>
               <tbody>
@@ -101,9 +87,9 @@
         <section class="section-card">
           <div class="section-header">
             <h2 class="section-title">📦 Pesanan Terbaru</h2>
-            <router-link to="/admin/orders" class="link-view-all">
+            <a href="#" class="link-view-all" @click.prevent="() => {}">
               Lihat Semua →
-            </router-link>
+            </a>
           </div>
 
           <div v-if="loadingOrders" class="loading">
@@ -161,25 +147,18 @@ import { useAuth } from '../../composables/useAuth';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import StatsCard from '../../components/dashboard/StatsCard.vue';
 import { AdminService } from '../../services/adminService';
+import { ADMIN_MENU_ITEMS } from '../../constants/menuItems';
 
 const { currentUser } = useAuth();
 
 const userName = computed(() => currentUser.value?.name || 'Admin');
 
-const adminMenuItems = [
-  { path: '/admin/dashboard', icon: '📊', label: 'Dashboard' },
-  { path: '/admin/tenants', icon: '🏪', label: 'Kantin' },
-  { path: '/admin/users', icon: '👥', label: 'Users' },
-  { path: '/admin/orders', icon: '📦', label: 'Orders' },
-  { path: '/admin/reports', icon: '📈', label: 'Reports' },
-  { path: '/admin/settings', icon: '⚙️', label: 'Settings' },
-];
+// Hapus definisi adminMenuItems lokal (line 170-177)
 
 const stats = ref({
   totalTenants: 0,
   totalUsers: 0,
-  totalOrders: 0,
-  totalRevenue: 0,
+  // Hapus totalOrders dan totalRevenue
 });
 
 const recentTenants = ref<any[]>([]);
@@ -257,8 +236,7 @@ const fetchStats = async () => {
     stats.value = {
       totalTenants: data.total_tenants,
       totalUsers: data.total_users,
-      totalOrders: data.total_orders,
-      totalRevenue: data.total_revenue,
+      // Hapus mapping totalOrders dan totalRevenue
     };
   } catch (error) {
     console.error('Error fetching stats:', error);
@@ -363,7 +341,7 @@ onMounted(() => {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 
@@ -469,6 +447,7 @@ onMounted(() => {
   border-radius: 12px;
   font-size: 0.8125rem;
   font-weight: 600;
+  margin-right: 0.5rem;
 }
 
 .badge-success {
@@ -496,23 +475,13 @@ onMounted(() => {
   color: #4a5568;
 }
 
-.btn-icon {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  opacity: 0.7;
-  transition: opacity 0.3s;
-}
-
-.btn-icon:hover {
-  opacity: 1;
-}
-
 @media (max-width: 1024px) {
   .dashboard-main {
     margin-left: 80px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -532,4 +501,3 @@ onMounted(() => {
   }
 }
 </style>
-

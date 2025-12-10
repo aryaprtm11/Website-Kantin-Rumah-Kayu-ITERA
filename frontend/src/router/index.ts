@@ -13,6 +13,7 @@ import { AuthService } from "../services/authService";
 import { getRoleValue } from "../utils/roleHelper";
 
 const routes = [
+  // ==================== PUBLIC ROUTES ====================
   {
     path: "/",
     name: "Home",
@@ -39,6 +40,8 @@ const routes = [
       requiresGuest: true,
     },
   },
+
+  // ==================== ADMIN ROUTES ====================
   {
     path: "/admin/dashboard",
     name: "AdminDashboard",
@@ -49,42 +52,41 @@ const routes = [
     },
   },
   {
+    path: '/admin/tenants',
+    name: 'AdminTenants',
+    component: () => import('../views/admin/AdminTenant.vue'),
+    meta: { 
+      requiresAuth: true, 
+      requiresRole: 'superadmin' 
+    }
+  },
+  {
+    path: '/admin/users',
+    name: 'AdminUsers',
+    component: () => import('../views/admin/AdminUsers.vue'),
+    meta: { 
+      requiresAuth: true, 
+      requiresRole: 'superadmin' 
+    }
+  },
+  {
+    path: '/admin/profile',
+    name: 'AdminProfile',
+    component: () => import('../views/admin/AdminProfile.vue'),
+    meta: { 
+      requiresAuth: true, 
+      requiresRole: 'superadmin' 
+    }
+  },
+
+  // ==================== TENANT ROUTES ====================
+  {
     path: "/tenant/dashboard",
     name: "TenantDashboard",
     component: TenantDashboard,
     meta: {
       requiresAuth: true,
       requiresRole: "tenant_admin",
-    },
-  },
-  {
-    path: '/tenant/profile',
-    name: 'TenantProfile',
-    component: () => import('../views/tenant/TenantProfile.vue'),
-    meta: { requiresAuth: true, role: 'tenant_admin' }
-  },
-  {
-    path: "/customer/dashboard",
-    name: "CustomerDashboard",
-    component: CustomerDashboard,
-    meta: {
-      requiresAuth: true,
-      requiresRole: "customer",
-    },
-  },
-  {
-  path: '/customer/profile',
-  name: 'CustomerProfile',
-  component: () => import('../views/customer/CustomerProfile.vue'),
-  meta: { requiresAuth: true, role: 'customer' }
-  },
-  {
-    path: "/customer/orders",
-    name: "CustomerOrders",
-    component: CustomerOrders,
-    meta: {
-      requiresAuth: true,
-      requiresRole: "customer",
     },
   },
   {
@@ -104,6 +106,44 @@ const routes = [
       requiresAuth: true,
       requiresRole: "tenant_admin",
     },
+  },
+  {
+    path: '/tenant/profile',
+    name: 'TenantProfile',
+    component: () => import('../views/tenant/TenantProfile.vue'),
+    meta: { 
+      requiresAuth: true, 
+      requiresRole: 'tenant_admin' 
+    }
+  },
+
+  // ==================== CUSTOMER ROUTES ====================
+  {
+    path: "/customer/dashboard",
+    name: "CustomerDashboard",
+    component: CustomerDashboard,
+    meta: {
+      requiresAuth: true,
+      requiresRole: "customer",
+    },
+  },
+  {
+    path: "/customer/orders",
+    name: "CustomerOrders",
+    component: CustomerOrders,
+    meta: {
+      requiresAuth: true,
+      requiresRole: "customer",
+    },
+  },
+  {
+    path: '/customer/profile',
+    name: 'CustomerProfile',
+    component: () => import('../views/customer/CustomerProfile.vue'),
+    meta: { 
+      requiresAuth: true, 
+      requiresRole: 'customer' 
+    }
   },
 ];
 

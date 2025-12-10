@@ -22,8 +22,10 @@ export interface TenantWithStats {
   id: number;
   user_id: number;
   name: string;
+  location?: string;
   opens_at: string;
   closes_at: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
   user: {
@@ -40,9 +42,14 @@ export interface UserWithStats {
   name: string;
   email: string;
   role: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
   orders_count: number;
+  tenant?: {
+    id: number;
+    name: string;
+  };
 }
 
 export class AdminService {
@@ -70,6 +77,8 @@ export class AdminService {
     }
   }
 
+  // ==================== TENANT MANAGEMENT ====================
+
   /**
    * Get all tenants with pagination
    */
@@ -84,6 +93,72 @@ export class AdminService {
       throw new Error(message);
     }
   }
+
+  /**
+   * Get single tenant
+   */
+  static async getTenant(id: number): Promise<TenantWithStats> {
+    try {
+      const response = await api.get(`${this.ENDPOINTS.TENANTS}/${id}`);
+      return response.data.data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to fetch tenant';
+      throw new Error(message);
+    }
+  }
+
+    /**
+   * Create new tenant
+   */
+  static async createTenant(data: {
+    name: string;
+    location?: string;
+    opens_at: string;
+    closes_at: string;
+    user_id: number | null;  // UBAH INI: tambahkan | null
+    is_active?: boolean;
+  }): Promise<any> {
+    try {
+      const response = await api.post(this.ENDPOINTS.TENANTS, data);
+      return response.data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to create tenant';
+      throw new Error(message);
+    }
+  }
+
+  /**
+   * Update tenant
+   */
+  static async updateTenant(id: number, data: Partial<{
+    name: string;
+    location: string;
+    opens_at: string;
+    closes_at: string;
+    is_active: boolean;
+  }>): Promise<any> {
+    try {
+      const response = await api.put(`${this.ENDPOINTS.TENANTS}/${id}`, data);
+      return response.data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to update tenant';
+      throw new Error(message);
+    }
+  }
+
+  /**
+   * Delete tenant
+   */
+  static async deleteTenant(tenantId: number): Promise<void> {
+    try {
+      await api.delete(this.ENDPOINTS.DELETE_TENANT(tenantId));
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to delete tenant';
+      throw new Error(message);
+    }
+  }
+
+  // ==================== USER MANAGEMENT ====================
 
   /**
    * Get all users with pagination
@@ -101,35 +176,57 @@ export class AdminService {
   }
 
   /**
-   * Get all orders with pagination
+   * Get single user
    */
-  static async getOrders(page = 1, perPage = 15, status?: string): Promise<any> {
+  static async getUser(id: number): Promise<UserWithStats> {
     try {
-      const response = await api.get(this.ENDPOINTS.ORDERS, {
-        params: { page, per_page: perPage, status },
-      });
-      return response.data;
-    } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to fetch orders';
-      throw new Error(message);
-    }
-  }
-
-  /**
-   * Get recent activities
-   */
-  static async getRecentActivities(): Promise<any> {
-    try {
-      const response = await api.get(this.ENDPOINTS.ACTIVITIES);
+      const response = await api.get(`${this.ENDPOINTS.USERS}/${id}`);
       return response.data.data;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to fetch activities';
+      const message = error.response?.data?.message || 'Failed to fetch user';
       throw new Error(message);
     }
   }
 
   /**
-   * Update user role
+   * Create new user
+   */
+  static async createUser(data: {
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+    is_active?: boolean;
+  }): Promise<any> {
+    try {
+      const response = await api.post(this.ENDPOINTS.USERS, data);
+      return response.data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to create user';
+      throw new Error(message);
+    }
+  }
+
+  /**
+   * Update user
+   */
+  static async updateUser(id: number, data: Partial<{
+    name: string;
+    email: string;
+    role: string;
+    is_active: boolean;
+  }>): Promise<any> {
+    try {
+      const response = await api.put(`${this.ENDPOINTS.USERS}/${id}`, data);
+      return response.data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to update user';
+      throw new Error(message);
+    }
+  }
+
+  /**
+   * Update user role (legacy method - kept for compatibility)
    */
   static async updateUserRole(userId: number, role: string): Promise<any> {
     try {
@@ -155,14 +252,36 @@ export class AdminService {
     }
   }
 
+  
+
+  // ==================== ORDER MANAGEMENT ====================
+
   /**
-   * Delete tenant
+   * Get all orders with pagination
    */
-  static async deleteTenant(tenantId: number): Promise<void> {
+  static async getOrders(page = 1, perPage = 15, status?: string): Promise<any> {
     try {
-      await api.delete(this.ENDPOINTS.DELETE_TENANT(tenantId));
+      const response = await api.get(this.ENDPOINTS.ORDERS, {
+        params: { page, per_page: perPage, status },
+      });
+      return response.data;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to delete tenant';
+      const message = error.response?.data?.message || 'Failed to fetch orders';
+      throw new Error(message);
+    }
+  }
+
+  // ==================== ACTIVITY LOGS ====================
+
+  /**
+   * Get recent activities
+   */
+  static async getRecentActivities(): Promise<any> {
+    try {
+      const response = await api.get(this.ENDPOINTS.ACTIVITIES);
+      return response.data.data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to fetch activities';
       throw new Error(message);
     }
   }

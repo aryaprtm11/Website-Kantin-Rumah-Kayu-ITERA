@@ -71,14 +71,6 @@ const handleViewMenu = () => {
   // Scroll to tenants section
   document.getElementById('tenants')?.scrollIntoView({ behavior: 'smooth' });
 };
-
-/**
- * Handle how to order button click
- */
-const handleHowToOrder = () => {
-  console.log('How to order clicked - to be implemented');
-  // Future: Show tutorial or navigate to guide page
-};
 </script>
 
 <style scoped>
