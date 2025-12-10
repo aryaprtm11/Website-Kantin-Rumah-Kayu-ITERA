@@ -9,6 +9,9 @@
           <p class="dashboard-subtitle">Selamat datang, {{ userName }}!</p>
         </div>
         <div class="header-actions">
+          <button class="btn-refresh" @click="refreshData">
+            🔄 Refresh
+          </button>
           <router-link to="/" class="btn-browse">
             🏪 Jelajahi Kantin
           </router-link>
@@ -52,10 +55,35 @@
         <section class="section-card" v-if="activeOrders.length > 0">
           <div class="section-header">
             <h2 class="section-title">🔔 Pesanan Aktif</h2>
+            <span class="badge badge-info">{{ activeOrders.length }} pesanan</span>
           </div>
 
           <div class="orders-grid">
             <div v-for="order in activeOrders" :key="order.id" class="order-card active-order">
+              <!-- Order Progress Tracker -->
+              <div class="order-progress">
+                <div class="progress-step" :class="{ active: true, completed: true }">
+                  <div class="step-icon">📝</div>
+                  <div class="step-label">Dibuat</div>
+                </div>
+                <div class="progress-line" :class="{ completed: ['preparing', 'ready_for_pickup', 'picked_up'].includes(order.status) }"></div>
+                <div class="progress-step" :class="{ 
+                  active: ['preparing', 'ready_for_pickup', 'picked_up'].includes(order.status),
+                  completed: ['ready_for_pickup', 'picked_up'].includes(order.status)
+                }">
+                  <div class="step-icon">👨‍🍳</div>
+                  <div class="step-label">Diproses</div>
+                </div>
+                <div class="progress-line" :class="{ completed: ['ready_for_pickup', 'picked_up'].includes(order.status) }"></div>
+                <div class="progress-step" :class="{ 
+                  active: ['ready_for_pickup', 'picked_up'].includes(order.status),
+                  completed: order.status === 'picked_up'
+                }">
+                  <div class="step-icon">✅</div>
+                  <div class="step-label">Siap</div>
+                </div>
+              </div>
+
               <div class="order-header">
                 <h3 class="order-id">#{{ order.id }}</h3>
                 <span :class="['status-badge', getStatusClass(order.status)]">
@@ -75,6 +103,13 @@
               <div class="order-footer">
                 <span class="order-total">{{ formatCurrency(order.total_price) }}</span>
                 <div class="order-actions">
+                  <button 
+                    v-if="order.payment_status === 'pending' || order.payment_status === 'unpaid'"
+                    class="btn-pay"
+                    @click="payOrder(order.id)"
+                  >
+                    💳 Bayar
+                  </button>
                   <button 
                     v-if="order.status === 'ready_for_pickup'" 
                     class="btn-pickup"
@@ -148,6 +183,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useAuth } from '../../composables/useAuth';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import StatsCard from '../../components/dashboard/StatsCard.vue';
+import { CustomerService } from '../../services/customerService';
 import api from '../../config/api';
 
 const { currentUser } = useAuth();
@@ -214,6 +250,20 @@ const getStatusLabel = (status: string) => {
   return map[status] || status;
 };
 
+const fetchStats = async () => {
+  try {
+    const data = await CustomerService.getStats();
+    stats.value = {
+      totalOrders: data.total_orders,
+      activeOrders: data.active_orders,
+      completedOrders: data.completed_orders,
+      totalSpent: data.total_spent,
+    };
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+  }
+};
+
 const fetchOrders = async () => {
   loadingOrders.value = true;
   try {
@@ -225,15 +275,7 @@ const fetchOrders = async () => {
       ['created', 'preparing', 'ready_for_pickup'].includes(o.status)
     );
     
-    orderHistory.value = orders;
-    
-    // Calculate stats
-    stats.value = {
-      totalOrders: orders.length,
-      activeOrders: activeOrders.value.length,
-      completedOrders: orders.filter((o: any) => o.status === 'completed').length,
-      totalSpent: orders.reduce((sum: number, o: any) => sum + (o.total_price || 0), 0),
-    };
+    orderHistory.value = orders.slice(0, 5); // Show only 5 recent orders
   } catch (error) {
     console.error('Error fetching orders:', error);
     orderHistory.value = [];
@@ -242,18 +284,39 @@ const fetchOrders = async () => {
   }
 };
 
-const markPickedUp = async (orderId: number) => {
+const payOrder = async (orderId: number) => {
+  if (!confirm('Konfirmasi pembayaran untuk pesanan ini?')) return;
+  
   try {
-    await api.post(`/orders/${orderId}/pickup`);
-    await fetchOrders();
-  } catch (error) {
-    console.error('Error marking order as picked up:', error);
-    alert('Gagal mengupdate status pesanan');
+    await api.post(`/orders/${orderId}/pay`);
+    await refreshData();
+    alert('✅ Pembayaran berhasil!');
+  } catch (error: any) {
+    console.error('Error paying order:', error);
+    alert(error.response?.data?.message || 'Gagal melakukan pembayaran');
   }
 };
 
-onMounted(() => {
+const markPickedUp = async (orderId: number) => {
+  if (!confirm('Konfirmasi pesanan sudah diambil?')) return;
+  
+  try {
+    await api.post(`/orders/${orderId}/pickup`);
+    await refreshData();
+    alert('✅ Pesanan berhasil ditandai sudah diambil!');
+  } catch (error: any) {
+    console.error('Error marking order as picked up:', error);
+    alert(error.response?.data?.message || 'Gagal mengupdate status pesanan');
+  }
+};
+
+const refreshData = () => {
+  fetchStats();
   fetchOrders();
+};
+
+onMounted(() => {
+  refreshData();
 });
 </script>
 
@@ -287,6 +350,26 @@ onMounted(() => {
 .dashboard-subtitle {
   color: #718096;
   margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-refresh {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-refresh:hover {
+  background: #f7fafc;
+  border-color: #cbd5e0;
 }
 
 .btn-browse {
@@ -388,7 +471,89 @@ onMounted(() => {
 
 .order-card.active-order {
   border-color: #667eea;
-  background: #f7faff;
+  background: linear-gradient(to bottom, #f7faff 0%, white 100%);
+}
+
+/* Order Progress Tracker */
+.order-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  opacity: 0.4;
+  transition: all 0.3s;
+}
+
+.progress-step.active {
+  opacity: 1;
+}
+
+.progress-step.completed .step-icon {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+  transform: scale(1.1);
+}
+
+.step-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.progress-step.active .step-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.6);
+  }
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #718096;
+  text-align: center;
+}
+
+.progress-step.active .step-label {
+  color: #2d3748;
+}
+
+.progress-line {
+  flex: 1;
+  height: 3px;
+  background: #e2e8f0;
+  margin: 0 0.5rem;
+  position: relative;
+  top: -12px;
+  transition: all 0.3s;
+}
+
+.progress-line.completed {
+  background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
 }
 
 .order-header {
@@ -447,19 +612,43 @@ onMounted(() => {
   color: #48bb78;
 }
 
-.btn-pickup {
+.order-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-pay {
   padding: 0.5rem 1rem;
-  background: #48bb78;
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
   color: white;
   border: none;
   border-radius: 6px;
   font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-pay:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+}
+
+.btn-pickup {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .btn-pickup:hover {
-  background: #38a169;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 .table-container {

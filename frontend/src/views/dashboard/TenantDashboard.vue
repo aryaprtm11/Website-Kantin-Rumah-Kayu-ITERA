@@ -9,6 +9,9 @@
           <p class="dashboard-subtitle">{{ tenantName }}</p>
         </div>
         <div class="header-actions">
+          <button class="btn-refresh" @click="refreshData">
+            🔄 Refresh
+          </button>
           <button class="btn-primary" @click="openAddMenuModal">
             ➕ Tambah Menu
           </button>
@@ -210,14 +213,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-// import { useAuth } from '../../composables/useAuth';
 import Sidebar from "../../components/dashboard/Sidebar.vue";
 import StatsCard from "../../components/dashboard/StatsCard.vue";
-import api from "../../config/api";
+import { TenantService } from "../../services/tenantService";
 
-// const { currentUser } = useAuth();
-
-const tenantName = computed(() => "Warung Nusantara"); // TODO: Get from API
+const tenantInfo = ref<any>(null);
+const tenantName = computed(() => tenantInfo.value?.name || "Kantin Saya");
 
 const tenantMenuItems = [
   { path: "/tenant/dashboard", icon: "📊", label: "Dashboard" },
@@ -273,9 +274,10 @@ const getStockClass = (stock: number) => {
 
 const getStatusClass = (status: string) => {
   const map: Record<string, string> = {
-    pending: "badge-warning",
-    processing: "badge-info",
-    ready: "badge-success",
+    created: "badge-warning",
+    preparing: "badge-info",
+    ready_for_pickup: "badge-success",
+    picked_up: "badge-success",
     completed: "badge-success",
     cancelled: "badge-danger",
   };
@@ -284,24 +286,33 @@ const getStatusClass = (status: string) => {
 
 const getStatusLabel = (status: string) => {
   const map: Record<string, string> = {
-    pending: "Menunggu",
-    processing: "Diproses",
-    ready: "Siap",
+    created: "Baru",
+    preparing: "Diproses",
+    ready_for_pickup: "Siap Diambil",
+    picked_up: "Diambil",
     completed: "Selesai",
     cancelled: "Dibatalkan",
   };
   return map[status] || status;
 };
 
+const fetchTenantInfo = async () => {
+  try {
+    tenantInfo.value = await TenantService.getTenantInfo();
+  } catch (error) {
+    console.error("Error fetching tenant info:", error);
+  }
+};
+
 const fetchStats = async () => {
   try {
-    // Mock data - replace with actual API
+    const data = await TenantService.getStats();
     stats.value = {
-      todayOrders: 24,
-      todayRevenue: 2450000,
-      totalMenus: 15,
-      pendingOrders: 3,
-      orderGrowth: 12,
+      todayOrders: data.today_orders,
+      todayRevenue: data.today_revenue,
+      totalMenus: data.total_menus,
+      pendingOrders: data.pending_orders,
+      orderGrowth: 12, // Calculate from historical data if needed
     };
   } catch (error) {
     console.error("Error fetching stats:", error);
@@ -311,8 +322,8 @@ const fetchStats = async () => {
 const fetchMenus = async () => {
   loadingMenus.value = true;
   try {
-    const response = await api.get("/tenant/menus");
-    menus.value = response.data.data || response.data;
+    const response = await TenantService.getMenus(1, 6);
+    menus.value = response.data || [];
   } catch (error) {
     console.error("Error fetching menus:", error);
     menus.value = [];
@@ -324,11 +335,17 @@ const fetchMenus = async () => {
 const fetchOrders = async () => {
   loadingOrders.value = true;
   try {
-    // Mock data for now
-    pendingOrders.value = [];
-    recentOrders.value = [];
+    // Fetch pending orders (created status)
+    const pendingResponse = await TenantService.getOrders(1, 10, 'created');
+    pendingOrders.value = pendingResponse.data || [];
+
+    // Fetch recent orders
+    const recentResponse = await TenantService.getOrders(1, 5);
+    recentOrders.value = recentResponse.data || [];
   } catch (error) {
     console.error("Error fetching orders:", error);
+    pendingOrders.value = [];
+    recentOrders.value = [];
   } finally {
     loadingOrders.value = false;
   }
@@ -346,20 +363,33 @@ const toggleMenuAvailability = (menu: any) => {
   alert(`Toggle availability: ${menu.name}`);
 };
 
-const acceptOrder = (orderId: number) => {
-  alert(`Terima pesanan #${orderId}`);
+const acceptOrder = async (orderId: number) => {
+  try {
+    await TenantService.acceptOrder(orderId);
+    alert(`Pesanan #${orderId} diterima dan sedang diproses`);
+    // Refresh orders
+    fetchOrders();
+    fetchStats();
+  } catch (error: any) {
+    alert(`Gagal menerima pesanan: ${error.message}`);
+  }
 };
 
 const rejectOrder = (orderId: number) => {
   if (confirm(`Yakin ingin menolak pesanan #${orderId}?`)) {
-    alert(`Pesanan #${orderId} ditolak`);
+    alert("Fitur reject order akan segera hadir!");
   }
 };
 
-onMounted(() => {
+const refreshData = () => {
+  fetchTenantInfo();
   fetchStats();
   fetchMenus();
   fetchOrders();
+};
+
+onMounted(() => {
+  refreshData();
 });
 </script>
 
@@ -395,6 +425,26 @@ onMounted(() => {
   color: #718096;
   margin: 0;
   font-size: 1.1rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-refresh {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-refresh:hover {
+  background: #f7fafc;
+  border-color: #cbd5e0;
 }
 
 .btn-primary {

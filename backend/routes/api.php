@@ -32,6 +32,9 @@ Route::prefix('v1')->group(function (): void {
         Route::post('orders/{order}/complete', [OrderController::class, 'complete']);
 
         Route::prefix('tenant')->group(function (): void {
+            Route::get('stats', [\App\Http\Controllers\Api\V1\TenantStatsController::class, 'stats']);
+            Route::get('info', [\App\Http\Controllers\Api\V1\TenantStatsController::class, 'info']);
+
             Route::get('orders', [TenantOrderController::class, 'index']);
             Route::patch('orders/{order}/status', [TenantOrderController::class, 'updateStatus']);
 
@@ -40,6 +43,21 @@ Route::prefix('v1')->group(function (): void {
             Route::patch('menus/{menu}', [TenantMenuController::class, 'update']);
             Route::delete('menus/{menu}', [TenantMenuController::class, 'destroy']);
             Route::patch('menus/{menu}/stock', [TenantMenuController::class, 'updateStock']);
+        });
+
+        Route::prefix('customer')->group(function (): void {
+            Route::get('stats', [\App\Http\Controllers\Api\V1\CustomerStatsController::class, 'stats']);
+        });
+
+        Route::prefix('admin')->group(function (): void {
+            Route::get('stats', [\App\Http\Controllers\Api\V1\AdminController::class, 'stats']);
+            Route::get('tenants', [\App\Http\Controllers\Api\V1\AdminController::class, 'tenants']);
+            Route::get('users', [\App\Http\Controllers\Api\V1\AdminController::class, 'users']);
+            Route::get('orders', [\App\Http\Controllers\Api\V1\AdminController::class, 'orders']);
+            Route::get('activities', [\App\Http\Controllers\Api\V1\AdminController::class, 'recentActivities']);
+            Route::patch('users/{user}/role', [\App\Http\Controllers\Api\V1\AdminController::class, 'updateUserRole']);
+            Route::delete('users/{user}', [\App\Http\Controllers\Api\V1\AdminController::class, 'deleteUser']);
+            Route::delete('tenants/{tenant}', [\App\Http\Controllers\Api\V1\AdminController::class, 'deleteTenant']);
         });
     });
 });

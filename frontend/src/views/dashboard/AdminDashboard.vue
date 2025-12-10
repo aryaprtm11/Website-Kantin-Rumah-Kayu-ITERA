@@ -80,16 +80,16 @@
               <tbody>
                 <tr v-for="tenant in recentTenants" :key="tenant.id">
                   <td class="tenant-name">{{ tenant.name }}</td>
-                  <td>{{ tenant.owner?.name || '-' }}</td>
+                  <td>{{ tenant.user?.name || '-' }}</td>
                   <td>
-                    <span :class="['badge', tenant.is_active ? 'badge-success' : 'badge-danger']">
-                      {{ tenant.is_active ? '🟢 Aktif' : '🔴 Nonaktif' }}
+                    <span class="badge badge-success">
+                      🟢 Aktif
                     </span>
                   </td>
                   <td>{{ tenant.opens_at }} - {{ tenant.closes_at }}</td>
                   <td>
-                    <button class="btn-icon" title="Detail">👁️</button>
-                    <button class="btn-icon" title="Edit">✏️</button>
+                    <span class="badge badge-info">{{ tenant.menus_count || 0 }} menu</span>
+                    <span class="badge badge-secondary">{{ tenant.orders_count || 0 }} order</span>
                   </td>
                 </tr>
               </tbody>
@@ -123,7 +123,8 @@
                   <th>Customer</th>
                   <th>Kantin</th>
                   <th>Total</th>
-                  <th>Status</th>
+                  <th>Status Order</th>
+                  <th>Status Bayar</th>
                   <th>Waktu</th>
                 </tr>
               </thead>
@@ -135,7 +136,12 @@
                   <td class="amount">{{ formatCurrency(order.total_price) }}</td>
                   <td>
                     <span :class="['badge', getStatusClass(order.status)]">
-                      {{ order.status }}
+                      {{ formatStatus(order.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span :class="['badge', getPaymentStatusClass(order.payment_status)]">
+                      {{ formatPaymentStatus(order.payment_status) }}
                     </span>
                   </td>
                   <td class="datetime">{{ formatDate(order.created_at) }}</td>
@@ -154,7 +160,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useAuth } from '../../composables/useAuth';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import StatsCard from '../../components/dashboard/StatsCard.vue';
-import api from '../../config/api';
+import { AdminService } from '../../services/adminService';
 
 const { currentUser } = useAuth();
 
@@ -201,23 +207,58 @@ const formatDate = (date: string) => {
 
 const getStatusClass = (status: string) => {
   const statusMap: Record<string, string> = {
-    pending: 'badge-warning',
-    processing: 'badge-info',
-    ready: 'badge-success',
+    created: 'badge-info',
+    preparing: 'badge-warning',
+    ready_for_pickup: 'badge-success',
+    picked_up: 'badge-success',
     completed: 'badge-success',
     cancelled: 'badge-danger',
   };
-  return statusMap[status.toLowerCase()] || 'badge-secondary';
+  return statusMap[status] || 'badge-secondary';
+};
+
+const getPaymentStatusClass = (status: string) => {
+  const statusMap: Record<string, string> = {
+    unpaid: 'badge-danger',
+    pending: 'badge-warning',
+    paid: 'badge-success',
+    failed: 'badge-danger',
+    expired: 'badge-secondary',
+  };
+  return statusMap[status] || 'badge-secondary';
+};
+
+const formatStatus = (status: string) => {
+  const statusMap: Record<string, string> = {
+    created: 'Dibuat',
+    preparing: 'Diproses',
+    ready_for_pickup: 'Siap Diambil',
+    picked_up: 'Diambil',
+    completed: 'Selesai',
+    cancelled: 'Dibatalkan',
+  };
+  return statusMap[status] || status;
+};
+
+const formatPaymentStatus = (status: string) => {
+  const statusMap: Record<string, string> = {
+    unpaid: 'Belum Bayar',
+    pending: 'Pending',
+    paid: 'Lunas',
+    failed: 'Gagal',
+    expired: 'Kedaluwarsa',
+  };
+  return statusMap[status] || status;
 };
 
 const fetchStats = async () => {
   try {
-    // Mock data for now - replace with actual API calls
+    const data = await AdminService.getStats();
     stats.value = {
-      totalTenants: 12,
-      totalUsers: 245,
-      totalOrders: 1856,
-      totalRevenue: 45750000,
+      totalTenants: data.total_tenants,
+      totalUsers: data.total_users,
+      totalOrders: data.total_orders,
+      totalRevenue: data.total_revenue,
     };
   } catch (error) {
     console.error('Error fetching stats:', error);
@@ -227,8 +268,8 @@ const fetchStats = async () => {
 const fetchRecentTenants = async () => {
   loadingTenants.value = true;
   try {
-    const response = await api.get('/tenants?limit=5');
-    recentTenants.value = response.data.data || response.data;
+    const response = await AdminService.getTenants(1, 5);
+    recentTenants.value = response.data || [];
   } catch (error) {
     console.error('Error fetching tenants:', error);
     recentTenants.value = [];
@@ -240,8 +281,8 @@ const fetchRecentTenants = async () => {
 const fetchRecentOrders = async () => {
   loadingOrders.value = true;
   try {
-    // Mock data for now
-    recentOrders.value = [];
+    const response = await AdminService.getOrders(1, 5);
+    recentOrders.value = response.data || [];
   } catch (error) {
     console.error('Error fetching orders:', error);
     recentOrders.value = [];
