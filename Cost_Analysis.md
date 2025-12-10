@@ -39,7 +39,7 @@ Internet ──► Cloud HTTP(S) Load Balancer ──► Cloud Run (Frontend: Vu
                                                    ├──► Cloud Storage (gambar/menu & aset statis)
                                                    └──► Secret Manager (APP_KEY, DB password)
 
----
+```
 
 
 ## 2. Estimasi Biaya per Lingkungan
