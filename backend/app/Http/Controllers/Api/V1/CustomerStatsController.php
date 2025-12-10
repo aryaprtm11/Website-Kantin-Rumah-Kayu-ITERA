@@ -43,7 +43,7 @@ class CustomerStatsController extends Controller
             ->select('status', \DB::raw('count(*) as count'))
             ->groupBy('status')
             ->get()
-            ->pluck('count', 'status');
+            ->mapWithKeys(fn($item) => [$item->status->value => $item->count]);
 
         // Favorite tenant (most ordered from)
         $favoriteTenant = $user->orders()
