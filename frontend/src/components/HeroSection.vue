@@ -9,12 +9,9 @@
         <p class="hero-description">
           {{ HERO_DESCRIPTION }}
         </p>
-        <div class="hero-buttons">
-          <button class="btn-hero-primary" @click="handleViewMenu">
+        <div class="hero-buttons w-full">
+          <button class="btn-hero-primary w-full" @click="handleViewMenu">
             🍽️ Lihat Menu
-          </button>
-          <button class="btn-hero-secondary" @click="handleHowToOrder">
-            📖 Cara Pemesanan
           </button>
         </div>
         <div class="hero-stats">
@@ -88,6 +85,10 @@ const handleHowToOrder = () => {
 .hero {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding: 4rem 0;
+}
+
+.w-full {
+  width: 100% !important;
 }
 
 .hero-container {

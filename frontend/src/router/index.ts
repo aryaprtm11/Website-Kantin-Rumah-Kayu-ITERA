@@ -67,6 +67,12 @@ const routes = [
     },
   },
   {
+  path: '/customer/profile',
+  name: 'CustomerProfile',
+  component: () => import('../views/customer/CustomerProfile.vue'),
+  meta: { requiresAuth: true, role: 'customer' }
+  },
+  {
     path: "/customer/orders",
     name: "CustomerOrders",
     component: CustomerOrders,

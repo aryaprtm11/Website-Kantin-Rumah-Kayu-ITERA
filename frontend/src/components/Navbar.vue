@@ -62,7 +62,6 @@ const APP_TAGLINE = 'Pesan Makanan dengan Mudah';
 const navLinks = [
   { id: 'home', href: '#home', label: 'Home', active: true },
   { id: 'tenants', href: '#tenants', label: 'Kantin', active: false },
-  { id: 'about', href: '#about', label: 'Tentang', active: false },
 ];
 
 /**
