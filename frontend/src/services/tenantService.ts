@@ -63,6 +63,7 @@ export interface TenantOrder {
 
 export class TenantService {
   private static readonly ENDPOINTS = {
+    ALL_TENANTS: '/tenants', // tambahkan baris ini
     STATS: '/tenant/stats',
     MENUS: '/tenant/menus',
     MENU_DETAIL: (menuId: number) => `/tenant/menus/${menuId}`,
@@ -71,6 +72,16 @@ export class TenantService {
     UPDATE_ORDER_STATUS: (orderId: number) => `/tenant/orders/${orderId}/status`,
     TENANT_INFO: '/tenant/info',
   };
+
+  static async getAllTenants(): Promise<any> {
+    try {
+      const response = await api.get(this.ENDPOINTS.ALL_TENANTS);
+      return response.data.data || response.data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to fetch tenants';
+      throw new Error(message);
+    }
+  }
 
   /**
    * Get tenant dashboard statistics
