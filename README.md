@@ -34,7 +34,7 @@ Selamat datang di pusat dokumentasi Kantin RK ITERA. Folder ini berisi dokumenta
 
 ### Untuk End User
 
-- [User Manual](user-manual.md)
+- [User Manual](USER_MANUAL.md)
   - Panduan Customer (Pembeli)
   - Panduan Tenant Admin (Pemilik Kantin)
   - Panduan Super Admin
