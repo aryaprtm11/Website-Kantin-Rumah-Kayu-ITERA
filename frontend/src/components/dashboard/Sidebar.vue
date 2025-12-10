@@ -13,7 +13,6 @@
         :key="item.path"
         :to="item.path"
         class="nav-item"
-        active-class="nav-item-active"
       >
         <span class="nav-icon">{{ item.icon }}</span>
         <span v-if="!isCollapsed" class="nav-label">{{ item.label }}</span>
@@ -46,8 +45,6 @@ const { currentUser, logout } = useAuth();
 
 const isCollapsed = ref(false);
 
-// Props untuk menu items dari parent
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 defineProps<{
   menuItems: Array<{
     path: string;
@@ -145,7 +142,8 @@ const handleLogout = async () => {
   color: white;
 }
 
-.nav-item-active {
+/* Vue Router otomatis menambahkan class ini */
+.nav-item.router-link-active {
   background: rgba(102, 126, 234, 0.2);
   color: white;
   border-left: 4px solid #667eea;

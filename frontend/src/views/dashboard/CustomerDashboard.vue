@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-layout">
-    <Sidebar :menu-items="customerMenuItems" />
+    <Sidebar :menuItems="CUSTOMER_MENU_ITEMS" />
     
     <main class="dashboard-main">
       <div class="dashboard-header">
@@ -185,17 +185,12 @@ import Sidebar from '../../components/dashboard/Sidebar.vue';
 import StatsCard from '../../components/dashboard/StatsCard.vue';
 import { CustomerService } from '../../services/customerService';
 import api from '../../config/api';
+import { CUSTOMER_MENU_ITEMS } from '../../constants/menuItems';
 
 const { currentUser } = useAuth();
 
 const userName = computed(() => currentUser.value?.name || 'User');
 
-const customerMenuItems = [
-  { path: '/customer/dashboard', icon: '📊', label: 'Dashboard' },
-  { path: '/customer/orders', icon: '📦', label: 'Pesanan Saya' },
-  { path: '/', icon: '🏪', label: 'Jelajahi Kantin' },
-  { path: '/customer/profile', icon: '👤', label: 'Profil' },
-];
 
 const stats = ref({
   totalOrders: 0,

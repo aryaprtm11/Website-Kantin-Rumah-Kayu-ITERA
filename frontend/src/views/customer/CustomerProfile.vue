@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-layout">
-    <Sidebar :menuItems="customerMenuItems" />
+    <Sidebar :menuItems="CUSTOMER_MENU_ITEMS" />
     
     <main class="dashboard-main">
       <div class="dashboard-header">
@@ -139,17 +139,11 @@
 import { ref, computed, onMounted } from 'vue';
 import { useAuth } from '../../composables/useAuth';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
+import { CUSTOMER_MENU_ITEMS } from '../../constants/menuItems';
 
 const { currentUser } = useAuth();
 
 const userName = computed(() => currentUser.value?.name || 'User');
-
-const customerMenuItems = [
-  { icon: '📊', label: 'Dashboard', path: '/customer/dashboard' },
-  { icon: '📦', label: 'Pesanan Saya', path: '/customer/orders' },
-  { icon: '🏪', label: 'Jelajahi Kantin', path: '/tenants' },
-  { icon: '👤', label: 'Profil', path: '/customer/profile', active: true },
-];
 
 // Profile Form
 const profileForm = ref({

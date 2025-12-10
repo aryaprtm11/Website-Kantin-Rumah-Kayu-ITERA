@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-layout">
-    <Sidebar :menu-items="customerMenuItems" />
+    <Sidebar :menuItems="CUSTOMER_MENU_ITEMS" />
     
     <main class="dashboard-main">
       <div class="dashboard-header">
@@ -188,15 +188,9 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import { OrderService, type Order } from '../../services/orderService';
+import { CUSTOMER_MENU_ITEMS } from '../../constants/menuItems'; // TAMBAHKAN INI
 
 const router = useRouter();
-
-const customerMenuItems = [
-  { path: '/customer/dashboard', icon: '🏠', label: 'Beranda' },
-  { path: '/customer/orders', icon: '📦', label: 'Pesanan Saya' },
-  { path: '/', icon: '🍽️', label: 'Pesan Makanan' },
-  { path: '/customer/profile', icon: '👤', label: 'Profil' },
-];
 
 const orders = ref<Order[]>([]);
 const loading = ref(false);
