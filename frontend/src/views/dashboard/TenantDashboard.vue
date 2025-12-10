@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-layout">
-    <Sidebar :menu-items="tenantMenuItems" />
+    <Sidebar :menuItems="TENANT_MENU_ITEMS" />
 
     <main class="dashboard-main">
       <div class="dashboard-header">
@@ -12,14 +12,11 @@
           <button class="btn-refresh" @click="refreshData">
             🔄 Refresh
           </button>
-          <button class="btn-primary" @click="openAddMenuModal">
-            ➕ Tambah Menu
-          </button>
         </div>
       </div>
 
       <div class="dashboard-content">
-        <!-- Stats Overview -->
+        <!-- Stats Overview - Hanya 2 Stats -->
         <section class="stats-grid">
           <StatsCard
             icon="📦"
@@ -27,8 +24,6 @@
             label="Pesanan Hari Ini"
             subtitle="Total pesanan"
             color="#667eea"
-            :trend="`+${stats.orderGrowth}%`"
-            :trend-up="true"
           />
           <StatsCard
             icon="💰"
@@ -36,20 +31,6 @@
             label="Pendapatan Hari Ini"
             subtitle="Total pemasukan"
             color="#48bb78"
-          />
-          <StatsCard
-            icon="🍽️"
-            :value="stats.totalMenus"
-            label="Menu Aktif"
-            subtitle="Total menu tersedia"
-            color="#f6ad55"
-          />
-          <StatsCard
-            icon="⏱️"
-            :value="stats.pendingOrders"
-            label="Pesanan Pending"
-            subtitle="Perlu diproses"
-            color="#fc8181"
           />
         </section>
 
@@ -121,9 +102,6 @@
 
           <div v-else-if="menus.length === 0" class="empty-state">
             <p>Belum ada menu. Tambahkan menu pertama Anda!</p>
-            <button class="btn-primary" @click="openAddMenuModal">
-              ➕ Tambah Menu
-            </button>
           </div>
 
           <div v-else class="menu-grid">
@@ -140,18 +118,6 @@
                     Stok: {{ menu.stock }}
                   </span>
                 </div>
-              </div>
-              <div class="menu-actions">
-                <button class="btn-icon" @click="editMenu(menu)" title="Edit">
-                  ✏️
-                </button>
-                <button
-                  class="btn-icon"
-                  @click="toggleMenuAvailability(menu)"
-                  :title="menu.is_available ? 'Nonaktifkan' : 'Aktifkan'"
-                >
-                  {{ menu.is_available ? "👁️" : "🚫" }}
-                </button>
               </div>
             </div>
           </div>
@@ -216,24 +182,14 @@ import { ref, computed, onMounted } from "vue";
 import Sidebar from "../../components/dashboard/Sidebar.vue";
 import StatsCard from "../../components/dashboard/StatsCard.vue";
 import { TenantService } from "../../services/tenantService";
+import { TENANT_MENU_ITEMS } from "../../constants/menuItems";
 
 const tenantInfo = ref<any>(null);
 const tenantName = computed(() => tenantInfo.value?.name || "Kantin Saya");
 
-const tenantMenuItems = [
-  { path: "/tenant/dashboard", icon: "📊", label: "Dashboard" },
-  { path: "/tenant/orders", icon: "📦", label: "Pesanan" },
-  { path: "/tenant/menus", icon: "🍽️", label: "Menu" },
-  { path: "/tenant/reports", icon: "📈", label: "Laporan" },
-  { path: "/tenant/settings", icon: "⚙️", label: "Pengaturan" },
-];
-
 const stats = ref({
   todayOrders: 0,
   todayRevenue: 0,
-  totalMenus: 0,
-  pendingOrders: 0,
-  orderGrowth: 12,
 });
 
 const menus = ref<any[]>([]);
@@ -310,9 +266,6 @@ const fetchStats = async () => {
     stats.value = {
       todayOrders: data.today_orders,
       todayRevenue: data.today_revenue,
-      totalMenus: data.total_menus,
-      pendingOrders: data.pending_orders,
-      orderGrowth: 12, // Calculate from historical data if needed
     };
   } catch (error) {
     console.error("Error fetching stats:", error);
@@ -349,18 +302,6 @@ const fetchOrders = async () => {
   } finally {
     loadingOrders.value = false;
   }
-};
-
-const openAddMenuModal = () => {
-  alert("Fitur tambah menu akan segera hadir!");
-};
-
-const editMenu = (menu: any) => {
-  alert(`Edit menu: ${menu.name}`);
-};
-
-const toggleMenuAvailability = (menu: any) => {
-  alert(`Toggle availability: ${menu.name}`);
 };
 
 const acceptOrder = async (orderId: number) => {
@@ -471,7 +412,7 @@ onMounted(() => {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 
@@ -734,25 +675,6 @@ onMounted(() => {
   color: #742a2a;
 }
 
-.menu-actions {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0 1rem 1rem;
-}
-
-.btn-icon {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.3s;
-}
-
-.btn-icon:hover {
-  opacity: 1;
-}
-
 /* Table */
 .table-container {
   overflow-x: auto;
@@ -829,6 +751,10 @@ onMounted(() => {
   .dashboard-main {
     margin-left: 80px;
   }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
@@ -842,7 +768,6 @@ onMounted(() => {
     gap: 1rem;
   }
 
-  .stats-grid,
   .orders-grid,
   .menu-grid {
     grid-template-columns: 1fr;

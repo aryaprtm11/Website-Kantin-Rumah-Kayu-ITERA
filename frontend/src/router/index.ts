@@ -58,6 +58,12 @@ const routes = [
     },
   },
   {
+    path: '/tenant/profile',
+    name: 'TenantProfile',
+    component: () => import('../views/tenant/TenantProfile.vue'),
+    meta: { requiresAuth: true, role: 'tenant_admin' }
+  },
+  {
     path: "/customer/dashboard",
     name: "CustomerDashboard",
     component: CustomerDashboard,

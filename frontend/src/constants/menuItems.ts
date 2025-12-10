@@ -7,8 +7,8 @@ export const CUSTOMER_MENU_ITEMS = [
 
 export const TENANT_MENU_ITEMS = [
   { icon: '📊', label: 'Dashboard', path: '/tenant/dashboard' },
-  { icon: '🍽️', label: 'Menu', path: '/tenant/menus' },
   { icon: '📦', label: 'Pesanan', path: '/tenant/orders' },
+  { icon: '🍽️', label: 'Menu', path: '/tenant/menus' },
   { icon: '👤', label: 'Profil', path: '/tenant/profile' },
 ];
 

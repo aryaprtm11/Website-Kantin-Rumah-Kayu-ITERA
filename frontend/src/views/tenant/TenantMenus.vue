@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-layout">
-    <Sidebar :menu-items="tenantMenuItems" />
+    <Sidebar :menuItems="TENANT_MENU_ITEMS" />
     
     <main class="dashboard-main">
       <div class="dashboard-header">
@@ -161,14 +161,7 @@
 import { ref, onMounted } from 'vue';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import api from '../../config/api';
-
-const tenantMenuItems = [
-  { path: '/tenant/dashboard', icon: '📊', label: 'Dashboard' },
-  { path: '/tenant/orders', icon: '📦', label: 'Pesanan' },
-  { path: '/tenant/menus', icon: '🍽️', label: 'Menu' },
-  { path: '/tenant/reports', icon: '📈', label: 'Laporan' },
-  { path: '/tenant/settings', icon: '⚙️', label: 'Pengaturan' },
-];
+import { TENANT_MENU_ITEMS } from '../../constants/menuItems';
 
 const menus = ref<any[]>([]);
 const loading = ref(false);
