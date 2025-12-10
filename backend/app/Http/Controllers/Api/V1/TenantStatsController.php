@@ -48,7 +48,7 @@ class TenantStatsController extends Controller
             ->select('status', DB::raw('count(*) as count'))
             ->groupBy('status')
             ->get()
-            ->pluck('count', 'status');
+            ->mapWithKeys(fn($item) => [$item->status->value => $item->count]);
 
         // Low stock menus (stock < 5)
         $lowStockMenus = $tenant->menus()
