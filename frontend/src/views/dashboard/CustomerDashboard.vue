@@ -186,6 +186,7 @@ import StatsCard from '../../components/dashboard/StatsCard.vue';
 import { CustomerService } from '../../services/customerService';
 import api from '../../config/api';
 import { CUSTOMER_MENU_ITEMS } from '../../constants/menuItems';
+import { showSuccess, showError, showConfirm } from '../../utils/sweetAlert';
 
 const { currentUser } = useAuth();
 
@@ -280,28 +281,42 @@ const fetchOrders = async () => {
 };
 
 const payOrder = async (orderId: number) => {
-  if (!confirm('Konfirmasi pembayaran untuk pesanan ini?')) return;
+  const result = await showConfirm(
+    'Pastikan Anda sudah melakukan pembayaran di kantin.',
+    'Konfirmasi pembayaran?',
+    'Ya, Sudah Bayar',
+    'Batal'
+  );
+  
+  if (!result.isConfirmed) return;
   
   try {
     await api.post(`/orders/${orderId}/pay`);
     await refreshData();
-    alert('✅ Pembayaran berhasil!');
+    await showSuccess('Pembayaran berhasil!');
   } catch (error: any) {
     console.error('Error paying order:', error);
-    alert(error.response?.data?.message || 'Gagal melakukan pembayaran');
+    showError(error.response?.data?.message || 'Gagal melakukan pembayaran');
   }
 };
 
 const markPickedUp = async (orderId: number) => {
-  if (!confirm('Konfirmasi pesanan sudah diambil?')) return;
+  const result = await showConfirm(
+    'Pastikan Anda sudah mengambil pesanan.',
+    'Konfirmasi pesanan sudah diambil?',
+    'Ya, Sudah Diambil',
+    'Batal'
+  );
+  
+  if (!result.isConfirmed) return;
   
   try {
     await api.post(`/orders/${orderId}/pickup`);
     await refreshData();
-    alert('✅ Pesanan berhasil ditandai sudah diambil!');
+    await showSuccess('Pesanan berhasil ditandai sudah diambil!');
   } catch (error: any) {
     console.error('Error marking order as picked up:', error);
-    alert(error.response?.data?.message || 'Gagal mengupdate status pesanan');
+    showError(error.response?.data?.message || 'Gagal mengupdate status pesanan');
   }
 };
 

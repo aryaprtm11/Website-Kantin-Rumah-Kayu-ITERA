@@ -1,9 +1,13 @@
 <template>
   <aside class="sidebar" :class="{ 'sidebar-collapsed': isCollapsed }">
     <div class="sidebar-header">
-      <h2 v-if="!isCollapsed" class="sidebar-title">🏠 Kantin RK</h2>
+      <div v-if="!isCollapsed" class="sidebar-title">
+        <Home :size="20" />
+        <span>Kantin RK</span>
+      </div>
       <button @click="toggleSidebar" class="btn-toggle">
-        {{ isCollapsed ? "→" : "←" }}
+        <ChevronLeft v-if="!isCollapsed" :size="20" />
+        <ChevronRight v-else :size="20" />
       </button>
     </div>
 
@@ -14,7 +18,7 @@
         :to="item.path"
         class="nav-item"
       >
-        <span class="nav-icon">{{ item.icon }}</span>
+        <component :is="getIcon(item.icon)" :size="20" class="nav-icon" />
         <span v-if="!isCollapsed" class="nav-label">{{ item.label }}</span>
       </router-link>
     </nav>
@@ -28,7 +32,7 @@
         </div>
       </div>
       <button @click="handleLogout" class="btn-logout">
-        <span class="nav-icon">🚪</span>
+        <LogOut :size="20" class="nav-icon" />
         <span v-if="!isCollapsed">Logout</span>
       </button>
     </div>
@@ -39,6 +43,18 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "../../composables/useAuth";
+import {
+  Home,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  LayoutDashboard,
+  Package,
+  Store,
+  User,
+  Users,
+  UtensilsCrossed,
+} from "lucide-vue-next";
 
 const router = useRouter();
 const { currentUser, logout } = useAuth();
@@ -52,6 +68,19 @@ defineProps<{
     label: string;
   }>;
 }>();
+
+const iconMap: Record<string, any> = {
+  LayoutDashboard,
+  Package,
+  Store,
+  User,
+  Users,
+  UtensilsCrossed,
+};
+
+const getIcon = (iconName: string) => {
+  return iconMap[iconName] || User;
+};
 
 const userName = computed(() => currentUser.value?.name || "User");
 const userRole = computed(() => currentUser.value?.role || "customer");
@@ -99,6 +128,9 @@ const handleLogout = async () => {
   font-weight: 700;
   margin: 0;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-toggle {
@@ -150,9 +182,8 @@ const handleLogout = async () => {
 }
 
 .nav-icon {
-  font-size: 1.5rem;
-  min-width: 24px;
-  text-align: center;
+  min-width: 20px;
+  flex-shrink: 0;
 }
 
 .nav-label {

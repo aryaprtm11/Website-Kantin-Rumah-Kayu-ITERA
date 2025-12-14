@@ -4,6 +4,7 @@
  */
 
 import { ref, computed } from "vue";
+import { showWarning } from "../utils/sweetAlert";
 
 export interface CartItem {
   menuId: number;
@@ -32,7 +33,7 @@ export function useCart() {
       if (existingItem.quantity < item.stock) {
         existingItem.quantity++;
       } else {
-        alert("Stok tidak cukup");
+        showWarning("Stok tidak cukup", "Tidak Dapat Menambah");
       }
     } else {
       // Add new item to cart
@@ -64,7 +65,7 @@ export function useCart() {
       } else if (quantity <= item.stock) {
         item.quantity = quantity;
       } else {
-        alert("Stok tidak cukup");
+        showWarning("Stok tidak cukup", "Tidak Dapat Menambah");
       }
     }
   };

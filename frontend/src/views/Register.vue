@@ -4,13 +4,16 @@
       <!-- Left Side - Branding -->
       <div class="register-brand">
         <div class="brand-content">
-          <h1 class="brand-title">🏠 Kantin RK ITERA</h1>
+          <h1 class="brand-title">
+            <Home :size="40" class="title-icon" />
+            Kantin RK ITERA
+          </h1>
           <p class="brand-subtitle">Bergabunglah dengan ribuan mahasiswa lainnya</p>
           
           <div class="illustration">
-            <span class="emoji">🎓</span>
-            <span class="emoji">🍽️</span>
-            <span class="emoji">💳</span>
+            <GraduationCap :size="80" class="emoji" />
+            <UtensilsCrossed :size="80" class="emoji" />
+            <CreditCard :size="80" class="emoji" />
           </div>
         </div>
       </div>
@@ -25,7 +28,7 @@
 
           <!-- Error Message -->
           <div v-if="error" class="alert alert-error">
-            <span class="alert-icon">❌</span>
+            <XCircle :size="20" class="alert-icon" />
             <span>{{ error }}</span>
           </div>
 
@@ -96,7 +99,7 @@
               class="btn-submit"
               :disabled="loading"
             >
-              <span v-if="loading" class="btn-spinner">⟳</span>
+              <Loader2 v-if="loading" :size="20" class="btn-spinner" />
               <span v-else>Daftar Sekarang</span>
             </button>
           </form>
@@ -133,6 +136,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
 import type { RegisterData } from '../services/authService';
+import { Home, GraduationCap, UtensilsCrossed, CreditCard, XCircle, Loader2 } from 'lucide-vue-next';
 
 const router = useRouter();
 const { register, loading, error, clearError } = useAuth();
@@ -220,6 +224,14 @@ const handleSubmit = async () => {
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.title-icon {
+  flex-shrink: 0;
 }
 
 .brand-subtitle {
@@ -237,8 +249,8 @@ const handleSubmit = async () => {
 }
 
 .illustration .emoji {
-  font-size: 4rem;
   animation: float 3s ease-in-out infinite;
+  color: white;
 }
 
 .illustration .emoji:nth-child(2) {
@@ -305,7 +317,7 @@ const handleSubmit = async () => {
 }
 
 .alert-icon {
-  font-size: 1.2rem;
+  flex-shrink: 0;
 }
 
 @keyframes shake {

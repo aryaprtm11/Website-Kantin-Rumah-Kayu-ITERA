@@ -5,7 +5,8 @@
 
     <!-- Floating Cart Button -->
     <button v-if="itemCount > 0" class="floating-cart-btn" @click="openCart">
-      🛒 {{ itemCount }} item
+      <ShoppingCart :size="20" />
+      {{ itemCount }} item
       <span class="cart-total">{{ formatCurrency(totalPrice) }}</span>
     </button>
 
@@ -20,16 +21,20 @@
           </div>
 
           <div v-else-if="tenant" class="tenant-info">
-            <div class="tenant-icon">🏪</div>
+            <div class="tenant-icon">
+              <Store :size="40" />
+            </div>
             <div>
               <h1 class="tenant-name">{{ tenant.name }}</h1>
               <p class="tenant-hours">
-                ⏰ {{ tenant.opens_at }} - {{ tenant.closes_at }}
+                <Clock :size="16" class="inline-icon" />
+                {{ tenant.opens_at }} - {{ tenant.closes_at }}
               </p>
               <span
                 :class="['status-badge', tenant.is_open ? 'open' : 'closed']"
               >
-                {{ tenant.is_open ? "🟢 Buka" : "🔴 Tutup" }}
+                <component :is="tenant.is_open ? CircleCheck : CircleX" :size="16" class="inline-icon" />
+                {{ tenant.is_open ? "Buka" : "Tutup" }}
               </span>
             </div>
           </div>
@@ -49,13 +54,14 @@
 
           <!-- Error State -->
           <div v-else-if="error" class="error-state">
-            <p>❌ {{ error }}</p>
+            <XCircle :size="48" class="error-icon" />
+            <p>{{ error }}</p>
             <button class="btn-retry" @click="fetchMenus">Coba Lagi</button>
           </div>
 
           <!-- Empty State -->
           <div v-else-if="menus.length === 0" class="empty-state">
-            <div class="empty-icon">🍽️</div>
+            <UtensilsCrossed :size="80" class="empty-icon" />
             <h3>Belum Ada Menu</h3>
             <p>Kantin ini belum menambahkan menu</p>
           </div>
@@ -74,7 +80,9 @@
                   :src="menu.photo_url"
                   :alt="menu.name"
                 />
-                <div v-else class="menu-placeholder">🍽️</div>
+                <div v-else class="menu-placeholder">
+                  <UtensilsCrossed :size="64" />
+                </div>
                 <div v-if="menu.stock === 0" class="stock-badge out">Habis</div>
                 <div v-else-if="menu.stock < 5" class="stock-badge low">
                   Stok Terbatas
@@ -118,6 +126,16 @@ import Footer from "../components/Footer.vue";
 import Cart from "../components/Cart.vue";
 import { useCart } from "../composables/useCart";
 import api from "../config/api";
+import {
+  ShoppingCart,
+  Store,
+  Clock,
+  CircleCheck,
+  CircleX,
+  XCircle,
+  UtensilsCrossed,
+} from "lucide-vue-next";
+import { showError, showWarning } from "../utils/sweetAlert";
 
 const route = useRoute();
 const router = useRouter();
@@ -190,14 +208,15 @@ const goBack = () => {
 
 const addToCart = (menu: any) => {
   if (!tenant.value) {
-    alert("Data kantin belum dimuat");
+    showError("Data kantin belum dimuat");
     return;
   }
 
   // Check if can add item (same tenant validation)
   if (!canAddItem(tenant.value.id)) {
-    alert(
-      "Keranjang sudah berisi item dari kantin lain. Harap checkout atau kosongkan keranjang terlebih dahulu."
+    showWarning(
+      "Keranjang sudah berisi item dari kantin lain. Harap checkout atau kosongkan keranjang terlebih dahulu.",
+      "Tidak Dapat Menambah Item"
     );
     return;
   }
@@ -343,8 +362,19 @@ onMounted(() => {
 }
 
 .empty-icon {
-  font-size: 5rem;
   margin-bottom: 1rem;
+  color: #cbd5e0;
+}
+
+.error-icon {
+  color: #fc8181;
+  margin-bottom: 1rem;
+}
+
+.inline-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.25rem;
 }
 
 .empty-state h3 {
@@ -408,8 +438,12 @@ onMounted(() => {
 }
 
 .menu-placeholder {
-  font-size: 4rem;
   color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .stock-badge {

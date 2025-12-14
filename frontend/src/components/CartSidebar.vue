@@ -67,6 +67,7 @@ import { useRouter } from "vue-router";
 import { useCart } from "../composables/useCart";
 import { useAuth } from "../composables/useAuth";
 import api from "../config/api";
+import { showSuccess, showError, showConfirm } from "../utils/sweetAlert";
 
 const router = useRouter();
 const {
@@ -91,17 +92,29 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-const handleClear = () => {
-  if (confirm("Yakin ingin mengosongkan keranjang?")) {
+const handleClear = async () => {
+  const result = await showConfirm(
+    'Semua item di keranjang akan dihapus.',
+    'Yakin ingin mengosongkan keranjang?',
+    'Ya, Kosongkan',
+    'Batal'
+  );
+  
+  if (result.isConfirmed) {
     clearCart();
   }
 };
 
 const handleCheckout = async () => {
   if (!isAuthenticated.value) {
-    if (
-      confirm("Anda harus login untuk melakukan pemesanan. Login sekarang?")
-    ) {
+    const result = await showConfirm(
+      'Anda harus login untuk melakukan pemesanan.',
+      'Login sekarang?',
+      'Ya, Login',
+      'Batal'
+    );
+    
+    if (result.isConfirmed) {
       router.push("/login");
     }
     return;
@@ -119,12 +132,12 @@ const handleCheckout = async () => {
 
     await api.post("/orders", orderData);
 
-    alert("Pesanan berhasil dibuat! Silakan lakukan pembayaran di kantin.");
+    await showSuccess("Pesanan berhasil dibuat! Silakan lakukan pembayaran di kantin.");
     clearCart();
     closeCart();
     router.push("/customer/dashboard");
   } catch (error: any) {
-    alert(error.response?.data?.message || "Gagal membuat pesanan");
+    showError(error.response?.data?.message || "Gagal membuat pesanan");
     console.error("Checkout error:", error);
   }
 };

@@ -93,6 +93,7 @@ import { useRouter } from "vue-router";
 import { useCart } from "../composables/useCart";
 import { useAuth } from "../composables/useAuth";
 import api from "../config/api";
+import { showSuccess, showError, showConfirm } from "../utils/sweetAlert";
 
 const router = useRouter();
 const { isAuthenticated } = useAuth();
@@ -133,8 +134,15 @@ const decreaseQuantity = (menuId: number) => {
   }
 };
 
-const confirmClear = () => {
-  if (confirm("Yakin ingin mengosongkan keranjang?")) {
+const confirmClear = async () => {
+  const result = await showConfirm(
+    'Semua item di keranjang akan dihapus.',
+    'Yakin ingin mengosongkan keranjang?',
+    'Ya, Kosongkan',
+    'Batal'
+  );
+  
+  if (result.isConfirmed) {
     clearCart();
   }
 };
@@ -142,7 +150,14 @@ const confirmClear = () => {
 const handleCheckout = async () => {
   // Check if user is logged in
   if (!isAuthenticated.value) {
-    if (confirm("Anda harus login terlebih dahulu. Login sekarang?")) {
+    const result = await showConfirm(
+      'Anda harus login untuk melakukan pemesanan.',
+      'Login sekarang?',
+      'Ya, Login',
+      'Batal'
+    );
+    
+    if (result.isConfirmed) {
       router.push("/login");
     }
     return;
@@ -166,7 +181,7 @@ const handleCheckout = async () => {
     console.log("Order created:", response.data);
 
     // Success
-    alert("Pesanan berhasil dibuat! Silakan lakukan pembayaran.");
+    await showSuccess("Pesanan berhasil dibuat! Silakan lakukan pembayaran.");
 
     // Clear cart
     clearCart();
@@ -177,7 +192,7 @@ const handleCheckout = async () => {
   } catch (error: any) {
     console.error("Checkout error:", error);
     const message = error.response?.data?.message || "Gagal membuat pesanan";
-    alert(message);
+    showError(message);
   } finally {
     isProcessing.value = false;
   }

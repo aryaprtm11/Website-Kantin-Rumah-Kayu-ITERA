@@ -238,6 +238,7 @@ import { ref, onMounted } from 'vue';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import { AdminService } from '../../services/adminService';
 import { ADMIN_MENU_ITEMS } from '../../constants/menuItems';
+import { showSuccess, showError, showDeleteConfirm, showConfirm } from '../../utils/sweetAlert';
 
 const tenants = ref<any[]>([]);
 const loading = ref(false);
@@ -339,10 +340,10 @@ const handleSubmit = async () => {
   try {
     if (isEditMode.value && editingTenantId.value) {
       await AdminService.updateTenant(editingTenantId.value, formData.value);
-      alert('Kantin berhasil diupdate!');
+      await showSuccess('Kantin berhasil diupdate!');
     } else {
       await AdminService.createTenant(formData.value);
-      alert('Kantin berhasil ditambahkan!');
+      await showSuccess('Kantin berhasil ditambahkan!');
     }
     closeModal();
     fetchTenants();
@@ -354,28 +355,41 @@ const handleSubmit = async () => {
 };
 
 const toggleStatus = async (tenant: any) => {
-  if (confirm(`${tenant.is_active ? 'Nonaktifkan' : 'Aktifkan'} kantin ${tenant.name}?`)) {
+  const action = tenant.is_active ? 'Nonaktifkan' : 'Aktifkan';
+  const result = await showConfirm(
+    `Kantin ${tenant.name} akan ${action.toLowerCase()}.`,
+    `${action} kantin ini?`,
+    'Ya',
+    'Batal'
+  );
+  
+  if (result.isConfirmed) {
     try {
       await AdminService.updateTenant(tenant.id, {
         ...tenant,
         is_active: !tenant.is_active,
       });
-      alert('Status berhasil diubah!');
+      await showSuccess('Status berhasil diubah!');
       fetchTenants();
     } catch (error: any) {
-      alert('Gagal mengubah status: ' + error.message);
+      showError('Gagal mengubah status: ' + error.message);
     }
   }
 };
 
 const deleteTenant = async (tenant: any) => {
-  if (confirm(`Yakin ingin menghapus kantin ${tenant.name}? Tindakan ini tidak dapat dibatalkan.`)) {
+  const result = await showDeleteConfirm(
+    `Kantin ${tenant.name} akan dihapus secara permanen.`,
+    'Hapus kantin ini?'
+  );
+  
+  if (result.isConfirmed) {
     try {
       await AdminService.deleteTenant(tenant.id);
-      alert('Kantin berhasil dihapus!');
+      await showSuccess('Kantin berhasil dihapus!');
       fetchTenants();
     } catch (error: any) {
-      alert('Gagal menghapus: ' + error.message);
+      showError('Gagal menghapus: ' + error.message);
     }
   }
 };

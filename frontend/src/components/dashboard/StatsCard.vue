@@ -1,7 +1,7 @@
 <template>
   <div class="stats-card" :style="{ '--accent-color': color }">
     <div class="card-icon">
-      {{ icon }}
+      <component :is="getIcon(icon)" :size="32" />
     </div>
     <div class="card-content">
       <h3 class="card-value">{{ value }}</h3>
@@ -9,7 +9,7 @@
       <p v-if="subtitle" class="card-subtitle">{{ subtitle }}</p>
     </div>
     <div v-if="trend" class="card-trend" :class="trendClass">
-      <span class="trend-icon">{{ trendIcon }}</span>
+      <component :is="trendUp ? TrendingUp : TrendingDown" :size="16" class="trend-icon" />
       <span class="trend-value">{{ trend }}</span>
     </div>
   </div>
@@ -17,6 +17,17 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import {
+  Package,
+  DollarSign,
+  Store,
+  Users,
+  CheckCircle,
+  TrendingUp,
+  TrendingDown,
+  Bell,
+  ClipboardList,
+} from 'lucide-vue-next';
 
 const props = defineProps<{
   icon: string;
@@ -28,14 +39,23 @@ const props = defineProps<{
   trendUp?: boolean;
 }>();
 
+const iconMap: Record<string, any> = {
+  Package,
+  DollarSign,
+  Store,
+  Users,
+  CheckCircle,
+  Bell,
+  ClipboardList,
+};
+
+const getIcon = (iconName: string) => {
+  return iconMap[iconName] || Package;
+};
+
 const trendClass = computed(() => {
   if (props.trendUp === undefined) return '';
   return props.trendUp ? 'trend-up' : 'trend-down';
-});
-
-const trendIcon = computed(() => {
-  if (props.trendUp === undefined) return '';
-  return props.trendUp ? '↑' : '↓';
 });
 </script>
 
@@ -76,8 +96,8 @@ const trendIcon = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
   flex-shrink: 0;
+  color: white;
 }
 
 .card-content {
@@ -125,7 +145,7 @@ const trendIcon = computed(() => {
 }
 
 .trend-icon {
-  font-size: 1rem;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
@@ -136,7 +156,6 @@ const trendIcon = computed(() => {
   .card-icon {
     width: 50px;
     height: 50px;
-    font-size: 1.5rem;
   }
 
   .card-value {

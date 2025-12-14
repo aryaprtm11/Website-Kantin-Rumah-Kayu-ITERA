@@ -4,28 +4,31 @@
       <!-- Left Side - Branding -->
       <div class="login-brand">
         <div class="brand-content">
-          <h1 class="brand-title">🏠 Kantin RK ITERA</h1>
+          <h1 class="brand-title">
+            <Home :size="40" class="title-icon" />
+            Kantin RK ITERA
+          </h1>
           <p class="brand-subtitle">Sistem Pemesanan Makanan & Minuman</p>
           
           <div class="features">
             <div class="feature-item">
-              <span class="feature-icon">✨</span>
+              <Sparkles :size="24" class="feature-icon" />
               <span class="feature-text">Pesan dengan mudah</span>
             </div>
             <div class="feature-item">
-              <span class="feature-icon">⚡</span>
+              <Zap :size="24" class="feature-icon" />
               <span class="feature-text">Proses cepat</span>
             </div>
             <div class="feature-item">
-              <span class="feature-icon">🎯</span>
+              <Target :size="24" class="feature-icon" />
               <span class="feature-text">Banyak pilihan menu</span>
             </div>
           </div>
 
           <div class="illustration">
-            <span class="emoji">🍜</span>
-            <span class="emoji">🍔</span>
-            <span class="emoji">☕</span>
+            <Soup :size="64" class="emoji" />
+            <Sandwich :size="64" class="emoji" />
+            <Coffee :size="64" class="emoji" />
           </div>
         </div>
       </div>
@@ -40,7 +43,7 @@
 
           <!-- Error Message -->
           <div v-if="error" class="alert alert-error">
-            <span class="alert-icon">❌</span>
+            <XCircle :size="20" class="alert-icon" />
             <span>{{ error }}</span>
           </div>
 
@@ -89,7 +92,7 @@
               class="btn-submit"
               :disabled="loading"
             >
-              <span v-if="loading" class="btn-spinner">⟳</span>
+              <Loader2 v-if="loading" :size="20" class="btn-spinner" />
               <span v-else>Masuk</span>
             </button>
           </form>
@@ -127,6 +130,7 @@ import { useRouter } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
 import { AuthService, type LoginCredentials } from '../services/authService';
 import { getRoleValue } from '../utils/roleHelper';
+import { Home, Sparkles, Zap, Target, Soup, Sandwich, Coffee, XCircle, Loader2 } from 'lucide-vue-next';
 
 const router = useRouter();
 const { login, loading, error, clearError } = useAuth();
@@ -219,6 +223,14 @@ const handleSubmit = async () => {
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.title-icon {
+  flex-shrink: 0;
 }
 
 .brand-subtitle {
@@ -242,7 +254,7 @@ const handleSubmit = async () => {
 }
 
 .feature-icon {
-  font-size: 1.5rem;
+  flex-shrink: 0;
 }
 
 .feature-text {
@@ -325,7 +337,7 @@ const handleSubmit = async () => {
 }
 
 .alert-icon {
-  font-size: 1.2rem;
+  flex-shrink: 0;
 }
 
 @keyframes shake {

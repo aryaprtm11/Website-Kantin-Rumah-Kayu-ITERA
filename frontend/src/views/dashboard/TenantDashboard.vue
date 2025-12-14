@@ -10,7 +10,8 @@
         </div>
         <div class="header-actions">
           <button class="btn-refresh" @click="refreshData">
-            🔄 Refresh
+            <RefreshCw :size="16" />
+            Refresh
           </button>
         </div>
       </div>
@@ -19,14 +20,14 @@
         <!-- Stats Overview - Hanya 2 Stats -->
         <section class="stats-grid">
           <StatsCard
-            icon="📦"
+            icon="Package"
             :value="stats.todayOrders"
             label="Pesanan Hari Ini"
             subtitle="Total pesanan"
             color="#667eea"
           />
           <StatsCard
-            icon="💰"
+            icon="DollarSign"
             :value="formatCurrency(stats.todayRevenue)"
             label="Pendapatan Hari Ini"
             subtitle="Total pemasukan"
@@ -37,7 +38,10 @@
         <!-- Pending Orders - Priority -->
         <section class="section-card" v-if="pendingOrders.length > 0">
           <div class="section-header">
-            <h2 class="section-title">🔔 Pesanan Perlu Diproses</h2>
+            <h2 class="section-title">
+              <Bell :size="20" class="inline-icon" />
+              Pesanan Perlu Diproses
+            </h2>
             <span class="badge badge-danger"
               >{{ pendingOrders.length }} pesanan</span
             >
@@ -56,7 +60,7 @@
                 }}</span>
               </div>
               <div class="order-customer">
-                <span class="customer-icon">👤</span>
+                <User :size="16" class="customer-icon" />
                 {{ order.user?.name }}
               </div>
               <div class="order-items">
@@ -75,10 +79,12 @@
                 }}</span>
                 <div class="order-actions">
                   <button class="btn-accept" @click="acceptOrder(order.id)">
-                    ✓ Terima
+                    <Check :size="16" />
+                    Terima
                   </button>
                   <button class="btn-reject" @click="rejectOrder(order.id)">
-                    ✕ Tolak
+                    <X :size="16" />
+                    Tolak
                   </button>
                 </div>
               </div>
@@ -89,7 +95,10 @@
         <!-- Menu Management -->
         <section class="section-card">
           <div class="section-header">
-            <h2 class="section-title">🍽️ Menu Kantin</h2>
+            <h2 class="section-title">
+              <UtensilsCrossed :size="20" class="inline-icon" />
+              Menu Kantin
+            </h2>
             <router-link to="/tenant/menus" class="link-view-all">
               Kelola Menu →
             </router-link>
@@ -183,6 +192,8 @@ import Sidebar from "../../components/dashboard/Sidebar.vue";
 import StatsCard from "../../components/dashboard/StatsCard.vue";
 import { TenantService } from "../../services/tenantService";
 import { TENANT_MENU_ITEMS } from "../../constants/menuItems";
+import { Bell, UtensilsCrossed, User, RefreshCw, Check, X } from "lucide-vue-next";
+import { showSuccess, showError, showConfirm, showInfo } from "../../utils/sweetAlert";
 
 const tenantInfo = ref<any>(null);
 const tenantName = computed(() => tenantInfo.value?.name || "Kantin Saya");
@@ -307,18 +318,25 @@ const fetchOrders = async () => {
 const acceptOrder = async (orderId: number) => {
   try {
     await TenantService.acceptOrder(orderId);
-    alert(`Pesanan #${orderId} diterima dan sedang diproses`);
+    await showSuccess(`Pesanan #${orderId} diterima dan sedang diproses`);
     // Refresh orders
     fetchOrders();
     fetchStats();
   } catch (error: any) {
-    alert(`Gagal menerima pesanan: ${error.message}`);
+    showError(`Gagal menerima pesanan: ${error.message}`);
   }
 };
 
-const rejectOrder = (orderId: number) => {
-  if (confirm(`Yakin ingin menolak pesanan #${orderId}?`)) {
-    alert("Fitur reject order akan segera hadir!");
+const rejectOrder = async (orderId: number) => {
+  const result = await showConfirm(
+    `Pesanan #${orderId} akan ditolak dan tidak dapat dikembalikan.`,
+    "Yakin ingin menolak pesanan ini?",
+    "Ya, Tolak",
+    "Batal"
+  );
+  
+  if (result.isConfirmed) {
+    showInfo("Fitur reject order akan segera hadir!");
   }
 };
 
@@ -336,6 +354,12 @@ onMounted(() => {
 
 <style scoped>
 /* Reuse styles from AdminDashboard */
+.inline-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
@@ -523,7 +547,8 @@ onMounted(() => {
 }
 
 .customer-icon {
-  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-right: 0.5rem;
 }
 
 .order-items {

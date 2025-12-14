@@ -240,6 +240,7 @@ import { ref, computed, onMounted } from 'vue';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import api from '../../config/api';
 import { TENANT_MENU_ITEMS } from '../../constants/menuItems';
+import { showSuccess, showError, showConfirm } from '../../utils/sweetAlert';
 
 const orders = ref<any[]>([]);
 const loading = ref(false);
@@ -351,22 +352,31 @@ const updateStatus = async (orderId: number, newStatus: string) => {
       status: newStatus,
     });
     await fetchOrders();
+    await showSuccess('Status pesanan berhasil diupdate');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal update status pesanan');
+    showError(err.response?.data?.message || 'Gagal update status pesanan');
     console.error('Error updating status:', err);
   }
 };
 
 const cancelOrder = async (orderId: number) => {
-  if (!confirm('Yakin ingin membatalkan pesanan ini?')) return;
+  const result = await showConfirm(
+    'Pesanan akan dibatalkan dan tidak dapat dikembalikan.',
+    'Yakin ingin membatalkan pesanan ini?',
+    'Ya, Batalkan',
+    'Tidak'
+  );
+  
+  if (!result.isConfirmed) return;
   
   try {
     await api.patch(`/tenant/orders/${orderId}/status`, {
       status: 'cancelled',
     });
     await fetchOrders();
+    await showSuccess('Pesanan berhasil dibatalkan');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal membatalkan pesanan');
+    showError(err.response?.data?.message || 'Gagal membatalkan pesanan');
   }
 };
 

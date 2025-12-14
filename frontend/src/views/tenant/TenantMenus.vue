@@ -162,6 +162,7 @@ import { ref, onMounted } from 'vue';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import api from '../../config/api';
 import { TENANT_MENU_ITEMS } from '../../constants/menuItems';
+import { showSuccess, showError, showDeleteConfirm } from '../../utils/sweetAlert';
 
 const menus = ref<any[]>([]);
 const loading = ref(false);
@@ -271,14 +272,20 @@ const updateStock = async (menu: any) => {
     await api.patch(`/tenant/menus/${menu.id}/stock`, {
       stock: menu.stock,
     });
+    await showSuccess('Stok berhasil diupdate');
   } catch (err: any) {
-    alert('Gagal update stok');
+    showError('Gagal update stok');
     await fetchMenus();
   }
 };
 
-const confirmDelete = (menu: any) => {
-  if (confirm(`Yakin ingin menghapus menu "${menu.name}"?`)) {
+const confirmDelete = async (menu: any) => {
+  const result = await showDeleteConfirm(
+    `Menu "${menu.name}" akan dihapus secara permanen.`,
+    'Hapus menu ini?'
+  );
+  
+  if (result.isConfirmed) {
     deleteMenu(menu.id);
   }
 };
@@ -287,8 +294,9 @@ const deleteMenu = async (menuId: number) => {
   try {
     await api.delete(`/tenant/menus/${menuId}`);
     await fetchMenus();
+    await showSuccess('Menu berhasil dihapus');
   } catch (err: any) {
-    alert('Gagal menghapus menu');
+    showError('Gagal menghapus menu');
     console.error('Error deleting menu:', err);
   }
 };

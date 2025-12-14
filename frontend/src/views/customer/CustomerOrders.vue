@@ -188,7 +188,8 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import { OrderService, type Order } from '../../services/orderService';
-import { CUSTOMER_MENU_ITEMS } from '../../constants/menuItems'; // TAMBAHKAN INI
+import { CUSTOMER_MENU_ITEMS } from '../../constants/menuItems';
+import { showSuccess, showError, showConfirm } from '../../utils/sweetAlert';
 
 const router = useRouter();
 
@@ -247,45 +248,66 @@ const fetchOrders = async () => {
 };
 
 const handlePayOrder = async (order: Order) => {
-  if (!confirm('Konfirmasi pembayaran untuk pesanan ini?')) return;
+  const result = await showConfirm(
+    'Pastikan Anda sudah melakukan pembayaran di kantin.',
+    'Konfirmasi pembayaran?',
+    'Ya, Sudah Bayar',
+    'Batal'
+  );
+  
+  if (!result.isConfirmed) return;
   
   actionLoading.value = order.id;
   try {
     await OrderService.payOrder(order.id);
     await fetchOrders();
-    alert('✅ Pembayaran berhasil!');
+    await showSuccess('Pembayaran berhasil!');
   } catch (err: any) {
-    alert(`❌ ${err.message || 'Gagal melakukan pembayaran'}`);
+    showError(err.message || 'Gagal melakukan pembayaran');
   } finally {
     actionLoading.value = null;
   }
 };
 
 const handlePickupOrder = async (order: Order) => {
-  if (!confirm('Konfirmasi pesanan sudah diambil?')) return;
+  const result = await showConfirm(
+    'Pastikan Anda sudah mengambil pesanan.',
+    'Konfirmasi pesanan sudah diambil?',
+    'Ya, Sudah Diambil',
+    'Batal'
+  );
+  
+  if (!result.isConfirmed) return;
   
   actionLoading.value = order.id;
   try {
     await OrderService.pickupOrder(order.id);
     await fetchOrders();
-    alert('✅ Pesanan berhasil ditandai sudah diambil!');
+    await showSuccess('Pesanan berhasil ditandai sudah diambil!');
   } catch (err: any) {
-    alert(`❌ ${err.message || 'Gagal memproses'}`);
+    showError(err.message || 'Gagal memproses');
   } finally {
     actionLoading.value = null;
   }
 };
 
 const handleCompleteOrder = async (order: Order) => {
-  if (!confirm('Tandai pesanan sebagai selesai?')) return;
+  const result = await showConfirm(
+    'Pesanan akan ditandai sebagai selesai.',
+    'Tandai pesanan sebagai selesai?',
+    'Ya, Selesai',
+    'Batal'
+  );
+  
+  if (!result.isConfirmed) return;
   
   actionLoading.value = order.id;
   try {
     await OrderService.completeOrder(order.id);
     await fetchOrders();
-    alert('✅ Pesanan selesai! Terima kasih.');
+    await showSuccess('Pesanan selesai! Terima kasih.');
   } catch (err: any) {
-    alert(`❌ ${err.message || 'Gagal memproses'}`);
+    showError(err.message || 'Gagal memproses');
   } finally {
     actionLoading.value = null;
   }

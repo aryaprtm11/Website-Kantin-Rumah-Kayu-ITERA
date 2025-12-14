@@ -237,6 +237,7 @@ import Sidebar from '../../components/dashboard/Sidebar.vue';
 import { AdminService } from '../../services/adminService';
 import { ADMIN_MENU_ITEMS } from '../../constants/menuItems';
 import { useAuth } from '../../composables/useAuth';
+import { showSuccess, showError, showDeleteConfirm, showConfirm } from '../../utils/sweetAlert';
 
 const { currentUser } = useAuth();
 const currentUserId = computed(() => currentUser.value?.id);
@@ -371,10 +372,10 @@ const handleSubmit = async () => {
       };
       
       await AdminService.updateUser(editingUserId.value, updateData);
-      alert('User berhasil diupdate!');
+      await showSuccess('User berhasil diupdate!');
     } else {
       await AdminService.createUser(formData.value);
-      alert('User berhasil ditambahkan!');
+      await showSuccess('User berhasil ditambahkan!');
     }
     closeModal();
     fetchUsers();
@@ -386,29 +387,42 @@ const handleSubmit = async () => {
 };
 
 const toggleStatus = async (user: any) => {
-  if (confirm(`${user.is_active ? 'Nonaktifkan' : 'Aktifkan'} user ${user.name}?`)) {
+  const action = user.is_active ? 'Nonaktifkan' : 'Aktifkan';
+  const result = await showConfirm(
+    `User ${user.name} akan ${action.toLowerCase()}.`,
+    `${action} user ini?`,
+    'Ya',
+    'Batal'
+  );
+  
+  if (result.isConfirmed) {
     try {
       await AdminService.updateUser(user.id, {
         name: user.name,
         role: user.role,
         is_active: !user.is_active,
       });
-      alert('Status berhasil diubah!');
+      await showSuccess('Status berhasil diubah!');
       fetchUsers();
     } catch (error: any) {
-      alert('Gagal mengubah status: ' + error.message);
+      showError('Gagal mengubah status: ' + error.message);
     }
   }
 };
 
 const deleteUser = async (user: any) => {
-  if (confirm(`Yakin ingin menghapus user ${user.name}? Tindakan ini tidak dapat dibatalkan.`)) {
+  const result = await showDeleteConfirm(
+    `User ${user.name} akan dihapus secara permanen.`,
+    'Hapus user ini?'
+  );
+  
+  if (result.isConfirmed) {
     try {
       await AdminService.deleteUser(user.id);
-      alert('User berhasil dihapus!');
+      await showSuccess('User berhasil dihapus!');
       fetchUsers();
     } catch (error: any) {
-      alert('Gagal menghapus: ' + error.message);
+      showError('Gagal menghapus: ' + error.message);
     }
   }
 };
