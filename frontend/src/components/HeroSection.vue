@@ -27,13 +27,12 @@
       </div>
       <div class="hero-image">
         <div class="image-placeholder">
-          <span 
-            v-for="(emoji, index) in foodEmojis" 
-            :key="index" 
-            class="emoji"
-          >
-            {{ emoji }}
-          </span>
+          <img
+            :src="foodImage"
+            alt="Penyetan Malang"
+            class="food-img single"
+            @error="onImgError"
+          />
         </div>
       </div>
     </div>
@@ -61,8 +60,16 @@ const stats = [
   { number: '1000+', label: 'Pesanan' },
 ];
 
-// Food emojis for illustration
-const foodEmojis = ['🍜', '🍔', '🍕', '🥗', '☕', '🍰'];
+// Import image from `src/assets` (file is at frontend/src/assets/Penyetan_Malang.jpeg)
+import foodImage from '../assets/Penyetan_Malang.jpeg';
+
+// Fallback SVG data URL if image fails to load
+const fallbackSvg = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="#f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#718596" font-family="Arial, Helvetica, sans-serif" font-size="20">Gambar tidak tersedia</text></svg>');
+
+const onImgError = (e: Event) => {
+  const img = e.target as HTMLImageElement;
+  if (img && img.src !== fallbackSvg) img.src = fallbackSvg;
+};
 
 /**
  * Handle view menu button click
@@ -88,7 +95,7 @@ const handleViewMenu = () => {
   margin: 0 auto;
   padding: 0 2rem;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.2fr; /* make image column slightly larger */
   gap: 3rem;
   align-items: center;
 }
@@ -115,6 +122,7 @@ const handleViewMenu = () => {
 .hero-description {
   font-size: 1.2rem;
   color: #4a5568;
+  font-weight: 600;
   margin-bottom: 2rem;
   line-height: 1.6;
 }
@@ -188,37 +196,29 @@ const handleViewMenu = () => {
 .image-placeholder {
   background: white;
   border-radius: 20px;
-  padding: 3rem;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  padding: 1rem; /* smaller padding to allow larger image */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-.emoji {
-  font-size: 4rem;
-  text-align: center;
+.food-img {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: 600px; /* limit height while allowing wider display */
+  object-fit: cover;
+  border-radius: 12px;
   animation: float 3s ease-in-out infinite;
+  box-sizing: border-box;
 }
 
-.emoji:nth-child(2) {
-  animation-delay: 0.5s;
-}
-
-.emoji:nth-child(3) {
-  animation-delay: 1s;
-}
-
-.emoji:nth-child(4) {
-  animation-delay: 1.5s;
-}
-
-.emoji:nth-child(5) {
-  animation-delay: 2s;
-}
-
-.emoji:nth-child(6) {
-  animation-delay: 2.5s;
+.food-img.single {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 
 @keyframes fadeInLeft {
@@ -280,8 +280,8 @@ const handleViewMenu = () => {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .emoji {
-    font-size: 3rem;
+  .food-img {
+    width: 100%;
   }
 }
 </style>

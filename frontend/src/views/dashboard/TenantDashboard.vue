@@ -9,9 +9,14 @@
           <p class="dashboard-subtitle">{{ tenantName }}</p>
         </div>
         <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            <RefreshCw :size="16" />
-            Refresh
+          <button
+            class="btn-refresh"
+            :disabled="isRefreshing"
+            @click="refreshData"
+            aria-label="Refresh data"
+          >
+            <RefreshCw :size="18" class="refresh-icon" :class="{ spin: isRefreshing }" />
+            <span class="btn-label">{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
           </button>
         </div>
       </div>
@@ -115,10 +120,9 @@
 
           <div v-else class="menu-grid">
             <div v-for="menu in menus" :key="menu.id" class="menu-card">
-              <div class="menu-image">
-                <img v-if="menu.image" :src="menu.image" :alt="menu.name" />
-                <div v-else class="menu-placeholder">🍽️</div>
-              </div>
+                <div class="menu-image">
+                  <img :src="menu.image || nasigoreng" :alt="menu.name" />
+                </div>
               <div class="menu-info">
                 <h3 class="menu-name">{{ menu.name }}</h3>
                 <p class="menu-price">{{ formatCurrency(menu.price) }}</p>
@@ -193,6 +197,7 @@ import StatsCard from "../../components/dashboard/StatsCard.vue";
 import { TenantService } from "../../services/tenantService";
 import { TENANT_MENU_ITEMS } from "../../constants/menuItems";
 import { Bell, UtensilsCrossed, User, RefreshCw, Check, X } from "lucide-vue-next";
+import nasigoreng from '../../assets/nasigoreng.jpeg';
 import { showSuccess, showError, showConfirm, showInfo } from "../../utils/sweetAlert";
 
 const tenantInfo = ref<any>(null);
@@ -340,11 +345,18 @@ const rejectOrder = async (orderId: number) => {
   }
 };
 
-const refreshData = () => {
-  fetchTenantInfo();
-  fetchStats();
-  fetchMenus();
-  fetchOrders();
+const isRefreshing = ref(false);
+
+const refreshData = async () => {
+  if (isRefreshing.value) return;
+  isRefreshing.value = true;
+  try {
+    await Promise.all([fetchTenantInfo(), fetchStats(), fetchMenus(), fetchOrders()]);
+  } catch (err) {
+    console.error('Error refreshing data:', err);
+  } finally {
+    isRefreshing.value = false;
+  }
 };
 
 onMounted(() => {
@@ -394,22 +406,44 @@ onMounted(() => {
 
 .header-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .btn-refresh {
-  padding: 0.75rem 1.5rem;
-  background: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  background: linear-gradient(90deg, #edf2ff 0%, #e6eefc 100%);
+  color: #2d3748;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
 }
 
-.btn-refresh:hover {
-  background: #f7fafc;
-  border-color: #cbd5e0;
+.btn-refresh:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(99,102,241,0.12);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.refresh-icon {
+  color: #334155;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+.btn-label {
+  font-weight: 700;
 }
 
 .btn-primary {

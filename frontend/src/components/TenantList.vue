@@ -25,10 +25,13 @@
           class="tenant-card"
         >
           <div class="tenant-image">
-            <div class="tenant-placeholder">
-              🏪
-            </div>
-          </div>
+                <template v-if="getTenantImage(tenant)">
+                  <img :src="getTenantImage(tenant)" :alt="tenant.name" />
+                </template>
+                <div v-else class="tenant-placeholder">
+                  🏪
+                </div>
+              </div>
           <div class="tenant-content">
             <h3 class="tenant-name">{{ tenant.name }}</h3>
             <p class="tenant-hours">⏰ {{ tenant.opens_at }} - {{ tenant.closes_at }}</p>
@@ -67,6 +70,17 @@
 import { onMounted } from 'vue';
 import { useTenants } from '../composables/useTenants';
 import { INFO_MESSAGES } from '../constants/messages';
+// import a local image for the specific tenant
+import tenant1Img from '../assets/tenant1.jpeg';
+
+// return an image URL for a tenant (uses tenant photo_url if provided,
+// otherwise special-case `Warung Nusantara` to show `tenant1.jpg`)
+const getTenantImage = (tenant: any) => {
+  if (!tenant) return null;
+  if (tenant.photo_url) return tenant.photo_url;
+  if (tenant.name && tenant.name.toLowerCase().includes('warung nusantara')) return tenant1Img;
+  return null;
+};
 
 const { tenants, loading, error, fetchTenants, retry } = useTenants();
 

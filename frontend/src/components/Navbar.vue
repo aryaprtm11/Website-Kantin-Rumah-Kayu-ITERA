@@ -55,7 +55,7 @@ const router = useRouter();
 const { isAuthenticated, userName, logout } = useAuth();
 
 // Constants
-const APP_NAME = '🏠 Kantin RK ITERA';
+const APP_NAME = '🏠 Kantin Rumah Kayu ITERA';
 const APP_TAGLINE = 'Pesan Makanan dengan Mudah';
 
 // Navigation links configuration

@@ -9,8 +9,14 @@
           <p class="dashboard-subtitle">Selamat datang kembali, {{ userName }}!</p>
         </div>
         <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            🔄 Refresh
+          <button
+            class="btn-refresh"
+            :disabled="isRefreshing"
+            @click="refreshData"
+            aria-label="Refresh data"
+          >
+            <RefreshCw :size="18" class="refresh-icon" :class="{ spin: isRefreshing }" />
+            <span class="btn-label">{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
           </button>
         </div>
       </div>
@@ -19,14 +25,14 @@
         <!-- Stats Overview - Hanya 2 Stats -->
         <section class="stats-grid">
           <StatsCard
-            icon="🏪"
+            icon="Store"
             :value="stats.totalTenants"
             label="Total Kantin"
             subtitle="Kantin terdaftar"
             color="#667eea"
           />
           <StatsCard
-            icon="👥"
+            icon="Users"
             :value="stats.totalUsers"
             label="Total Users"
             subtitle="Pengguna aktif"
@@ -146,6 +152,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useAuth } from '../../composables/useAuth';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import StatsCard from '../../components/dashboard/StatsCard.vue';
+import { RefreshCw } from 'lucide-vue-next';
 import { AdminService } from '../../services/adminService';
 import { ADMIN_MENU_ITEMS } from '../../constants/menuItems';
 
@@ -269,10 +276,18 @@ const fetchRecentOrders = async () => {
   }
 };
 
-const refreshData = () => {
-  fetchStats();
-  fetchRecentTenants();
-  fetchRecentOrders();
+const isRefreshing = ref(false);
+
+const refreshData = async () => {
+  if (isRefreshing.value) return;
+  isRefreshing.value = true;
+  try {
+    await Promise.all([fetchStats(), fetchRecentTenants(), fetchRecentOrders()]);
+  } catch (error) {
+    console.error('Error refreshing data:', error);
+  } finally {
+    isRefreshing.value = false;
+  }
 };
 
 onMounted(() => {
@@ -319,18 +334,41 @@ onMounted(() => {
 }
 
 .btn-refresh {
-  padding: 0.75rem 1.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(90deg, #667eea 0%, #5568d3 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
 .btn-refresh:hover {
-  background: #f7fafc;
-  border-color: #cbd5e0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(85,104,211,0.18);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.refresh-icon {
+  color: white;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+.btn-label {
+  display: inline-block;
 }
 
 .dashboard-content {

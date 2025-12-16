@@ -9,11 +9,19 @@
           <p class="dashboard-subtitle">Manajemen pengguna sistem</p>
         </div>
         <div class="header-actions">
-          <button class="btn-refresh" @click="fetchUsers">
-            🔄 Refresh
+          <button
+            class="btn-refresh"
+            :disabled="isRefreshing"
+            @click="refreshUsers"
+            aria-label="Refresh users"
+          >
+            <RefreshCw :size="16" class="refresh-icon" :class="{ spin: isRefreshing }" />
+            <span class="btn-label">{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
           </button>
-          <button class="btn-primary" @click="openAddModal">
-            ➕ Tambah User
+
+          <button class="btn-primary btn-add" @click="openAddModal">
+            <Plus :size="14" class="add-icon" />
+            <span>Tambah User</span>
           </button>
         </div>
       </div>
@@ -99,23 +107,26 @@
                     <td>
                       <div class="action-buttons">
                         <button class="btn-action btn-edit" @click="openEditModal(user)" title="Edit">
-                          ✏️
+                          <Edit :size="16" class="action-icon" />
                         </button>
-                        <button 
+
+                        <button
                           v-if="user.id !== currentUserId"
-                          :class="['btn-action', user.is_active ? 'btn-deactivate' : 'btn-activate']" 
+                          :class="['btn-action', user.is_active ? 'btn-deactivate' : 'btn-activate']"
                           @click="toggleStatus(user)"
                           :title="user.is_active ? 'Nonaktifkan' : 'Aktifkan'"
                         >
-                          {{ user.is_active ? '🔒' : '🔓' }}
+                          <Lock v-if="user.is_active" :size="16" class="action-icon" />
+                          <Unlock v-else :size="16" class="action-icon" />
                         </button>
-                        <button 
+
+                        <button
                           v-if="user.id !== currentUserId"
-                          class="btn-action btn-delete" 
-                          @click="deleteUser(user)" 
+                          class="btn-action btn-delete"
+                          @click="deleteUser(user)"
                           title="Hapus"
                         >
-                          🗑️
+                          <Trash :size="16" class="action-icon" />
                         </button>
                       </div>
                     </td>
@@ -234,6 +245,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
+import { RefreshCw, Plus, Edit, Lock, Unlock, Trash } from 'lucide-vue-next';
 import { AdminService } from '../../services/adminService';
 import { ADMIN_MENU_ITEMS } from '../../constants/menuItems';
 import { useAuth } from '../../composables/useAuth';
@@ -308,6 +320,20 @@ const fetchUsers = async () => {
     users.value = [];
   } finally {
     loading.value = false;
+  }
+};
+
+const isRefreshing = ref(false);
+
+const refreshUsers = async () => {
+  if (isRefreshing.value) return;
+  isRefreshing.value = true;
+  try {
+    await fetchUsers();
+  } catch (err) {
+    console.error('Error refreshing users:', err);
+  } finally {
+    isRefreshing.value = false;
   }
 };
 
@@ -467,43 +493,59 @@ onMounted(() => {
 
 .header-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .btn-refresh {
-  padding: 0.75rem 1.5rem;
-  background: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  background: linear-gradient(90deg, #edf2ff 0%, #e6eefc 100%);
+  color: #2d3748;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
 }
 
-.btn-refresh:hover {
-  background: #f7fafc;
-}
-
-.btn-primary {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-primary:hover:not(:disabled) {
+.btn-refresh:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 14px rgba(99,102,241,0.12);
 }
 
-.btn-primary:disabled {
-  opacity: 0.6;
+.btn-refresh:disabled {
+  opacity: 0.75;
   cursor: not-allowed;
 }
+
+.refresh-icon {
+  color: #334155;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+.btn-label {
+  font-weight: 700;
+}
+
+.btn-primary.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(90deg, #667eea 0%, #5568d3 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.add-icon { color: white; }
 
 .dashboard-content {
   display: flex;
@@ -698,45 +740,45 @@ onMounted(() => {
 }
 
 .btn-action {
-  padding: 0.5rem;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s;
-  font-size: 1rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  background: transparent;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(15,23,42,0.06);
 }
 
 .btn-edit {
-  background: #bee3f8;
-}
-
-.btn-edit:hover {
-  background: #90cdf4;
+  background: linear-gradient(90deg, #e6f2ff 0%, #dbe9ff 100%);
+  color: #1e3a8a;
 }
 
 .btn-activate {
-  background: #c6f6d5;
-}
-
-.btn-activate:hover {
-  background: #9ae6b4;
+  background: linear-gradient(90deg, #e6ffef 0%, #dcfbe6 100%);
+  color: #166534;
 }
 
 .btn-deactivate {
-  background: #fed7d7;
-}
-
-.btn-deactivate:hover {
-  background: #fc8181;
+  background: linear-gradient(90deg, #fff2f2 0%, #ffe6e6 100%);
+  color: #b91c1c;
 }
 
 .btn-delete {
-  background: #fed7d7;
+  background: linear-gradient(90deg, #fff2f2 0%, #ffe6e6 100%);
+  color: #b91c1c;
 }
 
-.btn-delete:hover {
-  background: #fc8181;
-}
+.action-icon { color: inherit; }
 
 .pagination {
   display: flex;

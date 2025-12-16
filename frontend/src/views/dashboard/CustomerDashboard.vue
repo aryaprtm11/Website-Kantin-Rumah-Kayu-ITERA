@@ -9,11 +9,19 @@
           <p class="dashboard-subtitle">Selamat datang, {{ userName }}!</p>
         </div>
         <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            🔄 Refresh
+          <button
+            class="btn-refresh"
+            :disabled="isRefreshing"
+            @click="refreshData"
+            :aria-busy="isRefreshing"
+            :title="isRefreshing ? 'Memuat...' : 'Segarkan data'"
+          >
+            <RefreshCw :size="16" class="refresh-icon" :class="{ spin: isRefreshing }" />
+            <span class="btn-label">{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
           </button>
-          <router-link to="/" class="btn-browse">
-            🏪 Jelajahi Kantin
+          <router-link to="/#tenants" class="btn-browse">
+            <Store :size="16" class="browse-icon" />
+            <span>Jelajahi Kantin</span>
           </router-link>
         </div>
       </div>
@@ -180,6 +188,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { RefreshCw, Store } from 'lucide-vue-next';
 import { useAuth } from '../../composables/useAuth';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import StatsCard from '../../components/dashboard/StatsCard.vue';
@@ -320,9 +329,18 @@ const markPickedUp = async (orderId: number) => {
   }
 };
 
-const refreshData = () => {
-  fetchStats();
-  fetchOrders();
+const isRefreshing = ref(false);
+
+const refreshData = async () => {
+  if (isRefreshing.value) return;
+  isRefreshing.value = true;
+  try {
+    await Promise.all([fetchStats(), fetchOrders()]);
+  } catch (err) {
+    console.error('Error refreshing data:', err);
+  } finally {
+    isRefreshing.value = false;
+  }
 };
 
 onMounted(() => {
@@ -368,36 +386,44 @@ onMounted(() => {
 }
 
 .btn-refresh {
-  padding: 0.75rem 1.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.9rem;
+  background: linear-gradient(90deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(15,23,42,0.06);
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
 }
 
-.btn-refresh:hover {
-  background: #f7fafc;
-  border-color: #cbd5e0;
-}
+.btn-refresh:disabled { opacity: 0.6; cursor: wait; }
+
+.refresh-icon { color: #06b6d4; }
+.btn-label { font-weight: 700; color: #0f172a; }
 
 .btn-browse {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 999px;
+  font-weight: 700;
   text-decoration: none;
-  display: inline-block;
-  transition: all 0.3s;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-.btn-browse:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+.btn-browse:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(99,102,241,0.12); }
+.browse-icon { color: rgba(255,255,255,0.95); }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
+.spin { animation: spin 1s linear infinite; }
 
 .dashboard-content {
   display: flex;

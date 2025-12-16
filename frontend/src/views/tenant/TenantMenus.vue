@@ -9,8 +9,9 @@
           <p class="dashboard-subtitle">Atur menu kantin Anda</p>
         </div>
         <div class="header-actions">
-          <button class="btn-primary" @click="openAddModal">
-            ➕ Tambah Menu
+          <button class="btn-primary btn-add" @click="openAddModal" aria-label="Tambah menu">
+            <PlusCircle :size="18" class="btn-add-icon" />
+            <span>Tambah Menu</span>
           </button>
         </div>
       </div>
@@ -29,12 +30,12 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="menus.length === 0" class="empty-state">
+          <div v-else-if="menus.length === 0" class="empty-state">
           <div class="empty-icon">🍽️</div>
           <h3>Belum Ada Menu</h3>
           <p>Mulai tambahkan menu pertama Anda</p>
-          <button class="btn-primary" @click="openAddModal">
-            ➕ Tambah Menu
+          <button class="btn-primary btn-add" @click="openAddModal">
+            <PlusCircle :size="16" class="btn-add-icon" /> Tambah Menu
           </button>
         </div>
 
@@ -42,7 +43,12 @@
         <div v-else class="menu-grid">
           <div v-for="menu in menus" :key="menu.id" class="menu-card">
             <div class="menu-image">
-              <div class="menu-placeholder">🍽️</div>
+              <img
+                :src="menu.photo_url || nasigoreng"
+                :alt="menu.name"
+                class="menu-img"
+                @error="(e) => (e.target.src = nasigoreng)"
+              />
             </div>
             <div class="menu-info">
               <h3 class="menu-name">{{ menu.name }}</h3>
@@ -60,11 +66,11 @@
               </div>
             </div>
             <div class="menu-actions">
-              <button class="btn-icon btn-edit" @click="openEditModal(menu)" title="Edit">
-                ✏️
+              <button class="btn-icon btn-edit" @click="openEditModal(menu)" title="Edit" aria-label="Edit menu">
+                <Edit3 :size="18" class="icon-svg"/>
               </button>
-              <button class="btn-icon btn-delete" @click="confirmDelete(menu)" title="Hapus">
-                🗑️
+              <button class="btn-icon btn-delete" @click="confirmDelete(menu)" title="Hapus" aria-label="Hapus menu">
+                <Trash2 :size="18" class="icon-svg"/>
               </button>
             </div>
           </div>
@@ -81,6 +87,9 @@
         </div>
         
         <form @submit.prevent="handleSubmit" class="modal-body">
+          <div class="image-preview" v-if="formData.photo_url || !isEditMode">
+            <img :src="formData.photo_url || nasigoreng" :alt="formData.name || 'Preview'" @error="(e) => (e.target.src = nasigoreng)" />
+          </div>
           <div class="form-group">
             <label for="name">Nama Menu *</label>
             <input 
@@ -163,6 +172,8 @@ import Sidebar from '../../components/dashboard/Sidebar.vue';
 import api from '../../config/api';
 import { TENANT_MENU_ITEMS } from '../../constants/menuItems';
 import { showSuccess, showError, showDeleteConfirm } from '../../utils/sweetAlert';
+import nasigoreng from '../../assets/nasigoreng.jpeg';
+import { Edit3, Trash2, PlusCircle } from 'lucide-vue-next';
 
 const menus = ref<any[]>([]);
 const loading = ref(false);
@@ -349,6 +360,34 @@ onMounted(() => {
   transition: all 0.3s;
 }
 
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
+  box-shadow: 0 10px 30px rgba(99,102,241,0.12);
+}
+
+.btn-add .btn-add-icon { color: rgba(255,255,255,0.95); }
+
+.image-preview {
+  width: 100%;
+  max-height: 220px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+}
+
+.image-preview img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
@@ -437,9 +476,11 @@ onMounted(() => {
   justify-content: center;
 }
 
-.menu-placeholder {
-  font-size: 4rem;
-  color: white;
+.menu-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .menu-info {
@@ -506,30 +547,34 @@ onMounted(() => {
 }
 
 .btn-icon {
-  flex: 1;
-  padding: 0.75rem;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border: none;
-  border-radius: 8px;
-  font-size: 1.2rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
 
 .btn-edit {
-  background: #bee3f8;
+  background: linear-gradient(90deg, #e6f6ff 0%, #d0eaff 100%);
+  color: #1e40af;
 }
 
-.btn-edit:hover {
-  background: #90cdf4;
-}
+.btn-edit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(14,165,233,0.08); }
 
 .btn-delete {
-  background: #fed7d7;
+  background: linear-gradient(90deg, #fff1f2 0%, #ffe3e6 100%);
+  color: #9b1c1c;
 }
 
-.btn-delete:hover {
-  background: #fc8181;
-}
+.btn-delete:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239,68,68,0.08); }
+
+.icon-svg { color: inherit; }
 
 /* Modal Styles */
 .modal-overlay {
