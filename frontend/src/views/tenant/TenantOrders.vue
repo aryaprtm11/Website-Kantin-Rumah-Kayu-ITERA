@@ -1,42 +1,100 @@
 <template>
-  <div class="flex min-h-screen bg-gray-50">
+  <div class="flex min-h-screen bg-white">
     <Sidebar :menuItems="TENANT_MENU_ITEMS" />
 
     <main class="flex-1 ml-0 lg:ml-[280px] p-4 lg:p-8">
-      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
-        <div>
-          <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">Kelola Pesanan</h1>
-          <p class="text-gray-600">Atur pesanan masuk dari pelanggan</p>
+      <!-- Header Section -->
+      <div class="mb-8">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+          <div>
+            <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">Kelola Pesanan</h1>
+            <p class="text-sm text-gray-500">Kelola dan proses pesanan dari pelanggan</p>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <!-- View Toggle -->
+            <div class="inline-flex bg-gray-50 rounded-lg p-0.5 border border-gray-200">
+              <button
+                @click="viewMode = 'card'"
+                :class="['px-3 py-2 rounded-md font-medium text-sm transition-all', viewMode === 'card' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-600 hover:text-gray-900']"
+              >
+                <LayoutGrid :size="16" class="inline" />
+              </button>
+              <button
+                @click="viewMode = 'table'"
+                :class="['px-3 py-2 rounded-md font-medium text-sm transition-all', viewMode === 'table' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-600 hover:text-gray-900']"
+              >
+                <LayoutList :size="16" class="inline" />
+              </button>
+            </div>
+
+            <!-- Refresh Button -->
+            <button
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium cursor-pointer transition-all hover:border-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="isRefreshing"
+              @click="refreshOrders"
+              aria-label="Segarkan pesanan"
+            >
+              <RefreshCw
+                :size="16"
+                :class="{ 'animate-spin': isRefreshing }"
+              />
+              <span class="hidden sm:inline text-sm">{{ isRefreshing ? "Memuat..." : "Refresh" }}</span>
+            </button>
+          </div>
         </div>
-        <div class="flex gap-3">
-          <button
-            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white rounded-xl font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-75 disabled:cursor-not-allowed"
-            :disabled="isRefreshing"
-            @click="refreshOrders"
-            aria-label="Segarkan pesanan"
-            :aria-busy="isRefreshing"
-            :title="isRefreshing ? 'Memuat...' : 'Segarkan pesanan'"
-          >
-            <RefreshCw
-              :size="16"
-              :class="{ 'animate-spin': isRefreshing }"
-            />
-            <span>{{
-              isRefreshing ? "Memuat..." : "Refresh"
-            }}</span>
-          </button>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                <List :size="18" class="text-green-600" />
+              </div>
+              <span class="text-2xl font-bold text-gray-900">{{ orders.length }}</span>
+            </div>
+            <p class="text-xs font-medium text-gray-600">Total Pesanan</p>
+          </div>
+
+          <div class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                <AlertCircle :size="18" class="text-green-600" />
+              </div>
+              <span class="text-2xl font-bold text-gray-900">{{ orders.filter(o => o.status === 'created').length }}</span>
+            </div>
+            <p class="text-xs font-medium text-gray-600">Pesanan Baru</p>
+          </div>
+
+          <div class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                <Loader2 :size="18" class="text-green-600" />
+              </div>
+              <span class="text-2xl font-bold text-gray-900">{{ orders.filter(o => o.status === 'preparing').length }}</span>
+            </div>
+            <p class="text-xs font-medium text-gray-600">Diproses</p>
+          </div>
+
+          <div class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                <CheckCircle :size="18" class="text-green-600" />
+              </div>
+              <span class="text-2xl font-bold text-gray-900">{{ orders.filter(o => o.status === 'ready_for_pickup').length }}</span>
+            </div>
+            <p class="text-xs font-medium text-gray-600">Siap Diambil</p>
+          </div>
         </div>
       </div>
 
-      <div class="flex flex-col gap-6">
-        <!-- Filter Tabs -->
-        <div class="flex gap-4 overflow-x-auto py-2">
+      <!-- Filter Tabs -->
+      <div class="bg-white rounded-lg p-1 border border-gray-200 mb-6">
+        <div class="flex gap-1 overflow-x-auto">
           <button
             v-for="filter in filters"
             :key="filter.value"
-            :class="['inline-flex items-center gap-3 px-5 py-3 rounded-full font-extrabold text-gray-900 cursor-pointer transition-all whitespace-nowrap min-w-[90px] justify-center hover:-translate-y-1 hover:shadow-lg', activeFilter === filter.value ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white border-transparent shadow-lg' : 'bg-gradient-to-b from-white to-gray-50 border border-gray-200']"
+            :class="['inline-flex items-center gap-2 px-4 py-2.5 rounded-md font-medium cursor-pointer transition-all whitespace-nowrap text-sm', activeFilter === filter.value ? 'bg-green-600 text-white' : 'text-gray-700 hover:bg-gray-50']"
             @click="setFilter(filter.value)"
-            :title="filter.label"
           >
             <component
               v-if="filter.icon"
@@ -44,106 +102,104 @@
               :size="16"
             />
             <span>{{ filter.label }}</span>
-            <span v-if="filter.count > 0" :class="['inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-extrabold', activeFilter === filter.value ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-900']">{{
-              filter.count
-            }}</span>
+            <span v-if="filter.count > 0" :class="['inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold', activeFilter === filter.value ? 'bg-white/20 text-white' : 'bg-green-100 text-green-700']">
+              {{ filter.count }}
+            </span>
           </button>
         </div>
+      </div>
+
+      <div class="flex flex-col gap-6">
 
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
-          <div class="w-12 h-12 border-4 border-gray-300 border-t-cyan-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p class="text-gray-600">Memuat pesanan...</p>
+          <div class="w-10 h-10 border-3 border-gray-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p class="text-sm text-gray-600">Memuat pesanan...</p>
         </div>
 
         <!-- Error State -->
         <div v-else-if="error" class="text-center py-16">
-          <p class="text-red-600 mb-4">❌ {{ error }}</p>
-          <button class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white rounded-lg font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all" @click="fetchOrders">Coba Lagi</button>
+          <p class="text-sm text-red-600 mb-4">{{ error }}</p>
+          <button class="px-5 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors" @click="fetchOrders">Coba Lagi</button>
         </div>
 
         <!-- Empty State -->
         <div v-else-if="filteredOrders.length === 0" class="text-center py-16">
-          <div class="text-7xl mb-4">📦</div>
-          <h3 class="text-2xl font-bold text-gray-900 mb-2">Belum Ada Pesanan</h3>
-          <p class="text-gray-600" v-if="activeFilter === 'all'">Belum ada pesanan masuk</p>
-          <p class="text-gray-600" v-else>Tidak ada pesanan dengan status ini</p>
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Package :size="32" class="text-gray-400" />
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-1">Belum Ada Pesanan</h3>
+          <p class="text-sm text-gray-500" v-if="activeFilter === 'all'">Belum ada pesanan masuk</p>
+          <p class="text-sm text-gray-500" v-else>Tidak ada pesanan dengan status ini</p>
         </div>
 
-        <!-- Orders Grid -->
-        <div v-else class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Card View -->
+        <div v-else-if="viewMode === 'card'" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           <div
             v-for="order in filteredOrders"
             :key="order.id"
-            :class="['bg-white rounded-xl p-6 shadow-md transition-all hover:shadow-xl border-l-4', getOrderCardClass(order.status)]"
+            class="bg-white rounded-lg p-5 border border-gray-200 transition-all hover:border-green-500 hover:shadow-sm"
           >
-            <!-- Order Header (enhanced) -->
-            <div class="flex justify-between items-center gap-4 mb-4 pb-4 border-b border-gray-200">
-              <div class="flex flex-col gap-2">
-                <div class="flex items-center gap-3">
-                  <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-green-500 to-green-700 text-white flex items-center justify-center font-extrabold text-lg">
-                    {{
-                      order.user?.name
-                        ? order.user.name.charAt(0).toUpperCase()
-                        : "C"
-                    }}
-                  </div>
-                  <div class="flex flex-col">
-                    <h3 class="text-xl font-bold text-gray-900">#{{ order.id }}</h3>
-                    <p class="text-gray-700 font-semibold">
-                      {{ order.user?.name || "Customer" }}
-                    </p>
-                  </div>
+            <!-- Order Header -->
+            <div class="flex justify-between items-start gap-4 mb-4 pb-4 border-b border-gray-100">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">
+                  {{
+                    order.user?.name
+                      ? order.user.name.charAt(0).toUpperCase()
+                      : "C"
+                  }}
                 </div>
-
-                <div class="flex gap-2 items-center">
-                  <span class="px-2.5 py-1 bg-blue-50 text-blue-900 rounded-full font-bold text-xs">{{
-                    order.type === "pickup" ? "Ambil" : "Delivery"
-                  }}</span>
-                  <span
-                    :class="['px-2.5 py-1 rounded-full font-bold text-xs', getPaymentClass(order.payment_status)]"
-                    >{{ getPaymentLabel(order.payment_status) }}</span
-                  >
+                <div>
+                  <h3 class="text-base font-bold text-gray-900">#{{ order.id }}</h3>
+                  <p class="text-sm text-gray-600">
+                    {{ order.user?.name || "Customer" }}
+                  </p>
                 </div>
               </div>
 
-              <div class="flex flex-col items-end gap-2">
-                <div class="text-xs text-gray-600">
-                  {{ formatDateTime(order.created_at) }}
-                </div>
-                <span :class="['px-4 py-2 rounded-full text-sm font-semibold', getStatusClass(order.status)]">{{
+              <div class="flex flex-col items-end gap-1.5">
+                <span :class="['px-3 py-1 rounded-full text-xs font-medium', getStatusClass(order.status)]">{{
                   getStatusLabel(order.status)
                 }}</span>
+                <div class="text-xs text-gray-500">
+                  {{ formatDateTime(order.created_at) }}
+                </div>
               </div>
             </div>
 
-            <!-- Order Items (preview) -->
-            <div class="bg-gray-50 p-4 rounded-lg mb-4">
-              <p class="font-semibold text-gray-700 mb-3">Items</p>
-              <div class="flex flex-col gap-2">
+            <!-- Order Items -->
+            <div class="mb-4">
+              <p class="text-xs font-medium text-gray-500 mb-2">Items</p>
+              <div class="space-y-1.5">
                 <div
                   v-for="item in order.items.slice(0, 2)"
                   :key="item.id"
-                  class="flex justify-between items-center py-2 text-sm"
+                  class="flex justify-between items-center text-sm"
                 >
-                  <span class="font-extrabold text-indigo-600 min-w-[40px]">{{ item.quantity }}x</span>
+                  <span class="font-semibold text-green-600 min-w-[30px]">{{ item.quantity }}x</span>
                   <span class="flex-1 text-gray-900">{{ item.menu?.name }}</span>
-                  <span class="font-bold text-cyan-600">{{
+                  <span class="font-medium text-gray-900">{{
                     formatCurrency(item.subtotal)
                   }}</span>
                 </div>
-                <div v-if="order.items.length > 2" class="text-gray-600 font-bold pt-1">
-                  +{{ order.items.length - 2 }} lainnya
+                <div v-if="order.items.length > 2" class="text-xs text-gray-500 pt-1">
+                  +{{ order.items.length - 2 }} item lainnya
                 </div>
               </div>
             </div>
 
-            <!-- Payment Status -->
-            <div class="flex justify-between items-center mb-4 p-3 bg-gray-100 rounded-lg">
-              <span class="font-semibold text-gray-700">Pembayaran:</span>
+            <!-- Total & Payment -->
+            <div class="flex justify-between items-center mb-4 pt-3 border-t border-gray-100">
+              <div>
+                <p class="text-xs text-gray-500">Total</p>
+                <p class="text-xl font-bold text-gray-900">{{
+                  formatCurrency(order.total_price)
+                }}</p>
+              </div>
               <span
                 :class="[
-                  'px-3 py-1 rounded-xl text-sm font-semibold',
+                  'px-3 py-1 rounded-full text-xs font-medium',
                   getPaymentClass(order.payment_status),
                 ]"
               >
@@ -151,50 +207,140 @@
               </span>
             </div>
 
-            <!-- Order Footer -->
-            <div class="mt-4 pt-4 border-t-2 border-gray-200">
-              <div class="flex justify-between items-center mb-4 text-lg font-semibold">
-                <span>Total:</span>
-                <span class="text-2xl font-extrabold text-cyan-600">{{
-                  formatCurrency(order.total_price)
-                }}</span>
-              </div>
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+              <button
+                v-if="order.status === 'created'"
+                class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-lg font-medium cursor-pointer transition-all hover:bg-green-700 text-sm"
+                @click="updateStatus(order.id, 'preparing')"
+              >
+                <Check :size="14" />
+                <span>Terima</span>
+              </button>
 
-              <!-- Action Buttons -->
-              <div class="flex gap-2 flex-wrap">
-                <button
-                  v-if="order.status === 'created'"
-                  class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-lg font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg text-sm"
-                  @click="updateStatus(order.id, 'preparing')"
-                >
-                  <Check :size="16" />
-                  <span>Terima</span>
-                </button>
+              <button
+                v-if="order.status === 'preparing'"
+                class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-lg font-medium cursor-pointer transition-all hover:bg-green-700 text-sm"
+                @click="updateStatus(order.id, 'ready_for_pickup')"
+              >
+                <Check :size="14" />
+                <span>Siap</span>
+              </button>
 
-                <button
-                  v-if="order.status === 'preparing'"
-                  class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg text-sm"
-                  @click="updateStatus(order.id, 'ready_for_pickup')"
-                >
-                  <Check :size="16" />
-                  <span>Siap Diambil</span>
-                </button>
+              <button
+                @click="showOrderDetail(order)"
+                class="px-3 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg font-medium cursor-pointer transition-all hover:border-gray-300 text-sm"
+              >
+                <Eye :size="14" class="inline" />
+              </button>
 
-                <button
-                  v-if="['created', 'preparing'].includes(order.status)"
-                  class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-lg font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg text-sm"
-                  @click="cancelOrder(order.id)"
-                >
-                  <X :size="16" />
-                  <span>Batalkan</span>
-                </button>
-
-                <button class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-900 border border-gray-200 rounded-lg font-bold cursor-pointer transition-all hover:bg-gray-200 text-sm" @click="showOrderDetail(order)">
-                  <Eye :size="16" />
-                  <span>Detail</span>
-                </button>
-              </div>
+              <button
+                v-if="['created', 'preparing'].includes(order.status)"
+                @click="cancelOrder(order.id)"
+                class="px-3 py-2 bg-white text-red-600 border border-gray-200 rounded-lg font-medium cursor-pointer transition-all hover:border-red-300 text-sm"
+              >
+                <X :size="14" class="inline" />
+              </button>
             </div>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div v-else class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">ID</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Pelanggan</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Items</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Total</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Status</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Pembayaran</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Waktu</th>
+                  <th class="px-4 py-3 text-center text-xs font-semibold text-gray-700">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <tr v-for="order in filteredOrders" :key="order.id" class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <span class="font-semibold text-sm text-gray-900">#{{ order.id }}</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-semibold text-xs">
+                        {{ order.user?.name ? order.user.name.charAt(0).toUpperCase() : "C" }}
+                      </div>
+                      <div>
+                        <div class="font-medium text-sm text-gray-900">{{ order.user?.name || "Customer" }}</div>
+                        <div class="text-xs text-gray-500">{{ order.type === "pickup" ? "Ambil" : "Delivery" }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="text-sm">
+                      <div class="font-medium text-gray-900">{{ order.items.length }} item</div>
+                      <div class="text-xs text-gray-500 truncate max-w-[120px]">
+                        {{ order.items.map(i => i.menu?.name).join(', ') }}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <div class="text-sm font-bold text-gray-900">
+                      {{ formatCurrency(order.total_price) }}
+                    </div>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <span :class="['px-2.5 py-1 rounded-full text-xs font-medium', getStatusClass(order.status)]">
+                      {{ getStatusLabel(order.status) }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <span :class="['px-2.5 py-1 rounded-full text-xs font-medium', getPaymentClass(order.payment_status)]">
+                      {{ getPaymentLabel(order.payment_status) }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-600">
+                    {{ formatDateTime(order.created_at) }}
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <div class="flex items-center justify-center gap-1">
+                      <button
+                        v-if="order.status === 'created'"
+                        @click="updateStatus(order.id, 'preparing')"
+                        class="p-1.5 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors"
+                        title="Terima"
+                      >
+                        <Check :size="14" />
+                      </button>
+                      <button
+                        v-if="order.status === 'preparing'"
+                        @click="updateStatus(order.id, 'ready_for_pickup')"
+                        class="p-1.5 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors"
+                        title="Siap"
+                      >
+                        <CheckCircle :size="14" />
+                      </button>
+                      <button
+                        @click="showOrderDetail(order)"
+                        class="p-1.5 bg-gray-50 text-gray-600 rounded hover:bg-gray-100 transition-colors"
+                        title="Detail"
+                      >
+                        <Eye :size="14" />
+                      </button>
+                      <button
+                        v-if="['created', 'preparing'].includes(order.status)"
+                        @click="cancelOrder(order.id)"
+                        class="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors"
+                        title="Batal"
+                      >
+                        <X :size="14" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -328,6 +474,10 @@ import {
   Check,
   Eye,
   X,
+  LayoutGrid,
+  LayoutList,
+  AlertCircle,
+  CheckCircle,
 } from "lucide-vue-next";
 
 const orders = ref<any[]>([]);
@@ -336,6 +486,7 @@ const error = ref<string | null>(null);
 const activeFilter = ref("all");
 const selectedOrder = ref<any>(null);
 const isRefreshing = ref(false);
+const viewMode = ref<'card' | 'table'>('card');
 
 const refreshOrders = async () => {
   isRefreshing.value = true;
@@ -397,52 +548,45 @@ const formatDateTime = (date: string) => {
   });
 };
 
-const getOrderCardClass = (status: string) => {
-  if (status === "created") return "border-pink-300 bg-red-50";
-  if (status === "preparing") return "border-yellow-400 bg-yellow-50";
-  if (status === "ready_for_pickup") return "border-cyan-500 bg-blue-50";
-  return "border-gray-200";
-};
-
 const getStatusClass = (status: string) => {
   const map: Record<string, string> = {
-    created: "bg-red-100 text-red-800",
-    preparing: "bg-yellow-100 text-yellow-800",
-    ready_for_pickup: "bg-green-100 text-green-800",
-    picked_up: "bg-blue-100 text-blue-800",
-    completed: "bg-blue-100 text-blue-800",
-    cancelled: "bg-gray-200 text-gray-700",
+    created: "bg-green-50 text-green-700 border border-green-200",
+    preparing: "bg-green-100 text-green-800 border border-green-300",
+    ready_for_pickup: "bg-green-600 text-white",
+    picked_up: "bg-gray-100 text-gray-700 border border-gray-200",
+    completed: "bg-gray-100 text-gray-700 border border-gray-200",
+    cancelled: "bg-gray-100 text-gray-600 border border-gray-200",
   };
-  return map[status] || "bg-gray-200 text-gray-700";
+  return map[status] || "bg-gray-100 text-gray-700";
 };
 
 const getStatusLabel = (status: string) => {
   const map: Record<string, string> = {
-    created: "Pesanan Baru",
-    preparing: "Sedang Diproses",
-    ready_for_pickup: "Siap Diambil",
-    picked_up: "Sudah Diambil",
+    created: "Baru",
+    preparing: "Diproses",
+    ready_for_pickup: "Siap",
+    picked_up: "Diambil",
     completed: "Selesai",
-    cancelled: "Dibatalkan",
+    cancelled: "Batal",
   };
   return map[status] || status;
 };
 
 const getPaymentClass = (status: string) => {
   const map: Record<string, string> = {
-    pending: "bg-orange-100 text-orange-800",
-    paid: "bg-teal-100 text-teal-900",
-    failed: "bg-red-100 text-red-900",
-    unpaid: "bg-orange-100 text-orange-800",
+    pending: "bg-gray-100 text-gray-700 border border-gray-200",
+    paid: "bg-green-50 text-green-700 border border-green-200",
+    failed: "bg-red-50 text-red-700 border border-red-200",
+    unpaid: "bg-gray-100 text-gray-700 border border-gray-200",
   };
-  return map[status] || "bg-gray-200 text-gray-700";
+  return map[status] || "bg-gray-100 text-gray-700";
 };
 
 const getPaymentLabel = (status: string) => {
   const map: Record<string, string> = {
     unpaid: "Belum Bayar",
     pending: "Pending",
-    paid: "Sudah Bayar",
+    paid: "Lunas",
     failed: "Gagal",
   };
   return map[status] || status;

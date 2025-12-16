@@ -1,48 +1,48 @@
 <template>
-  <div class="flex min-h-screen bg-gray-50">
+  <div class="flex min-h-screen bg-white">
     <Sidebar :menuItems="ADMIN_MENU_ITEMS" />
     
     <main class="flex-1 ml-0 lg:ml-[280px] p-4 lg:p-8">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
         <div>
-          <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">Kelola Tenant</h1>
-          <p class="text-gray-600">Manajemen semua kantin di sistem</p>
+          <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">Kelola Tenant</h1>
+          <p class="text-sm text-gray-500">Manajemen semua kantin di sistem</p>
         </div>
-        <div class="flex gap-3 items-center">
+        <div class="flex gap-2 items-center">
           <button
-            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-50 to-blue-100 text-gray-900 border border-gray-200 rounded-xl font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-75 disabled:cursor-not-allowed"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg font-medium cursor-pointer transition-all hover:border-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="isRefreshing"
             @click="refreshTenants"
             aria-label="Refresh tenants"
           >
             <RefreshCw :size="16" :class="{ 'animate-spin': isRefreshing }" />
-            <span>{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
+            <span class="text-sm">{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
           </button>
 
-          <button class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-xl font-bold transition-all hover:-translate-y-0.5 hover:shadow-lg" @click="openAddModal">
-            <Plus :size="14" />
-            <span>Tambah Kantin</span>
+          <button class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium transition-all hover:bg-green-700" @click="openAddModal">
+            <Plus :size="16" />
+            <span class="text-sm">Tambah Kantin</span>
           </button>
         </div>
       </div>
 
-      <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-4">
         <!-- Search & Filter -->
-        <div class="bg-white rounded-xl p-6 shadow-md flex gap-4 flex-wrap items-center">
-          <div class="flex-1 min-w-[250px]">
+        <div class="bg-white rounded-lg p-4 border border-gray-200 flex gap-3 flex-wrap items-center">
+          <div class="flex-1 min-w-[200px]">
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Cari kantin..."
               @input="handleSearch"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-600 transition-colors"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-500 transition-colors"
             />
           </div>
           <div class="flex gap-2 flex-wrap">
             <button
               v-for="status in statusFilters"
               :key="status.value"
-              :class="['px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all', currentFilter === status.value ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 border border-gray-300 hover:border-green-600 hover:text-green-600']"
+              :class="['px-3 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all', currentFilter === status.value ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:border-green-500']"
               @click="filterByStatus(status.value)"
             >
               {{ status.label }}
@@ -51,13 +51,13 @@
         </div>
 
         <!-- Tenants Table -->
-        <div class="bg-white rounded-xl p-6 shadow-md">
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div v-if="loading" class="text-center py-12">
-            <div class="w-10 h-10 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-gray-600">Memuat data...</p>
+            <div class="w-10 h-10 border-3 border-gray-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-sm text-gray-600">Memuat data...</p>
           </div>
 
-          <div v-else-if="tenants.length === 0" class="text-center py-12 text-gray-600">
+          <div v-else-if="tenants.length === 0" class="text-center py-12 text-sm text-gray-600">
             <p>Tidak ada data kantin</p>
           </div>
 
@@ -65,19 +65,19 @@
             <div class="overflow-x-auto">
               <table class="w-full border-collapse">
                 <thead>
-                  <tr>
-                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">ID</th>
-                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Nama Kantin</th>
-                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Pemilik</th>
-                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Email</th>
-                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Status</th>
-                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Jam Operasional</th>
-                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Menu</th>
-                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Pesanan</th>
-                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Aksi</th>
+                  <tr class="bg-gray-50 border-b border-gray-200">
+                    <th class="text-left py-3 px-4 text-gray-700 font-semibold text-xs whitespace-nowrap">ID</th>
+                    <th class="text-left py-3 px-4 text-gray-700 font-semibold text-xs whitespace-nowrap">Nama Kantin</th>
+                    <th class="text-left py-3 px-4 text-gray-700 font-semibold text-xs whitespace-nowrap">Pemilik</th>
+                    <th class="text-left py-3 px-4 text-gray-700 font-semibold text-xs whitespace-nowrap">Email</th>
+                    <th class="text-left py-3 px-4 text-gray-700 font-semibold text-xs whitespace-nowrap">Status</th>
+                    <th class="text-left py-3 px-4 text-gray-700 font-semibold text-xs whitespace-nowrap">Jam Operasional</th>
+                    <th class="text-left py-3 px-4 text-gray-700 font-semibold text-xs whitespace-nowrap">Menu</th>
+                    <th class="text-left py-3 px-4 text-gray-700 font-semibold text-xs whitespace-nowrap">Pesanan</th>
+                    <th class="text-left py-3 px-4 text-gray-700 font-semibold text-xs whitespace-nowrap">Aksi</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-100">
                   <tr v-for="tenant in tenants" :key="tenant.id" class="hover:bg-gray-50 transition-colors">
                     <td class="py-4 px-4 border-b border-gray-200 text-gray-900">#{{ tenant.id }}</td>
                     <td class="py-4 px-4 border-b border-gray-200">

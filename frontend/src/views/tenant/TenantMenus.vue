@@ -1,20 +1,20 @@
 <template>
-  <div class="flex min-h-screen bg-gray-50">
+  <div class="flex min-h-screen bg-white">
     <Sidebar :menuItems="TENANT_MENU_ITEMS" />
 
     <main class="flex-1 ml-0 lg:ml-[280px] p-4 lg:p-8">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
         <div>
-          <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">Kelola Menu</h1>
-          <p class="text-gray-600">Atur menu kantin Anda</p>
+          <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">Kelola Menu</h1>
+          <p class="text-sm text-gray-500">Atur menu kantin Anda</p>
         </div>
         <div>
           <button
-            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white rounded-xl font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium cursor-pointer transition-all hover:bg-green-700"
             @click="openAddModal"
             aria-label="Tambah menu"
           >
-            <PlusCircle :size="18" />
+            <PlusCircle :size="16" />
             <span>Tambah Menu</span>
           </button>
         </div>
@@ -23,30 +23,32 @@
       <div class="min-h-[400px]">
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
-          <div class="w-12 h-12 border-4 border-gray-300 border-t-cyan-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p class="text-gray-600">Memuat menu...</p>
+          <div class="w-10 h-10 border-3 border-gray-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p class="text-sm text-gray-600">Memuat menu...</p>
         </div>
 
         <!-- Error State -->
         <div v-else-if="error" class="text-center py-16">
-          <p class="text-red-600 mb-4">❌ {{ error }}</p>
-          <button class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white rounded-lg font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all" @click="fetchMenus">Coba Lagi</button>
+          <p class="text-sm text-red-600 mb-4">{{ error }}</p>
+          <button class="px-5 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors" @click="fetchMenus">Coba Lagi</button>
         </div>
 
         <!-- Empty State -->
         <div v-else-if="menus.length === 0" class="text-center py-16">
-          <div class="text-7xl mb-4">🍽️</div>
-          <h3 class="text-2xl font-bold text-gray-900 mb-2">Belum Ada Menu</h3>
-          <p class="text-gray-600 mb-8">Mulai tambahkan menu pertama Anda</p>
-          <button class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white rounded-xl font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg" @click="openAddModal">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <PlusCircle :size="32" class="text-gray-400" />
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-1">Belum Ada Menu</h3>
+          <p class="text-sm text-gray-500 mb-6">Mulai tambahkan menu pertama Anda</p>
+          <button class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium cursor-pointer transition-all hover:bg-green-700" @click="openAddModal">
             <PlusCircle :size="16" /> Tambah Menu
           </button>
         </div>
 
         <!-- Menu Grid -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <div v-for="menu in menus" :key="menu.id" class="bg-white rounded-xl overflow-hidden shadow-md transition-all hover:-translate-y-1 hover:shadow-xl">
-            <div class="h-40 bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center">
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div v-for="menu in menus" :key="menu.id" class="bg-white rounded-lg overflow-hidden border border-gray-200 transition-all hover:border-green-500 hover:shadow-sm">
+            <div class="h-36 bg-gray-100 flex items-center justify-center">
               <img
                 :src="menu.photo_url || nasigoreng"
                 :alt="menu.name"
@@ -54,39 +56,40 @@
                 @error="(e) => ((e.target as HTMLImageElement).src = nasigoreng)"
               />
             </div>
-            <div class="p-6">
-              <h3 class="text-xl font-bold text-gray-900 mb-2">{{ menu.name }}</h3>
-              <p class="text-sm text-green-600 bg-indigo-50 inline-block px-3 py-1 rounded-full mb-3 capitalize" v-if="menu.category">
+            <div class="p-4">
+              <h3 class="text-base font-bold text-gray-900 mb-1">{{ menu.name }}</h3>
+              <p class="text-xs text-green-600 bg-green-50 inline-block px-2 py-0.5 rounded-full mb-2 capitalize border border-green-200" v-if="menu.category">
                 {{ menu.category }}
               </p>
-              <p class="text-2xl font-bold text-green-600 my-3">{{ formatCurrency(menu.price) }}</p>
-              <div class="flex items-center gap-3 mt-4">
-                <label class="text-sm font-semibold text-gray-700">Stok:</label>
+              <p class="text-lg font-bold text-gray-900 my-2">{{ formatCurrency(menu.price) }}</p>
+              <div class="flex items-center gap-2 mt-3">
+                <label class="text-xs font-medium text-gray-600">Stok:</label>
                 <input
                   type="number"
                   v-model.number="menu.stock"
                   @blur="updateStock(menu)"
                   min="0"
-                  class="w-20 px-2 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold text-center focus:outline-none focus:border-green-500"
+                  class="w-16 px-2 py-1 border border-gray-300 rounded text-sm font-medium text-center focus:outline-none focus:border-green-500"
                 />
               </div>
             </div>
-            <div class="flex gap-2 px-6 pb-6">
+            <div class="flex gap-2 px-4 pb-4">
               <button
-                class="w-11 h-11 inline-flex items-center justify-center bg-gradient-to-r from-blue-50 to-blue-100 text-blue-900 rounded-xl cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg cursor-pointer transition-all hover:border-gray-300 text-sm font-medium"
                 @click="openEditModal(menu)"
                 title="Edit"
                 aria-label="Edit menu"
               >
-                <Edit3 :size="18" />
+                <Edit3 :size="14" />
+                <span>Edit</span>
               </button>
               <button
-                class="w-11 h-11 inline-flex items-center justify-center bg-gradient-to-r from-red-50 to-red-100 text-red-900 rounded-xl cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                class="px-3 py-2 bg-white text-red-600 border border-gray-200 rounded-lg cursor-pointer transition-all hover:border-red-300 text-sm"
                 @click="confirmDelete(menu)"
                 title="Hapus"
                 aria-label="Hapus menu"
               >
-                <Trash2 :size="18" />
+                <Trash2 :size="14" />
               </button>
             </div>
           </div>
@@ -96,36 +99,36 @@
 
     <!-- Add/Edit Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-4" @click="closeModal">
-      <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl" @click.stop>
-        <div class="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 class="text-2xl font-bold text-gray-900">{{ isEditMode ? "Edit Menu" : "Tambah Menu Baru" }}</h2>
-          <button class="text-2xl text-gray-600 hover:text-gray-900" @click="closeModal">✕</button>
+      <div class="bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl" @click.stop>
+        <div class="flex justify-between items-center p-5 border-b border-gray-200">
+          <h2 class="text-lg font-bold text-gray-900">{{ isEditMode ? "Edit Menu" : "Tambah Menu Baru" }}</h2>
+          <button class="text-xl text-gray-600 hover:text-gray-900" @click="closeModal">✕</button>
         </div>
 
-        <form @submit.prevent="handleSubmit" class="p-8">
-          <div class="w-full max-h-56 overflow-hidden rounded-xl mb-4 shadow-lg" v-if="formData.photo_url || !isEditMode">
+        <form @submit.prevent="handleSubmit" class="p-5">
+          <div class="w-full h-40 overflow-hidden rounded-lg mb-4 bg-gray-100" v-if="formData.photo_url || !isEditMode">
             <img
               :src="formData.photo_url || nasigoreng"
               :alt="formData.name || 'Preview'"
-              class="w-full h-56 object-cover"
+              class="w-full h-full object-cover"
               @error="(e) => ((e.target as HTMLImageElement).src = nasigoreng)"
             />
           </div>
-          <div class="mb-6">
-            <label for="name" class="block font-semibold text-gray-900 mb-2">Nama Menu *</label>
+          <div class="mb-4">
+            <label for="name" class="block text-sm font-medium text-gray-900 mb-1.5">Nama Menu *</label>
             <input
               type="text"
               id="name"
               v-model="formData.name"
               required
               placeholder="Contoh: Nasi Goreng"
-              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-500"
             />
           </div>
 
-          <div class="mb-6">
-            <label for="category" class="block font-semibold text-gray-900 mb-2">Kategori</label>
-            <select id="category" v-model="formData.category" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100">
+          <div class="mb-4">
+            <label for="category" class="block text-sm font-medium text-gray-900 mb-1.5">Kategori</label>
+            <select id="category" v-model="formData.category" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-500">
               <option value="">Pilih kategori</option>
               <option value="main">Makanan Utama</option>
               <option value="snack">Snack</option>
@@ -134,9 +137,9 @@
             </select>
           </div>
 
-          <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="grid grid-cols-2 gap-3 mb-4">
             <div>
-              <label for="price" class="block font-semibold text-gray-900 mb-2">Harga *</label>
+              <label for="price" class="block text-sm font-medium text-gray-900 mb-1.5">Harga *</label>
               <input
                 type="number"
                 id="price"
@@ -144,12 +147,12 @@
                 required
                 min="0"
                 placeholder="25000"
-                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-500"
               />
             </div>
 
             <div>
-              <label for="stock" class="block font-semibold text-gray-900 mb-2">Stok *</label>
+              <label for="stock" class="block text-sm font-medium text-gray-900 mb-1.5">Stok *</label>
               <input
                 type="number"
                 id="stock"
@@ -157,29 +160,29 @@
                 required
                 min="0"
                 placeholder="10"
-                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-500"
               />
             </div>
           </div>
 
-          <div class="mb-6">
-            <label for="photo_url" class="block font-semibold text-gray-900 mb-2">URL Foto</label>
+          <div class="mb-4">
+            <label for="photo_url" class="block text-sm font-medium text-gray-900 mb-1.5">URL Foto</label>
             <input
               type="url"
               id="photo_url"
               v-model="formData.photo_url"
               placeholder="https://..."
-              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-500"
             />
           </div>
 
-          <div v-if="formError" class="p-4 bg-red-100 text-red-800 rounded-lg mb-6">❌ {{ formError }}</div>
+          <div v-if="formError" class="p-3 bg-red-50 text-red-700 rounded-lg mb-4 text-sm border border-red-200">{{ formError }}</div>
 
-          <div class="flex gap-4 justify-end">
-            <button type="button" class="px-6 py-3 bg-gray-200 text-gray-900 rounded-lg font-semibold hover:bg-gray-300 transition-colors" @click="closeModal">
+          <div class="flex gap-3 justify-end">
+            <button type="button" class="px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm" @click="closeModal">
               Batal
             </button>
-            <button type="submit" class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white rounded-lg font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed" :disabled="submitting">
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm" :disabled="submitting">
               {{
                 submitting ? "Menyimpan..." : isEditMode ? "Simpan" : "Tambah"
               }}
