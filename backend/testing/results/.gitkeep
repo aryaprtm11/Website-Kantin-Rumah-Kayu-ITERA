@@ -1,0 +1,4 @@
+# Folder untuk menyimpan hasil performance test
+# File JSON akan di-generate otomatis oleh k6
+
+*.json

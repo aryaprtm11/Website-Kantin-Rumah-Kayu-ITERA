@@ -1,0 +1,386 @@
+{
+  "root_group": {
+    "groups": [
+      {
+        "name": "setup",
+        "path": "::setup",
+        "id": "5c0f8025f7e0b6654089e5b00e950f1a",
+        "groups": [],
+        "checks": [
+            {
+              "name": "login successful",
+              "path": "::setup::login successful",
+              "id": "13c2a0cddc32ec4a15cc6135fc339f56",
+              "passes": 1,
+              "fails": 0
+            },
+            {
+              "name": "has token",
+              "path": "::setup::has token",
+              "id": "7e2ff0c6d93c440d404f8020d43173f1",
+              "passes": 1,
+              "fails": 0
+            },
+            {
+              "name": "get tenants status 200",
+              "path": "::setup::get tenants status 200",
+              "id": "1a1224394d327f1d3c53b41ffe731d5e",
+              "passes": 1,
+              "fails": 0
+            },
+            {
+              "fails": 0,
+              "name": "get tenant menus status 200",
+              "path": "::setup::get tenant menus status 200",
+              "id": "8ce2f6106b2dbb6842c8e5a61987d20d",
+              "passes": 1
+            }
+          ]
+      }
+    ],
+    "checks": [
+      {
+        "name": "get tenants status 200",
+        "path": "::get tenants status 200",
+        "id": "5385fa7a89adc00cb2bdcf2fb2afdec1",
+        "passes": 8178,
+        "fails": 0
+      },
+      {
+        "fails": 0,
+        "name": "get tenant menus status 200",
+        "path": "::get tenant menus status 200",
+        "id": "8bb7f3723ca3cfdaee7f3dac41bb0051",
+        "passes": 8178
+      },
+      {
+        "name": "create order status 201",
+        "path": "::create order status 201",
+        "id": "b94411edbe05d72b9cc23f6541bc60aa",
+        "passes": 0,
+        "fails": 2456
+      },
+      {
+        "name": "get my orders status 200",
+        "path": "::get my orders status 200",
+        "id": "0267b0ea8b107f194c2a3a409cca9e32",
+        "passes": 2456,
+        "fails": 0
+      }
+    ],
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "options": {
+    "summaryTrendStats": [
+      "avg",
+      "min",
+      "med",
+      "max",
+      "p(90)",
+      "p(95)",
+      "p(99)"
+    ],
+    "summaryTimeUnit": "",
+    "noColor": false
+  },
+  "state": {
+    "isStdOutTTY": true,
+    "isStdErrTTY": true,
+    "testRunDurationMs": 911069.4278
+  },
+  "metrics": {
+    "http_req_sending": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 10.0669,
+        "p(90)": 0,
+        "p(95)": 0.3665,
+        "p(99)": 0.8047299999999955,
+        "avg": 0.04692019651168255,
+        "min": 0,
+        "med": 0
+      }
+    },
+    "requests": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 21270,
+        "rate": 23.34619003884437
+      }
+    },
+    "data_received": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 55826085,
+        "rate": 61275.3356621852
+      }
+    },
+    "iterations": {
+      "values": {
+        "count": 8178,
+        "rate": 8.976264322410403
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.11546236660241643,
+        "passes": 2456,
+        "fails": 18815
+      },
+      "thresholds": {
+        "rate<0.02": {
+          "ok": false
+        }
+      }
+    },
+    "write_latency": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 205.2403,
+        "p(95)": 236.97997500000002,
+        "p(99)": 418.8953999999993,
+        "avg": 167.38428493485318,
+        "min": 117.0522,
+        "med": 151.85125,
+        "max": 1235.5557
+      },
+      "thresholds": {
+        "p(95)<450": {
+          "ok": true
+        },
+        "p(99)<650": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_waiting": {
+      "values": {
+        "p(99)": 562.4076399999988,
+        "avg": 156.28379152837294,
+        "min": 96.6398,
+        "med": 132.799,
+        "max": 1742.3834,
+        "p(90)": 191.4047,
+        "p(95)": 301.85569999999996
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 3185.727,
+        "p(90)": 268.88270000000006,
+        "p(95)": 422.40189,
+        "p(99)": 722.0174300000001,
+        "avg": 194.7871443794844,
+        "min": 97.4528,
+        "med": 159.8878
+      }
+    },
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 1965.4317,
+        "p(90)": 89.009,
+        "p(95)": 101.6592,
+        "p(99)": 262.99392999999924,
+        "avg": 35.29243365145034,
+        "min": 0,
+        "med": 0.65
+      }
+    },
+    "iteration_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 8253.458737882123,
+        "min": 5494.4051,
+        "med": 8172.4318,
+        "max": 13285.098,
+        "p(90)": 9722.853980000002,
+        "p(95)": 10196.355744999999,
+        "p(99)": 10931.461448999999
+      }
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 0,
+        "p(99)": 0,
+        "avg": 0.3306959287292557,
+        "min": 0,
+        "med": 0,
+        "max": 102.8264,
+        "p(90)": 0
+      }
+    },
+    "vus": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "min": 0,
+        "max": 80,
+        "value": 2
+      }
+    },
+    "errors": {
+      "contains": "default",
+      "values": {
+        "rate": 0.1154677950164551,
+        "passes": 2456,
+        "fails": 18814
+      },
+      "thresholds": {
+        "rate<0.02": {
+          "ok": false
+        }
+      },
+      "type": "rate"
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 191.62314537633452,
+        "min": 97.4528,
+        "med": 157.5861,
+        "max": 3185.727,
+        "p(90)": 258.2077,
+        "p(95)": 396.6606,
+        "p(99)": 713.3941599999998
+      },
+      "thresholds": {
+        "p(95)<400": {
+          "ok": true
+        },
+        "p(99)<600": {
+          "ok": false
+        }
+      }
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.17446442574397064,
+        "min": 0,
+        "med": 0,
+        "max": 70.5263,
+        "p(90)": 0,
+        "p(95)": 0,
+        "p(99)": 0
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 2289874,
+        "rate": 2513.391329055417
+      }
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 21271,
+        "rate": 23.347287650035664
+      }
+    },
+    "http_req_blocked": {
+      "values": {
+        "med": 0,
+        "max": 201.5054,
+        "p(90)": 0,
+        "p(95)": 0,
+        "p(99)": 0,
+        "avg": 0.5085713835738798,
+        "min": 0
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "passes": 18816,
+        "fails": 2456,
+        "rate": 0.884543061301241
+      }
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 80,
+        "min": 80,
+        "max": 80
+      }
+    },
+    "read_latency": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 97.4528,
+        "med": 159.8877,
+        "max": 3185.727,
+        "p(90)": 268.8049100000002,
+        "p(95)": 422.36080499999997,
+        "p(99)": 722.0198849999997,
+        "avg": 194.7745024396725
+      },
+      "thresholds": {
+        "p(95)<250": {
+          "ok": false
+        },
+        "p(99)<350": {
+          "ok": false
+        }
+      }
+    }
+  },
+  "setup_data": {
+    "menusByTenant": {
+      "1": [
+        {
+          "name": "Nasi Goreng",
+          "photo_url": "https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "stock": 0,
+          "updated_at": "2025-12-12T06:52:34.000000Z",
+          "price": 25000,
+          "tenant_id": 1,
+          "category": "main",
+          "created_at": "2025-12-03T12:42:31.000000Z",
+          "id": 1
+        }
+      ]
+    },
+    "tenants": [
+      {
+        "id": 1,
+        "is_open": true,
+        "name": "Warung Nusantara",
+        "opens_at": "08:00:00",
+        "updated_at": "2025-12-03T12:42:31.000000Z",
+        "closes_at": "21:00:00",
+        "created_at": "2025-12-03T12:42:31.000000Z"
+      }
+    ],
+    "token": "32|aGmI8hB58jNmsO5uFDO4pSBPok0db4s83ukLkGiY71509101"
+  }
+}

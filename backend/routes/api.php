@@ -52,11 +52,14 @@ Route::prefix('v1')->group(function (): void {
         Route::prefix('admin')->group(function (): void {
             Route::get('stats', [\App\Http\Controllers\Api\V1\AdminController::class, 'stats']);
             Route::get('tenants', [\App\Http\Controllers\Api\V1\AdminController::class, 'tenants']);
+            Route::post('tenants', [\App\Http\Controllers\Api\V1\AdminController::class, 'createTenant']);
             Route::get('users', [\App\Http\Controllers\Api\V1\AdminController::class, 'users']);
+            Route::post('users', [\App\Http\Controllers\Api\V1\AdminController::class, 'createUser']);
             Route::get('orders', [\App\Http\Controllers\Api\V1\AdminController::class, 'orders']);
             Route::get('activities', [\App\Http\Controllers\Api\V1\AdminController::class, 'recentActivities']);
             Route::patch('users/{user}/role', [\App\Http\Controllers\Api\V1\AdminController::class, 'updateUserRole']);
             Route::delete('users/{user}', [\App\Http\Controllers\Api\V1\AdminController::class, 'deleteUser']);
+            Route::put('tenants/{tenant}', [\App\Http\Controllers\Api\V1\AdminController::class, 'updateTenant']);
             Route::delete('tenants/{tenant}', [\App\Http\Controllers\Api\V1\AdminController::class, 'deleteTenant']);
         });
     });

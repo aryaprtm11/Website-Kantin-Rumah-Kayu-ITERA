@@ -20,45 +20,52 @@ class AdminController extends Controller
      */
     public function stats(): JsonResponse
     {
-        $totalTenants = Tenant::count();
-        $totalUsers = User::count();
-        $totalCustomers = User::where('role', Role::Customer)->count();
-        $totalOrders = Order::count();
-        $totalRevenue = Order::where('payment_status', 'paid')->sum('paid_amount');
-        $totalMenus = Menu::count();
+        try {
+            $totalTenants = Tenant::count();
+            $totalUsers = User::count();
+            $totalCustomers = User::where('role', Role::Customer->value)->count();
+            $totalOrders = Order::count();
+            $totalRevenue = Order::where('payment_status', 'paid')->sum('paid_amount') ?? 0;
+            $totalMenus = Menu::count();
 
-        // Orders by status
-        $ordersByStatus = Order::select('status', DB::raw('count(*) as count'))
-            ->groupBy('status')
-            ->get()
-            ->pluck('count', 'status');
+            // Orders by status
+            $ordersByStatus = Order::select('status', DB::raw('count(*) as count'))
+                ->groupBy('status')
+                ->get()
+                ->pluck('count', 'status');
 
-        // Recent activity stats
-        $todayOrders = Order::whereDate('created_at', today())->count();
-        $todayRevenue = Order::whereDate('created_at', today())
-            ->where('payment_status', 'paid')
-            ->sum('paid_amount');
+            // Recent activity stats
+            $todayOrders = Order::whereDate('created_at', today())->count();
+            $todayRevenue = Order::whereDate('created_at', today())
+                ->where('payment_status', 'paid')
+                ->sum('paid_amount') ?? 0;
 
-        // Pending orders
-        $pendingOrders = Order::whereIn('status', [
-            OrderStatus::Created,
-            OrderStatus::Preparing,
-        ])->count();
+            // Pending orders
+            $pendingOrders = Order::whereIn('status', [
+                OrderStatus::Created->value,
+                OrderStatus::Preparing->value,
+            ])->count();
 
-        return response()->json([
-            'data' => [
-                'total_tenants' => $totalTenants,
-                'total_users' => $totalUsers,
-                'total_customers' => $totalCustomers,
-                'total_orders' => $totalOrders,
-                'total_revenue' => $totalRevenue,
-                'total_menus' => $totalMenus,
-                'orders_by_status' => $ordersByStatus,
-                'today_orders' => $todayOrders,
-                'today_revenue' => $todayRevenue,
-                'pending_orders' => $pendingOrders,
-            ],
-        ]);
+            return response()->json([
+                'data' => [
+                    'total_tenants' => $totalTenants,
+                    'total_users' => $totalUsers,
+                    'total_customers' => $totalCustomers,
+                    'total_orders' => $totalOrders,
+                    'total_revenue' => (float) $totalRevenue,
+                    'total_menus' => $totalMenus,
+                    'orders_by_status' => $ordersByStatus,
+                    'today_orders' => $todayOrders,
+                    'today_revenue' => (float) $todayRevenue,
+                    'pending_orders' => $pendingOrders,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error fetching stats',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -66,14 +73,21 @@ class AdminController extends Controller
      */
     public function tenants(Request $request): JsonResponse
     {
-        $perPage = $request->input('per_page', 15);
+        try {
+            $perPage = $request->input('per_page', 15);
 
-        $tenants = Tenant::with('user:id,name,email')
-            ->withCount('menus', 'orders')
-            ->latest()
-            ->paginate($perPage);
+            $tenants = Tenant::with('user:id,name,email')
+                ->withCount('menus', 'orders')
+                ->latest()
+                ->paginate($perPage);
 
-        return response()->json($tenants);
+            return response()->json($tenants);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error fetching tenants',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -81,20 +95,27 @@ class AdminController extends Controller
      */
     public function users(Request $request): JsonResponse
     {
-        $perPage = $request->input('per_page', 15);
-        $role = $request->input('role');
+        try {
+            $perPage = $request->input('per_page', 15);
+            $role = $request->input('role');
 
-        $query = User::query();
+            $query = User::query();
 
-        if ($role) {
-            $query->where('role', $role);
+            if ($role) {
+                $query->where('role', $role);
+            }
+
+            $users = $query->withCount('orders')
+                ->latest()
+                ->paginate($perPage);
+
+            return response()->json($users);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error fetching users',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $users = $query->withCount('orders')
-            ->latest()
-            ->paginate($perPage);
-
-        return response()->json($users);
     }
 
     /**
@@ -102,18 +123,25 @@ class AdminController extends Controller
      */
     public function orders(Request $request): JsonResponse
     {
-        $perPage = $request->input('per_page', 15);
-        $status = $request->input('status');
+        try {
+            $perPage = $request->input('per_page', 15);
+            $status = $request->input('status');
 
-        $query = Order::with(['user:id,name,email', 'tenant:id,name', 'items.menu:id,name,price']);
+            $query = Order::with(['user:id,name,email', 'tenant:id,name', 'items.menu:id,name,price']);
 
-        if ($status) {
-            $query->where('status', $status);
+            if ($status) {
+                $query->where('status', $status);
+            }
+
+            $orders = $query->latest()->paginate($perPage);
+
+            return response()->json($orders);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error fetching orders',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $orders = $query->latest()->paginate($perPage);
-
-        return response()->json($orders);
     }
 
     /**
@@ -142,6 +170,31 @@ class AdminController extends Controller
                 'recent_tenants' => $recentTenants,
             ],
         ]);
+    }
+
+    /**
+     * Create a new user
+     */
+    public function createUser(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:customer,tenant_admin,superadmin',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'role' => $request->role,
+        ]);
+
+        return response()->json([
+            'message' => 'User berhasil dibuat.',
+            'data' => $user,
+        ], 201);
     }
 
     /**
@@ -179,6 +232,50 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => 'User berhasil dihapus.',
+        ]);
+    }
+
+    /**
+     * Create a new tenant
+     */
+    public function createTenant(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id|unique:tenants,user_id',
+            'name' => 'required|string|max:100',
+            'opens_at' => 'required',
+            'closes_at' => 'required',
+        ]);
+
+        $tenant = Tenant::create([
+            'user_id' => $request->user_id,
+            'name' => $request->name,
+            'opens_at' => $request->opens_at,
+            'closes_at' => $request->closes_at,
+        ]);
+
+        return response()->json([
+            'message' => 'Tenant berhasil dibuat.',
+            'data' => $tenant->load('user:id,name,email'),
+        ], 201);
+    }
+
+    /**
+     * Update tenant
+     */
+    public function updateTenant(Request $request, Tenant $tenant): JsonResponse
+    {
+        $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'image' => 'sometimes|nullable|string',
+        ]);
+
+        $tenant->update($request->only(['name', 'description', 'image']));
+
+        return response()->json([
+            'message' => 'Tenant berhasil diupdate.',
+            'data' => $tenant->fresh()->load('user:id,name,email'),
         ]);
     }
 

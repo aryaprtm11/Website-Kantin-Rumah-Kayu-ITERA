@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-layout">
     <Sidebar :menuItems="TENANT_MENU_ITEMS" />
-    
+
     <main class="dashboard-main">
       <div class="dashboard-header">
         <div>
@@ -17,8 +17,14 @@
             :aria-busy="isRefreshing"
             :title="isRefreshing ? 'Memuat...' : 'Segarkan pesanan'"
           >
-            <RefreshCw :size="16" class="refresh-icon" :class="{ spin: isRefreshing }" />
-            <span class="btn-label">{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
+            <RefreshCw
+              :size="16"
+              class="refresh-icon"
+              :class="{ spin: isRefreshing }"
+            />
+            <span class="btn-label">{{
+              isRefreshing ? "Memuat..." : "Refresh"
+            }}</span>
           </button>
         </div>
       </div>
@@ -33,9 +39,16 @@
             @click="setFilter(filter.value)"
             :title="filter.label"
           >
-            <component v-if="filter.icon" :is="filter.icon" size="16" class="tab-icon" />
+            <component
+              v-if="filter.icon"
+              :is="filter.icon"
+              :size="16"
+              class="tab-icon"
+            />
             <span class="tab-label">{{ filter.label }}</span>
-            <span v-if="filter.count > 0" class="count-badge">{{ filter.count }}</span>
+            <span v-if="filter.count > 0" class="count-badge">{{
+              filter.count
+            }}</span>
           </button>
         </div>
 
@@ -61,9 +74,9 @@
 
         <!-- Orders Grid -->
         <div v-else class="orders-grid">
-          <div 
-            v-for="order in filteredOrders" 
-            :key="order.id" 
+          <div
+            v-for="order in filteredOrders"
+            :key="order.id"
             class="order-card"
             :class="getOrderCardClass(order.status)"
           >
@@ -71,24 +84,40 @@
             <div class="order-header enhanced">
               <div class="order-left">
                 <div class="order-id-avatar">
-                  <div class="avatar">{{ order.user?.name ? order.user.name.charAt(0).toUpperCase() : 'C' }}</div>
+                  <div class="avatar">
+                    {{
+                      order.user?.name
+                        ? order.user.name.charAt(0).toUpperCase()
+                        : "C"
+                    }}
+                  </div>
                   <div class="order-meta-wrap">
                     <h3 class="order-id">#{{ order.id }}</h3>
-                    <p class="order-customer-name">{{ order.user?.name || 'Customer' }}</p>
+                    <p class="order-customer-name">
+                      {{ order.user?.name || "Customer" }}
+                    </p>
                   </div>
-
                 </div>
 
                 <div class="order-meta">
-                  <span class="order-type-badge">{{ order.type === 'pickup' ? 'Ambil' : 'Delivery' }}</span>
-                  <span class="payment-badge-small" :class="getPaymentClass(order.payment_status)">{{ getPaymentLabel(order.payment_status) }}</span>
+                  <span class="order-type-badge">{{
+                    order.type === "pickup" ? "Ambil" : "Delivery"
+                  }}</span>
+                  <span
+                    class="payment-badge-small"
+                    :class="getPaymentClass(order.payment_status)"
+                    >{{ getPaymentLabel(order.payment_status) }}</span
+                  >
                 </div>
-
               </div>
 
               <div class="order-right">
-                <div class="order-time small">{{ formatDateTime(order.created_at) }}</div>
-                <span :class="['status-badge', getStatusClass(order.status)]">{{ getStatusLabel(order.status) }}</span>
+                <div class="order-time small">
+                  {{ formatDateTime(order.created_at) }}
+                </div>
+                <span :class="['status-badge', getStatusClass(order.status)]">{{
+                  getStatusLabel(order.status)
+                }}</span>
               </div>
             </div>
 
@@ -96,19 +125,32 @@
             <div class="order-items">
               <p class="items-title">Items</p>
               <div class="item-preview">
-                <div v-for="(item, idx) in order.items.slice(0,2)" :key="item.id" class="order-item">
+                <div
+                  v-for="item in order.items.slice(0, 2)"
+                  :key="item.id"
+                  class="order-item"
+                >
                   <span class="item-qty">{{ item.quantity }}x</span>
                   <span class="item-name">{{ item.menu?.name }}</span>
-                  <span class="item-price">{{ formatCurrency(item.subtotal) }}</span>
+                  <span class="item-price">{{
+                    formatCurrency(item.subtotal)
+                  }}</span>
                 </div>
-                <div v-if="order.items.length > 2" class="more-items">+{{ order.items.length - 2 }} lainnya</div>
+                <div v-if="order.items.length > 2" class="more-items">
+                  +{{ order.items.length - 2 }} lainnya
+                </div>
               </div>
             </div>
 
             <!-- Payment Status -->
             <div class="payment-info">
               <span class="payment-label">Pembayaran:</span>
-              <span :class="['payment-badge', getPaymentClass(order.payment_status)]">
+              <span
+                :class="[
+                  'payment-badge',
+                  getPaymentClass(order.payment_status),
+                ]"
+              >
                 {{ getPaymentLabel(order.payment_status) }}
               </span>
             </div>
@@ -117,7 +159,9 @@
             <div class="order-footer">
               <div class="order-total">
                 <span>Total:</span>
-                <span class="total-amount">{{ formatCurrency(order.total_price) }}</span>
+                <span class="total-amount">{{
+                  formatCurrency(order.total_price)
+                }}</span>
               </div>
 
               <!-- Action Buttons -->
@@ -149,10 +193,7 @@
                   <span>Batalkan</span>
                 </button>
 
-                <button
-                  class="btn-detail"
-                  @click="showOrderDetail(order)"
-                >
+                <button class="btn-detail" @click="showOrderDetail(order)">
                   <Eye :size="16" class="action-icon" />
                   <span>Detail</span>
                 </button>
@@ -170,24 +211,34 @@
           <h2>Detail Pesanan #{{ selectedOrder.id }}</h2>
           <button class="btn-close" @click="closeDetail">✕</button>
         </div>
-        
+
         <div class="modal-body">
           <!-- Order Info -->
           <div class="detail-section">
             <h4>Informasi Pesanan</h4>
             <div class="detail-row">
               <span class="label">Status:</span>
-              <span :class="['value', 'status-badge', getStatusClass(selectedOrder.status)]">
+              <span
+                :class="[
+                  'value',
+                  'status-badge',
+                  getStatusClass(selectedOrder.status),
+                ]"
+              >
                 {{ getStatusLabel(selectedOrder.status) }}
               </span>
             </div>
             <div class="detail-row">
               <span class="label">Waktu Pesan:</span>
-              <span class="value">{{ formatDateTime(selectedOrder.created_at) }}</span>
+              <span class="value">{{
+                formatDateTime(selectedOrder.created_at)
+              }}</span>
             </div>
             <div class="detail-row">
               <span class="label">Tipe:</span>
-              <span class="value">{{ selectedOrder.type === 'pickup' ? 'Ambil Sendiri' : 'Delivery' }}</span>
+              <span class="value">{{
+                selectedOrder.type === "pickup" ? "Ambil Sendiri" : "Delivery"
+              }}</span>
             </div>
           </div>
 
@@ -227,7 +278,11 @@
               <tfoot>
                 <tr>
                   <td colspan="3"><strong>Total</strong></td>
-                  <td class="amount"><strong>{{ formatCurrency(selectedOrder.total_price) }}</strong></td>
+                  <td class="amount">
+                    <strong>{{
+                      formatCurrency(selectedOrder.total_price)
+                    }}</strong>
+                  </td>
                 </tr>
               </tfoot>
             </table>
@@ -238,13 +293,21 @@
             <h4>Informasi Pembayaran</h4>
             <div class="detail-row">
               <span class="label">Status Pembayaran:</span>
-              <span :class="['value', 'payment-badge', getPaymentClass(selectedOrder.payment_status)]">
+              <span
+                :class="[
+                  'value',
+                  'payment-badge',
+                  getPaymentClass(selectedOrder.payment_status),
+                ]"
+              >
                 {{ getPaymentLabel(selectedOrder.payment_status) }}
               </span>
             </div>
             <div class="detail-row" v-if="selectedOrder.paid_amount > 0">
               <span class="label">Jumlah Dibayar:</span>
-              <span class="value">{{ formatCurrency(selectedOrder.paid_amount) }}</span>
+              <span class="value">{{
+                formatCurrency(selectedOrder.paid_amount)
+              }}</span>
             </div>
           </div>
         </div>
@@ -258,96 +321,134 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import Sidebar from '../../components/dashboard/Sidebar.vue';
-import api from '../../config/api';
-import { TENANT_MENU_ITEMS } from '../../constants/menuItems';
-import { showSuccess, showError, showConfirm } from '../../utils/sweetAlert';
-import { RefreshCw, List, Package, Loader2, Check, Eye, X } from 'lucide-vue-next';
+import { ref, computed, onMounted } from "vue";
+import Sidebar from "../../components/dashboard/Sidebar.vue";
+import api from "../../config/api";
+import { TENANT_MENU_ITEMS } from "../../constants/menuItems";
+import { showSuccess, showError, showConfirm } from "../../utils/sweetAlert";
+import {
+  RefreshCw,
+  List,
+  Package,
+  Loader2,
+  Check,
+  Eye,
+  X,
+} from "lucide-vue-next";
 
 const orders = ref<any[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
-const activeFilter = ref('all');
+const activeFilter = ref("all");
 const selectedOrder = ref<any>(null);
+const isRefreshing = ref(false);
+
+const refreshOrders = async () => {
+  isRefreshing.value = true;
+  try {
+    await fetchOrders();
+  } finally {
+    isRefreshing.value = false;
+  }
+};
 
 const filters = computed(() => [
-  { value: 'all', label: 'Semua', icon: List, count: orders.value.length },
-  { value: 'created', label: 'Baru', icon: Package, count: orders.value.filter(o => o.status === 'created').length },
-  { value: 'preparing', label: 'Diproses', icon: Loader2, count: orders.value.filter(o => o.status === 'preparing').length },
-  { value: 'ready_for_pickup', label: 'Siap', icon: Package, count: orders.value.filter(o => o.status === 'ready_for_pickup').length },
-  { value: 'picked_up', label: 'Diambil', icon: Check, count: orders.value.filter(o => o.status === 'picked_up').length },
+  { value: "all", label: "Semua", icon: List, count: orders.value.length },
+  {
+    value: "created",
+    label: "Baru",
+    icon: Package,
+    count: orders.value.filter((o) => o.status === "created").length,
+  },
+  {
+    value: "preparing",
+    label: "Diproses",
+    icon: Loader2,
+    count: orders.value.filter((o) => o.status === "preparing").length,
+  },
+  {
+    value: "ready_for_pickup",
+    label: "Siap",
+    icon: Package,
+    count: orders.value.filter((o) => o.status === "ready_for_pickup").length,
+  },
+  {
+    value: "picked_up",
+    label: "Diambil",
+    icon: Check,
+    count: orders.value.filter((o) => o.status === "picked_up").length,
+  },
 ]);
 
 const filteredOrders = computed(() => {
-  if (activeFilter.value === 'all') return orders.value;
-  return orders.value.filter(order => order.status === activeFilter.value);
+  if (activeFilter.value === "all") return orders.value;
+  return orders.value.filter((order) => order.status === activeFilter.value);
 });
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
   }).format(amount);
 };
 
 const formatDateTime = (date: string) => {
-  return new Date(date).toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(date).toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 const getOrderCardClass = (status: string) => {
-  if (status === 'created') return 'urgent';
-  if (status === 'preparing') return 'processing';
-  if (status === 'ready_for_pickup') return 'ready';
-  return '';
+  if (status === "created") return "urgent";
+  if (status === "preparing") return "processing";
+  if (status === "ready_for_pickup") return "ready";
+  return "";
 };
 
 const getStatusClass = (status: string) => {
   const map: Record<string, string> = {
-    created: 'status-new',
-    preparing: 'status-processing',
-    ready_for_pickup: 'status-ready',
-    picked_up: 'status-completed',
-    completed: 'status-completed',
-    cancelled: 'status-cancelled',
+    created: "status-new",
+    preparing: "status-processing",
+    ready_for_pickup: "status-ready",
+    picked_up: "status-completed",
+    completed: "status-completed",
+    cancelled: "status-cancelled",
   };
-  return map[status] || 'status-default';
+  return map[status] || "status-default";
 };
 
 const getStatusLabel = (status: string) => {
   const map: Record<string, string> = {
-    created: 'Pesanan Baru',
-    preparing: 'Sedang Diproses',
-    ready_for_pickup: 'Siap Diambil',
-    picked_up: 'Sudah Diambil',
-    completed: 'Selesai',
-    cancelled: 'Dibatalkan',
+    created: "Pesanan Baru",
+    preparing: "Sedang Diproses",
+    ready_for_pickup: "Siap Diambil",
+    picked_up: "Sudah Diambil",
+    completed: "Selesai",
+    cancelled: "Dibatalkan",
   };
   return map[status] || status;
 };
 
 const getPaymentClass = (status: string) => {
   const map: Record<string, string> = {
-    pending: 'payment-pending',
-    paid: 'payment-paid',
-    failed: 'payment-failed',
+    pending: "payment-pending",
+    paid: "payment-paid",
+    failed: "payment-failed",
   };
-  return map[status] || 'payment-default';
+  return map[status] || "payment-default";
 };
 
 const getPaymentLabel = (status: string) => {
   const map: Record<string, string> = {
-    unpaid: 'Belum Bayar',
-    pending: 'Pending',
-    paid: 'Sudah Bayar',
-    failed: 'Gagal',
+    unpaid: "Belum Bayar",
+    pending: "Pending",
+    paid: "Sudah Bayar",
+    failed: "Gagal",
   };
   return map[status] || status;
 };
@@ -356,11 +457,11 @@ const fetchOrders = async () => {
   loading.value = true;
   error.value = null;
   try {
-    const response = await api.get('/tenant/orders');
+    const response = await api.get("/tenant/orders");
     orders.value = response.data.data || response.data;
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Gagal memuat pesanan';
-    console.error('Error fetching orders:', err);
+    error.value = err.response?.data?.message || "Gagal memuat pesanan";
+    console.error("Error fetching orders:", err);
   } finally {
     loading.value = false;
   }
@@ -376,31 +477,31 @@ const updateStatus = async (orderId: number, newStatus: string) => {
       status: newStatus,
     });
     await fetchOrders();
-    await showSuccess('Status pesanan berhasil diupdate');
+    await showSuccess("Status pesanan berhasil diupdate");
   } catch (err: any) {
-    showError(err.response?.data?.message || 'Gagal update status pesanan');
-    console.error('Error updating status:', err);
+    showError(err.response?.data?.message || "Gagal update status pesanan");
+    console.error("Error updating status:", err);
   }
 };
 
 const cancelOrder = async (orderId: number) => {
   const result = await showConfirm(
-    'Pesanan akan dibatalkan dan tidak dapat dikembalikan.',
-    'Yakin ingin membatalkan pesanan ini?',
-    'Ya, Batalkan',
-    'Tidak'
+    "Pesanan akan dibatalkan dan tidak dapat dikembalikan.",
+    "Yakin ingin membatalkan pesanan ini?",
+    "Ya, Batalkan",
+    "Tidak"
   );
-  
+
   if (!result.isConfirmed) return;
-  
+
   try {
     await api.patch(`/tenant/orders/${orderId}/status`, {
-      status: 'cancelled',
+      status: "cancelled",
     });
     await fetchOrders();
-    await showSuccess('Pesanan berhasil dibatalkan');
+    await showSuccess("Pesanan berhasil dibatalkan");
   } catch (err: any) {
-    showError(err.response?.data?.message || 'Gagal membatalkan pesanan');
+    showError(err.response?.data?.message || "Gagal membatalkan pesanan");
   }
 };
 
@@ -414,7 +515,7 @@ const closeDetail = () => {
 
 onMounted(() => {
   fetchOrders();
-  
+
   // Auto refresh every 30 seconds
   setInterval(() => {
     fetchOrders();
@@ -465,13 +566,13 @@ onMounted(() => {
   border-radius: 10px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(99,102,241,0.08);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.08);
   transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
 }
 
 .btn-refresh:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(99,102,241,0.12);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.12);
 }
 
 /* Filter Tabs */
@@ -490,7 +591,7 @@ onMounted(() => {
   gap: 0.75rem;
   padding: 0.7rem 1.25rem;
   background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-  border: 1px solid rgba(15,23,42,0.06);
+  border: 1px solid rgba(15, 23, 42, 0.06);
   border-radius: 999px;
   font-weight: 800;
   color: #0b1220;
@@ -504,14 +605,14 @@ onMounted(() => {
 
 .tab:hover {
   transform: translateY(-4px);
-  box-shadow: 0 14px 36px rgba(6,182,212,0.08);
+  box-shadow: 0 14px 36px rgba(6, 182, 212, 0.08);
 }
 
 .tab.active {
   background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
   color: white;
   border-color: transparent;
-  box-shadow: 0 16px 44px rgba(99,102,241,0.14);
+  box-shadow: 0 16px 44px rgba(99, 102, 241, 0.14);
 }
 
 .count-badge {
@@ -521,7 +622,7 @@ onMounted(() => {
   margin-left: 0.5rem;
   padding: 0.18rem 0.55rem;
   margin-right: 0.5rem; /* ensure space between badge and next element */
-  background: rgba(15,23,42,0.04);
+  background: rgba(15, 23, 42, 0.04);
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 800;
@@ -529,7 +630,7 @@ onMounted(() => {
 }
 
 .tab.active .count-badge {
-  background: rgba(255,255,255,0.18);
+  background: rgba(255, 255, 255, 0.18);
 }
 
 /* Loading, Error, Empty States */
@@ -551,7 +652,9 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .empty-icon {
@@ -1096,4 +1199,3 @@ onMounted(() => {
   }
 }
 </style>
-

@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-layout">
     <Sidebar :menuItems="TENANT_MENU_ITEMS" />
-    
+
     <main class="dashboard-main">
       <div class="dashboard-header">
         <div>
@@ -9,7 +9,11 @@
           <p class="dashboard-subtitle">Atur menu kantin Anda</p>
         </div>
         <div class="header-actions">
-          <button class="btn-primary btn-add" @click="openAddModal" aria-label="Tambah menu">
+          <button
+            class="btn-primary btn-add"
+            @click="openAddModal"
+            aria-label="Tambah menu"
+          >
             <PlusCircle :size="18" class="btn-add-icon" />
             <span>Tambah Menu</span>
           </button>
@@ -30,7 +34,7 @@
         </div>
 
         <!-- Empty State -->
-          <div v-else-if="menus.length === 0" class="empty-state">
+        <div v-else-if="menus.length === 0" class="empty-state">
           <div class="empty-icon">🍽️</div>
           <h3>Belum Ada Menu</h3>
           <p>Mulai tambahkan menu pertama Anda</p>
@@ -47,18 +51,20 @@
                 :src="menu.photo_url || nasigoreng"
                 :alt="menu.name"
                 class="menu-img"
-                @error="(e) => (e.target.src = nasigoreng)"
+                @error="(e) => ((e.target as HTMLImageElement).src = nasigoreng)"
               />
             </div>
             <div class="menu-info">
               <h3 class="menu-name">{{ menu.name }}</h3>
-              <p class="menu-category" v-if="menu.category">{{ menu.category }}</p>
+              <p class="menu-category" v-if="menu.category">
+                {{ menu.category }}
+              </p>
               <p class="menu-price">{{ formatCurrency(menu.price) }}</p>
               <div class="menu-stock">
                 <label>Stok:</label>
-                <input 
-                  type="number" 
-                  v-model.number="menu.stock" 
+                <input
+                  type="number"
+                  v-model.number="menu.stock"
                   @blur="updateStock(menu)"
                   min="0"
                   class="stock-input"
@@ -66,11 +72,21 @@
               </div>
             </div>
             <div class="menu-actions">
-              <button class="btn-icon btn-edit" @click="openEditModal(menu)" title="Edit" aria-label="Edit menu">
-                <Edit3 :size="18" class="icon-svg"/>
+              <button
+                class="btn-icon btn-edit"
+                @click="openEditModal(menu)"
+                title="Edit"
+                aria-label="Edit menu"
+              >
+                <Edit3 :size="18" class="icon-svg" />
               </button>
-              <button class="btn-icon btn-delete" @click="confirmDelete(menu)" title="Hapus" aria-label="Hapus menu">
-                <Trash2 :size="18" class="icon-svg"/>
+              <button
+                class="btn-icon btn-delete"
+                @click="confirmDelete(menu)"
+                title="Hapus"
+                aria-label="Hapus menu"
+              >
+                <Trash2 :size="18" class="icon-svg" />
               </button>
             </div>
           </div>
@@ -82,20 +98,24 @@
     <div v-if="showModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h2>{{ isEditMode ? 'Edit Menu' : 'Tambah Menu Baru' }}</h2>
+          <h2>{{ isEditMode ? "Edit Menu" : "Tambah Menu Baru" }}</h2>
           <button class="btn-close" @click="closeModal">✕</button>
         </div>
-        
+
         <form @submit.prevent="handleSubmit" class="modal-body">
           <div class="image-preview" v-if="formData.photo_url || !isEditMode">
-            <img :src="formData.photo_url || nasigoreng" :alt="formData.name || 'Preview'" @error="(e) => (e.target.src = nasigoreng)" />
+            <img
+              :src="formData.photo_url || nasigoreng"
+              :alt="formData.name || 'Preview'"
+              @error="(e) => ((e.target as HTMLImageElement).src = nasigoreng)"
+            />
           </div>
           <div class="form-group">
             <label for="name">Nama Menu *</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               id="name"
-              v-model="formData.name" 
+              v-model="formData.name"
               required
               placeholder="Contoh: Nasi Goreng"
             />
@@ -115,10 +135,10 @@
           <div class="form-row">
             <div class="form-group">
               <label for="price">Harga *</label>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 id="price"
-                v-model.number="formData.price" 
+                v-model.number="formData.price"
                 required
                 min="0"
                 placeholder="25000"
@@ -127,10 +147,10 @@
 
             <div class="form-group">
               <label for="stock">Stok *</label>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 id="stock"
-                v-model.number="formData.stock" 
+                v-model.number="formData.stock"
                 required
                 min="0"
                 placeholder="10"
@@ -140,24 +160,24 @@
 
           <div class="form-group">
             <label for="photo_url">URL Foto</label>
-            <input 
-              type="url" 
+            <input
+              type="url"
               id="photo_url"
-              v-model="formData.photo_url" 
+              v-model="formData.photo_url"
               placeholder="https://..."
             />
           </div>
 
-          <div v-if="formError" class="form-error">
-            ❌ {{ formError }}
-          </div>
+          <div v-if="formError" class="form-error">❌ {{ formError }}</div>
 
           <div class="modal-actions">
             <button type="button" class="btn-secondary" @click="closeModal">
               Batal
             </button>
             <button type="submit" class="btn-primary" :disabled="submitting">
-              {{ submitting ? 'Menyimpan...' : (isEditMode ? 'Simpan' : 'Tambah') }}
+              {{
+                submitting ? "Menyimpan..." : isEditMode ? "Simpan" : "Tambah"
+              }}
             </button>
           </div>
         </form>
@@ -167,13 +187,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import Sidebar from '../../components/dashboard/Sidebar.vue';
-import api from '../../config/api';
-import { TENANT_MENU_ITEMS } from '../../constants/menuItems';
-import { showSuccess, showError, showDeleteConfirm } from '../../utils/sweetAlert';
-import nasigoreng from '../../assets/nasigoreng.jpeg';
-import { Edit3, Trash2, PlusCircle } from 'lucide-vue-next';
+import { ref, onMounted } from "vue";
+import Sidebar from "../../components/dashboard/Sidebar.vue";
+import api from "../../config/api";
+import { TENANT_MENU_ITEMS } from "../../constants/menuItems";
+import {
+  showSuccess,
+  showError,
+  showDeleteConfirm,
+} from "../../utils/sweetAlert";
+import nasigoreng from "../../assets/nasigoreng.jpeg";
+import { Edit3, Trash2, PlusCircle } from "lucide-vue-next";
 
 const menus = ref<any[]>([]);
 const loading = ref(false);
@@ -185,17 +209,17 @@ const formError = ref<string | null>(null);
 
 const formData = ref({
   id: null as number | null,
-  name: '',
-  category: '',
+  name: "",
+  category: "",
   price: 0,
   stock: 0,
-  photo_url: '',
+  photo_url: "",
 });
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
   }).format(amount);
 };
@@ -204,11 +228,11 @@ const fetchMenus = async () => {
   loading.value = true;
   error.value = null;
   try {
-    const response = await api.get('/tenant/menus');
+    const response = await api.get("/tenant/menus");
     menus.value = response.data.data || response.data;
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Gagal memuat menu';
-    console.error('Error fetching menus:', err);
+    error.value = err.response?.data?.message || "Gagal memuat menu";
+    console.error("Error fetching menus:", err);
   } finally {
     loading.value = false;
   }
@@ -218,11 +242,11 @@ const openAddModal = () => {
   isEditMode.value = false;
   formData.value = {
     id: null,
-    name: '',
-    category: '',
+    name: "",
+    category: "",
     price: 0,
     stock: 0,
-    photo_url: '',
+    photo_url: "",
   };
   formError.value = null;
   showModal.value = true;
@@ -233,10 +257,10 @@ const openEditModal = (menu: any) => {
   formData.value = {
     id: menu.id,
     name: menu.name,
-    category: menu.category || '',
+    category: menu.category || "",
     price: menu.price,
     stock: menu.stock,
-    photo_url: menu.photo_url || '',
+    photo_url: menu.photo_url || "",
   };
   formError.value = null;
   showModal.value = true;
@@ -265,14 +289,14 @@ const handleSubmit = async () => {
       await api.patch(`/tenant/menus/${formData.value.id}`, payload);
     } else {
       // Create new menu
-      await api.post('/tenant/menus', payload);
+      await api.post("/tenant/menus", payload);
     }
 
     await fetchMenus();
     closeModal();
   } catch (err: any) {
-    formError.value = err.response?.data?.message || 'Gagal menyimpan menu';
-    console.error('Error saving menu:', err);
+    formError.value = err.response?.data?.message || "Gagal menyimpan menu";
+    console.error("Error saving menu:", err);
   } finally {
     submitting.value = false;
   }
@@ -283,9 +307,9 @@ const updateStock = async (menu: any) => {
     await api.patch(`/tenant/menus/${menu.id}/stock`, {
       stock: menu.stock,
     });
-    await showSuccess('Stok berhasil diupdate');
+    await showSuccess("Stok berhasil diupdate");
   } catch (err: any) {
-    showError('Gagal update stok');
+    showError("Gagal update stok");
     await fetchMenus();
   }
 };
@@ -293,9 +317,9 @@ const updateStock = async (menu: any) => {
 const confirmDelete = async (menu: any) => {
   const result = await showDeleteConfirm(
     `Menu "${menu.name}" akan dihapus secara permanen.`,
-    'Hapus menu ini?'
+    "Hapus menu ini?"
   );
-  
+
   if (result.isConfirmed) {
     deleteMenu(menu.id);
   }
@@ -305,10 +329,10 @@ const deleteMenu = async (menuId: number) => {
   try {
     await api.delete(`/tenant/menus/${menuId}`);
     await fetchMenus();
-    await showSuccess('Menu berhasil dihapus');
+    await showSuccess("Menu berhasil dihapus");
   } catch (err: any) {
-    showError('Gagal menghapus menu');
-    console.error('Error deleting menu:', err);
+    showError("Gagal menghapus menu");
+    console.error("Error deleting menu:", err);
   }
 };
 
@@ -367,10 +391,12 @@ onMounted(() => {
   padding: 0.6rem 0.9rem;
   border-radius: 10px;
   background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
-  box-shadow: 0 10px 30px rgba(99,102,241,0.12);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.12);
 }
 
-.btn-add .btn-add-icon { color: rgba(255,255,255,0.95); }
+.btn-add .btn-add-icon {
+  color: rgba(255, 255, 255, 0.95);
+}
 
 .image-preview {
   width: 100%;
@@ -378,7 +404,7 @@ onMounted(() => {
   overflow: hidden;
   border-radius: 12px;
   margin-bottom: 1rem;
-  box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
 .image-preview img {
@@ -420,7 +446,9 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .empty-icon {
@@ -565,16 +593,24 @@ onMounted(() => {
   color: #1e40af;
 }
 
-.btn-edit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(14,165,233,0.08); }
+.btn-edit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.08);
+}
 
 .btn-delete {
   background: linear-gradient(90deg, #fff1f2 0%, #ffe3e6 100%);
   color: #9b1c1c;
 }
 
-.btn-delete:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239,68,68,0.08); }
+.btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.08);
+}
 
-.icon-svg { color: inherit; }
+.icon-svg {
+  color: inherit;
+}
 
 /* Modal Styles */
 .modal-overlay {
@@ -719,4 +755,3 @@ onMounted(() => {
   }
 }
 </style>
-

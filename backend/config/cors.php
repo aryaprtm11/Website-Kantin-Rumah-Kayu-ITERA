@@ -26,6 +26,8 @@ return [
         'http://127.0.0.1:5174',
         'http://localhost:3000',
         'https://kantin-frontend-104030083079.asia-southeast2.run.app',
+        'https://kantin-rk.my.id',
+        'https://www.kantin-rk.my.id',
         env('FRONTEND_URL'),
     ],
 
