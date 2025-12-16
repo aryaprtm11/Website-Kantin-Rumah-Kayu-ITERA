@@ -350,7 +350,7 @@ onMounted(() => {
 
 .dashboard-main {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 280px;
   padding: 2rem;
 }
 
@@ -375,7 +375,7 @@ onMounted(() => {
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -439,7 +439,7 @@ onMounted(() => {
   width: 50px;
   height: 50px;
   border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
+  border-top-color: #22c55e;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
@@ -469,7 +469,7 @@ onMounted(() => {
 
 .btn-retry {
   padding: 0.75rem 1.5rem;
-  background: #667eea;
+  background: #22c55e;
   color: white;
   border: none;
   border-radius: 8px;
@@ -498,7 +498,7 @@ onMounted(() => {
 
 .menu-image {
   height: 160px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -524,7 +524,7 @@ onMounted(() => {
 
 .menu-category {
   font-size: 0.85rem;
-  color: #667eea;
+  color: #22c55e;
   background: #eef2ff;
   display: inline-block;
   padding: 0.25rem 0.75rem;
@@ -565,7 +565,7 @@ onMounted(() => {
 
 .stock-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #22c55e;
 }
 
 .menu-actions {
@@ -691,7 +691,7 @@ onMounted(() => {
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #22c55e;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -731,13 +731,13 @@ onMounted(() => {
 
 @media (max-width: 1024px) {
   .dashboard-main {
-    margin-left: 80px;
+    margin-left: 100px;
   }
 }
 
 @media (max-width: 768px) {
   .dashboard-main {
-    margin-left: 0;
+    margin-left: 90px;
     padding: 1rem;
   }
 

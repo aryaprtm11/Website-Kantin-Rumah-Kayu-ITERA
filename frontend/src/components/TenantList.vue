@@ -8,73 +8,100 @@
         </p>
       </div>
 
-      <div v-if="loading" class="loading">
-        <div class="spinner"></div>
+      <div v-if="loading" class="loading-state">
+        <ProgressSpinner />
         <p>{{ LOADING_MESSAGE }}</p>
       </div>
 
-      <div v-else-if="error" class="error-message">
-        <p>❌ {{ error }}</p>
-        <button @click="retry" class="btn-retry">Coba Lagi</button>
-      </div>
+      <Message v-else-if="error" severity="error" :closable="false">
+        {{ error }}
+        <template #icon>
+          <i class="pi pi-times-circle"></i>
+        </template>
+      </Message>
 
       <div v-else class="tenants-grid">
-        <div
+        <Card 
           v-for="tenant in tenants"
           :key="tenant.id"
           class="tenant-card"
         >
-          <div class="tenant-image">
+          <template #header>
+            <div class="tenant-image-wrapper">
+              <div class="tenant-image">
                 <template v-if="getTenantImage(tenant)">
                   <img :src="getTenantImage(tenant)" :alt="tenant.name" />
                 </template>
                 <div v-else class="tenant-placeholder">
-                  🏪
+                  <i class="pi pi-building" style="font-size: 4rem"></i>
                 </div>
               </div>
-          <div class="tenant-content">
-            <h3 class="tenant-name">{{ tenant.name }}</h3>
-            <p class="tenant-hours">⏰ {{ tenant.opens_at }} - {{ tenant.closes_at }}</p>
-            <div class="tenant-status">
-              <span
-                :class="['status-badge', tenant.is_open ? 'active' : 'inactive']"
-              >
-                {{ tenant.is_open ? '🟢 Buka' : '🔴 Tutup' }}
-              </span>
+              <div class="status-overlay">
+                <Tag 
+                  :value="tenant.is_open ? 'Buka' : 'Tutup'" 
+                  :severity="tenant.is_open ? 'success' : 'danger'"
+                  :icon="tenant.is_open ? 'pi pi-check-circle' : 'pi pi-times-circle'"
+                  rounded
+                />
+              </div>
             </div>
-            <router-link 
-              :to="`/tenants/${tenant.id}`"
-              class="btn-view-menu"
-              :class="{ 'disabled': !tenant.is_open }"
-            >
-              Lihat Menu
-            </router-link>
-          </div>
-        </div>
+          </template>
+          
+          <template #title>
+            <div class="tenant-title">
+              {{ tenant.name }}
+            </div>
+          </template>
+          
+          <template #content>
+            <div class="tenant-info">
+              <div class="info-item">
+                <i class="pi pi-clock"></i>
+                <span>{{ tenant.opens_at }} - {{ tenant.closes_at }}</span>
+              </div>
+              <Divider />
+              <div class="tenant-description">
+                Nikmati berbagai menu lezat dari {{ tenant.name }}
+              </div>
+            </div>
+          </template>
+          
+          <template #footer>
+            <div class="card-actions">
+              <Button 
+                label="Lihat Menu" 
+                icon="pi pi-arrow-right" 
+                iconPos="right"
+                :disabled="!tenant.is_open"
+                @click="$router.push(`/tenants/${tenant.id}`)"
+                class="w-full"
+                :severity="tenant.is_open ? 'success' : 'secondary'"
+                raised
+              />
+            </div>
+          </template>
+        </Card>
       </div>
 
-      <div v-if="!loading && !error && tenants.length === 0" class="no-data">
-        <p>😔 {{ NO_DATA_MESSAGE }}</p>
-      </div>
+      <Message v-if="!loading && !error && tenants.length === 0" severity="info" :closable="false">
+        {{ NO_DATA_MESSAGE }}
+      </Message>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-/**
- * TenantList Component
- * Displays a grid of available tenants/kantins
- * Uses composable for data management
- */
-
 import { onMounted } from 'vue';
 import { useTenants } from '../composables/useTenants';
 import { INFO_MESSAGES } from '../constants/messages';
-// import a local image for the specific tenant
 import tenant1Img from '../assets/tenant1.jpeg';
+import Card from 'primevue/card';
+import Button from 'primevue/button';
+import Tag from 'primevue/tag';
+import Message from 'primevue/message';
+import ProgressSpinner from 'primevue/progressspinner';
+import Divider from 'primevue/divider';
 
-// return an image URL for a tenant (uses tenant photo_url if provided,
-// otherwise special-case `Warung Nusantara` to show `tenant1.jpg`)
 const getTenantImage = (tenant: any) => {
   if (!tenant) return null;
   if (tenant.photo_url) return tenant.photo_url;
@@ -82,27 +109,25 @@ const getTenantImage = (tenant: any) => {
   return null;
 };
 
-const { tenants, loading, error, fetchTenants, retry } = useTenants();
+const { tenants, loading, error, fetchTenants } = useTenants();
 
 onMounted(() => {
   fetchTenants();
 });
 
-// Constants for template
 const LOADING_MESSAGE = INFO_MESSAGES.LOADING;
 const NO_DATA_MESSAGE = INFO_MESSAGES.NO_TENANTS;
 </script>
 
 <style scoped>
 .tenants {
-  padding: 5rem 0;
-  background: white;
+  padding: 5rem 2rem;
+  background: #f9fafb;
 }
 
 .tenants-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
 }
 
 .section-header {
@@ -113,171 +138,152 @@ const NO_DATA_MESSAGE = INFO_MESSAGES.NO_TENANTS;
 .section-title {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #2d3748;
-  margin-bottom: 1rem;
+  color: #111827;
+  margin-bottom: 0.5rem;
 }
 
 .section-description {
-  font-size: 1.1rem;
-  color: #718096;
+  font-size: 1.125rem;
+  color: #6b7280;
 }
 
-.loading,
-.no-data {
+.loading-state {
   text-align: center;
-  padding: 3rem;
-  color: #718096;
+  padding: 4rem 2rem;
+  color: #6b7280;
 }
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.error-message {
-  text-align: center;
-  padding: 3rem;
-}
-
-.error-message p {
-  color: #e53e3e;
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
-}
-
-.btn-retry {
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 0.8rem 2rem;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-retry:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
+.loading-state p {
+  margin-top: 1rem;
 }
 
 .tenants-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 2rem;
   animation: fadeIn 0.6s ease-out;
 }
 
-.tenant-card {
-  background: white;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+:deep(.tenant-card) {
   transition: all 0.3s;
-  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-.tenant-card:hover {
+:deep(.tenant-card:hover) {
   transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 12px 32px rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
+}
+
+:deep(.tenant-card .p-card-header) {
+  padding: 0;
+}
+
+:deep(.tenant-card .p-card-body) {
+  padding: 1.5rem;
+}
+
+:deep(.tenant-card .p-card-content) {
+  padding: 0;
+}
+
+:deep(.tenant-card .p-card-footer) {
+  padding: 0;
+  padding-top: 1rem;
+}
+
+.tenant-image-wrapper {
+  position: relative;
+  overflow: hidden;
 }
 
 .tenant-image {
-  height: 180px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 220px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  position: relative;
+}
+
+.tenant-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
 }
 
 .tenant-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s;
+}
+
+:deep(.tenant-card:hover) .tenant-image img {
+  transform: scale(1.05);
 }
 
 .tenant-placeholder {
-  font-size: 5rem;
   color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
 }
 
-.tenant-content {
-  padding: 1.5rem;
+.status-overlay {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
 }
 
-.tenant-name {
-  font-size: 1.3rem;
+.tenant-title {
+  font-size: 1.25rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #111827;
   margin-bottom: 0.5rem;
 }
 
-.tenant-hours {
-  font-size: 0.95rem;
-  color: #718096;
-  margin-bottom: 1rem;
-  line-height: 1.5;
+.tenant-info {
+  margin-top: 0.5rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
-.tenant-status {
-  margin-bottom: 1rem;
+.info-item i {
+  color: #22c55e;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
+:deep(.p-divider) {
+  margin: 0.75rem 0;
 }
 
-.status-badge.active {
-  background: #c6f6d5;
-  color: #22543d;
+.tenant-description {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
-.status-badge.inactive {
-  background: #fed7d7;
-  color: #742a2a;
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
-.btn-view-menu {
-  display: block;
+.w-full {
   width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 0.8rem;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-decoration: none;
-  text-align: center;
-}
-
-.btn-view-menu:hover:not(.disabled) {
-  opacity: 0.9;
-  transform: scale(1.02);
-}
-
-.btn-view-menu.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
 }
 
 @keyframes fadeIn {
@@ -292,6 +298,10 @@ const NO_DATA_MESSAGE = INFO_MESSAGES.NO_TENANTS;
 }
 
 @media (max-width: 768px) {
+  .tenants {
+    padding: 3rem 1rem;
+  }
+
   .section-title {
     font-size: 2rem;
   }

@@ -1,42 +1,65 @@
 <template>
   <div class="page">
-    <Navbar />
-    <CartSidebar />
-
-    <!-- Floating Cart Button -->
-    <button v-if="itemCount > 0" class="floating-cart-btn" @click="openCart">
-      <ShoppingCart :size="20" />
-      {{ itemCount }} item
-      <span class="cart-total">{{ formatCurrency(totalPrice) }}</span>
-    </button>
+    <Navbar @open-cart="cartVisible = true" />
+    <CartDialog v-model:visible="cartVisible" />
 
     <div class="tenant-detail-page">
       <!-- Tenant Header -->
       <div class="tenant-header">
         <div class="container">
-          <button class="btn-back" @click="goBack">← Kembali</button>
-
-          <div v-if="loadingTenant" class="loading">
-            <div class="spinner"></div>
+          <div class="header-actions">
+            <Button 
+              label="Kembali" 
+              icon="pi pi-arrow-left" 
+              @click="goBack"
+              text
+              class="btn-back"
+            />
+            <Button 
+              label="Ke Halaman Utama" 
+              icon="pi pi-home" 
+              @click="goHome"
+              text
+              severity="secondary"
+            />
           </div>
 
-          <div v-else-if="tenant" class="tenant-info">
-            <div class="tenant-icon">
-              <Store :size="40" />
-            </div>
-            <div>
-              <h1 class="tenant-name">{{ tenant.name }}</h1>
-              <p class="tenant-hours">
-                <Clock :size="16" class="inline-icon" />
-                {{ tenant.opens_at }} - {{ tenant.closes_at }}
-              </p>
-              <span
-                :class="['status-badge', tenant.is_open ? 'open' : 'closed']"
-              >
-                <component :is="tenant.is_open ? CircleCheck : CircleX" :size="16" class="inline-icon" />
-                {{ tenant.is_open ? "Buka" : "Tutup" }}
-              </span>
-            </div>
+          <div v-if="loadingTenant" class="loading">
+            <ProgressSpinner />
+          </div>
+
+          <div v-else-if="tenant" class="tenant-info-card">
+            <Card class="tenant-card-header">
+              <template #content>
+                <div class="tenant-info-layout">
+                  <div class="tenant-image-small">
+                    <img 
+                      v-if="getTenantImage(tenant)" 
+                      :src="getTenantImage(tenant)" 
+                      :alt="tenant.name" 
+                    />
+                    <div v-else class="tenant-placeholder-small">
+                      <i class="pi pi-building"></i>
+                    </div>
+                  </div>
+                  <div class="tenant-details">
+                    <h1 class="tenant-name">{{ tenant.name }}</h1>
+                    <div class="tenant-meta">
+                      <div class="meta-item">
+                        <i class="pi pi-clock"></i>
+                        <span>{{ tenant.opens_at }} - {{ tenant.closes_at }}</span>
+                      </div>
+                      <Tag 
+                        :value="tenant.is_open ? 'Buka' : 'Tutup'" 
+                        :severity="tenant.is_open ? 'success' : 'danger'"
+                        :icon="tenant.is_open ? 'pi pi-check-circle' : 'pi pi-times-circle'"
+                        rounded
+                      />
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </Card>
           </div>
         </div>
       </div>
@@ -47,74 +70,91 @@
           <h2 class="section-title">Menu Tersedia</h2>
 
           <!-- Loading State -->
-          <div v-if="loadingMenus" class="loading">
-            <div class="spinner"></div>
+          <div v-if="loadingMenus" class="loading-state">
+            <ProgressSpinner />
             <p>Memuat menu...</p>
           </div>
 
           <!-- Error State -->
-          <div v-else-if="error" class="error-state">
-            <XCircle :size="48" class="error-icon" />
-            <p>{{ error }}</p>
-            <button class="btn-retry" @click="fetchMenus">Coba Lagi</button>
-          </div>
+          <Message v-else-if="error" severity="error" :closable="false">
+            {{ error }}
+            <template #icon>
+              <XCircle :size="20" />
+            </template>
+          </Message>
 
           <!-- Empty State -->
-          <div v-else-if="menus.length === 0" class="empty-state">
-            <UtensilsCrossed :size="80" class="empty-icon" />
-            <h3>Belum Ada Menu</h3>
-            <p>Kantin ini belum menambahkan menu</p>
-          </div>
+          <Message v-else-if="menus.length === 0" severity="info" :closable="false">
+            <template #icon>
+              <UtensilsCrossed :size="20" />
+            </template>
+            Kantin ini belum menambahkan menu
+          </Message>
 
           <!-- Menu Grid -->
           <div v-else class="menu-grid">
-            <div
+            <Card
               v-for="menu in menus"
               :key="menu.id"
               class="menu-card"
-              :class="{ 'out-of-stock': menu.stock === 0 }"
             >
-              <div class="menu-image">
-                <img
-                  v-if="menu.photo_url"
-                  :src="menu.photo_url"
-                  :alt="menu.name"
-                />
-                <div v-else class="menu-placeholder">
-                  <UtensilsCrossed :size="64" />
+              <template #header>
+                <div class="menu-image-wrapper">
+                  <div class="menu-image">
+                    <img
+                      v-if="menu.photo_url"
+                      :src="menu.photo_url"
+                      :alt="menu.name"
+                    />
+                    <div v-else class="menu-placeholder">
+                      <UtensilsCrossed :size="64" />
+                    </div>
+                  </div>
+                  <div v-if="menu.stock === 0" class="stock-overlay">
+                    <Tag value="Habis" severity="danger" />
+                  </div>
+                  <div v-else-if="menu.stock < 5" class="stock-overlay">
+                    <Tag value="Stok Terbatas" severity="warning" />
+                  </div>
                 </div>
-                <div v-if="menu.stock === 0" class="stock-badge out">Habis</div>
-                <div v-else-if="menu.stock < 5" class="stock-badge low">
-                  Stok Terbatas
-                </div>
-              </div>
+              </template>
 
-              <div class="menu-content">
-                <h3 class="menu-name">{{ menu.name }}</h3>
-                <p class="menu-category" v-if="menu.category">
-                  {{ getCategoryLabel(menu.category) }}
-                </p>
-                <div class="menu-footer">
-                  <span class="menu-price">{{
-                    formatCurrency(menu.price)
-                  }}</span>
-                  <button
-                    class="btn-order"
-                    :disabled="menu.stock === 0 || !tenant?.is_open"
-                    @click="addToCart(menu)"
-                  >
-                    {{ menu.stock === 0 ? "Habis" : "Pesan" }}
-                  </button>
+              <template #title>
+                <div class="menu-title">{{ menu.name }}</div>
+              </template>
+
+              <template #subtitle>
+                <Chip 
+                  v-if="menu.category" 
+                  :label="getCategoryLabel(menu.category)" 
+                  class="menu-category"
+                />
+              </template>
+
+              <template #content>
+                <div class="menu-price">
+                  {{ formatCurrency(menu.price) }}
                 </div>
-              </div>
-            </div>
+              </template>
+
+              <template #footer>
+                <Button
+                  :label="menu.stock === 0 ? 'Habis' : 'Tambah ke Keranjang'"
+                  icon="pi pi-shopping-cart"
+                  :disabled="menu.stock === 0 || !tenant?.is_open"
+                  @click="addToCart(menu)"
+                  class="w-full"
+                  severity="success"
+                  raised
+                />
+              </template>
+            </Card>
           </div>
         </div>
       </div>
     </div>
 
     <Footer />
-    <Cart />
   </div>
 </template>
 
@@ -123,37 +163,38 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
-import Cart from "../components/Cart.vue";
+import CartDialog from "../components/CartDialog.vue";
 import { useCart } from "../composables/useCart";
 import api from "../config/api";
-import {
-  ShoppingCart,
-  Store,
-  Clock,
-  CircleCheck,
-  CircleX,
-  XCircle,
-  UtensilsCrossed,
-} from "lucide-vue-next";
-import { showError, showWarning } from "../utils/sweetAlert";
+import { XCircle, UtensilsCrossed } from "lucide-vue-next";
+import { showError, showWarning, showSuccess } from "../utils/sweetAlert";
+import Card from 'primevue/card';
+import Button from 'primevue/button';
+import Tag from 'primevue/tag';
+import Chip from 'primevue/chip';
+import ProgressSpinner from 'primevue/progressspinner';
+import Message from 'primevue/message';
+import tenant1Img from '../assets/tenant1.jpeg';
 
 const route = useRoute();
 const router = useRouter();
-const {
-  addToCart: addItemToCart,
-  canAddItem,
-  itemCount,
-  totalPrice,
-  openCart,
-} = useCart();
+const { addToCart: addItemToCart, canAddItem } = useCart();
 
 const tenant = ref<any>(null);
 const menus = ref<any[]>([]);
 const loadingTenant = ref(false);
 const loadingMenus = ref(false);
 const error = ref<string | null>(null);
+const cartVisible = ref(false);
 
 const tenantId = route.params.id;
+
+const getTenantImage = (tenant: any) => {
+  if (!tenant) return null;
+  if (tenant.photo_url) return tenant.photo_url;
+  if (tenant.name && tenant.name.toLowerCase().includes('warung nusantara')) return tenant1Img;
+  return null;
+};
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -203,10 +244,14 @@ const fetchMenus = async () => {
 };
 
 const goBack = () => {
+  router.back();
+};
+
+const goHome = () => {
   router.push("/");
 };
 
-const addToCart = (menu: any) => {
+const addToCart = async (menu: any) => {
   if (!tenant.value) {
     showError("Data kantin belum dimuat");
     return;
@@ -229,6 +274,9 @@ const addToCart = (menu: any) => {
     price: menu.price,
     stock: menu.stock,
   });
+
+  // Show success message
+  await showSuccess(`${menu.name} berhasil ditambahkan ke keranjang!`, 'Berhasil!');
 };
 
 onMounted(() => {
@@ -248,6 +296,7 @@ onMounted(() => {
 .tenant-detail-page {
   flex: 1;
   padding-bottom: 3rem;
+  padding-top: 5rem;
 }
 
 .container {
@@ -257,74 +306,102 @@ onMounted(() => {
 }
 
 .tenant-header {
-  background: white;
+  background: #f9fafb;
   padding: 2rem 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   margin-bottom: 3rem;
 }
 
-.btn-back {
-  background: none;
-  border: none;
-  color: #667eea;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
+.header-actions {
+  display: flex;
+  gap: 1rem;
   margin-bottom: 1.5rem;
-  padding: 0.5rem 0;
-  transition: color 0.3s;
+  flex-wrap: wrap;
 }
 
-.btn-back:hover {
-  color: #5568d3;
+:deep(.btn-back) {
+  color: #22c55e;
 }
 
-.tenant-info {
+:deep(.btn-back:hover) {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.tenant-info-card {
+  margin-top: 1rem;
+}
+
+:deep(.tenant-card-header) {
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:deep(.tenant-card-header .p-card-body) {
+  padding: 1.5rem;
+}
+
+:deep(.tenant-card-header .p-card-content) {
+  padding: 0;
+}
+
+.tenant-info-layout {
   display: flex;
   align-items: center;
   gap: 1.5rem;
 }
 
-.tenant-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.tenant-image-small {
+  width: 100px;
+  height: 100px;
   border-radius: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.tenant-image-small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tenant-placeholder-small {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
+  color: white;
+  font-size: 2.5rem;
+}
+
+.tenant-details {
+  flex: 1;
 }
 
 .tenant-name {
   font-size: 2rem;
   font-weight: 800;
-  color: #2d3748;
-  margin: 0 0 0.5rem 0;
-}
-
-.tenant-hours {
-  font-size: 1rem;
-  color: #718096;
+  color: #111827;
   margin: 0 0 0.75rem 0;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
+.tenant-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.status-badge.open {
-  background: #c6f6d5;
-  color: #22543d;
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.9375rem;
 }
 
-.status-badge.closed {
-  background: #fed7d7;
-  color: #742a2a;
+.meta-item i {
+  color: #22c55e;
 }
 
 .menu-section {
@@ -398,32 +475,61 @@ onMounted(() => {
   cursor: pointer;
 }
 
+.loading-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #6b7280;
+}
+
+.loading-state p {
+  margin-top: 1rem;
+}
+
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
 }
 
-.menu-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+:deep(.menu-card) {
   transition: all 0.3s;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-.menu-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+:deep(.menu-card:hover) {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
 }
 
-.menu-card.out-of-stock {
-  opacity: 0.6;
+:deep(.menu-card .p-card-header) {
+  padding: 0;
+}
+
+:deep(.menu-card .p-card-body) {
+  padding: 1.5rem;
+}
+
+:deep(.menu-card .p-card-content) {
+  padding: 0;
+}
+
+:deep(.menu-card .p-card-footer) {
+  padding: 0;
+  padding-top: 1rem;
+}
+
+.menu-image-wrapper {
+  position: relative;
+  overflow: hidden;
 }
 
 .menu-image {
-  height: 180px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 200px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -431,10 +537,22 @@ onMounted(() => {
   overflow: hidden;
 }
 
+.menu-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+}
+
 .menu-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s;
+}
+
+:deep(.menu-card:hover) .menu-image img {
+  transform: scale(1.05);
 }
 
 .menu-placeholder {
@@ -444,55 +562,38 @@ onMounted(() => {
   justify-content: center;
   width: 100%;
   height: 100%;
+  z-index: 1;
 }
 
-.stock-badge {
+.stock-overlay {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
 }
 
-.stock-badge.out {
-  background: rgba(252, 129, 129, 0.9);
-  color: white;
-}
-
-.stock-badge.low {
-  background: rgba(251, 191, 36, 0.9);
-  color: white;
-}
-
-.menu-content {
-  padding: 1.5rem;
-}
-
-.menu-name {
-  font-size: 1.2rem;
+.menu-title {
+  font-size: 1.125rem;
   font-weight: 700;
-  color: #2d3748;
-  margin: 0 0 0.5rem 0;
+  color: #111827;
+  margin-bottom: 0.5rem;
 }
 
 .menu-category {
-  font-size: 0.85rem;
-  color: #667eea;
-  background: #eef2ff;
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  margin-bottom: 1rem;
+  background: #dcfce7;
+  color: #16a34a;
+  font-weight: 600;
 }
 
-.menu-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
+.menu-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #22c55e;
+  margin-top: 0.5rem;
+}
+
+.w-full {
+  width: 100%;
 }
 
 .menu-price {

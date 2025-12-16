@@ -9,20 +9,21 @@
           <p class="dashboard-subtitle">Selamat datang, {{ userName }}!</p>
         </div>
         <div class="header-actions">
-          <button
-            class="btn-refresh"
-            :disabled="isRefreshing"
+          <Button
+            :label="isRefreshing ? 'Memuat...' : 'Refresh'"
+            icon="pi pi-refresh"
+            :loading="isRefreshing"
             @click="refreshData"
-            :aria-busy="isRefreshing"
-            :title="isRefreshing ? 'Memuat...' : 'Segarkan data'"
-          >
-            <RefreshCw :size="16" class="refresh-icon" :class="{ spin: isRefreshing }" />
-            <span class="btn-label">{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
-          </button>
-          <router-link to="/#tenants" class="btn-browse">
-            <Store :size="16" class="browse-icon" />
-            <span>Jelajahi Kantin</span>
-          </router-link>
+            outlined
+            class="btn-refresh"
+          />
+          <Button
+            label="Jelajahi Kantin"
+            icon="pi pi-shopping-bag"
+            @click="$router.push('/#tenants')"
+            severity="success"
+            raised
+          />
         </div>
       </div>
 
@@ -34,7 +35,7 @@
             :value="stats.totalOrders"
             label="Total Pesanan"
             subtitle="Semua waktu"
-            color="#667eea"
+            color="#22c55e"
           />
           <StatsCard
             icon="⏱️"
@@ -60,13 +61,16 @@
         </section>
 
         <!-- Active Orders -->
-        <section class="section-card" v-if="activeOrders.length > 0">
-          <div class="section-header">
-            <h2 class="section-title">🔔 Pesanan Aktif</h2>
-            <span class="badge badge-info">{{ activeOrders.length }} pesanan</span>
-          </div>
-
-          <div class="orders-grid">
+        <Card v-if="activeOrders.length > 0" class="section-card">
+          <template #header>
+            <div class="section-header">
+              <h2 class="section-title">🔔 Pesanan Aktif</h2>
+              <Badge :value="activeOrders.length" severity="info" />
+            </div>
+          </template>
+          
+          <template #content>
+            <div class="orders-grid">
             <div v-for="order in activeOrders" :key="order.id" class="order-card active-order">
               <!-- Order Progress Tracker -->
               <div class="order-progress">
@@ -94,9 +98,10 @@
 
               <div class="order-header">
                 <h3 class="order-id">#{{ order.id }}</h3>
-                <span :class="['status-badge', getStatusClass(order.status)]">
-                  {{ getStatusLabel(order.status) }}
-                </span>
+                <Tag 
+                  :value="getStatusLabel(order.status)"
+                  :severity="getTagSeverity(order.status)"
+                />
               </div>
               <div class="order-tenant">
                 <span class="tenant-icon">🏪</span>
@@ -111,76 +116,94 @@
               <div class="order-footer">
                 <span class="order-total">{{ formatCurrency(order.total_price) }}</span>
                 <div class="order-actions">
-                  <button 
+                  <Button 
                     v-if="order.payment_status === 'pending' || order.payment_status === 'unpaid'"
-                    class="btn-pay"
+                    label="Bayar"
+                    icon="pi pi-credit-card"
                     @click="payOrder(order.id)"
-                  >
-                    💳 Bayar
-                  </button>
-                  <button 
+                    severity="success"
+                    size="small"
+                  />
+                  <Button 
                     v-if="order.status === 'ready_for_pickup'" 
-                    class="btn-pickup"
+                    label="Sudah Diambil"
+                    icon="pi pi-check"
                     @click="markPickedUp(order.id)"
-                  >
-                    ✓ Sudah Diambil
-                  </button>
+                    severity="success"
+                    size="small"
+                  />
                 </div>
               </div>
             </div>
           </div>
-        </section>
+          </template>
+        </Card>
 
         <!-- Order History -->
-        <section class="section-card">
-          <div class="section-header">
-            <h2 class="section-title">📋 Riwayat Pesanan</h2>
-            <router-link to="/customer/orders" class="btn-view-all">
-              Lihat Semua →
-            </router-link>
-          </div>
+        <Card class="section-card">
+          <template #header>
+            <div class="section-header">
+              <h2 class="section-title">📋 Riwayat Pesanan</h2>
+              <Button
+                label="Lihat Semua"
+                icon="pi pi-arrow-right"
+                @click="$router.push('/customer/orders')"
+                text
+                severity="success"
+              />
+            </div>
+          </template>
 
-          <div v-if="loadingOrders" class="loading">
-            <div class="spinner"></div>
-            <p>Memuat pesanan...</p>
-          </div>
+          <template #content>
+            <div v-if="loadingOrders" class="loading">
+              <ProgressSpinner />
+              <p>Memuat pesanan...</p>
+            </div>
 
-          <div v-else-if="orderHistory.length === 0" class="empty-state">
-            <p>Belum ada riwayat pesanan</p>
-            <router-link to="/" class="btn-primary">
-              Mulai Pesan
-            </router-link>
-          </div>
+            <div v-else-if="orderHistory.length === 0" class="empty-state">
+              <p>Belum ada riwayat pesanan</p>
+              <Button
+                label="Mulai Pesan"
+                icon="pi pi-shopping-cart"
+                @click="$router.push('/')"
+                severity="success"
+                raised
+              />
+            </div>
 
-          <div v-else class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Kantin</th>
-                  <th>Items</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Tanggal</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="order in orderHistory" :key="order.id">
-                  <td>#{{ order.id }}</td>
-                  <td>{{ order.tenant?.name }}</td>
-                  <td>{{ order.items?.length || 0 }} item</td>
-                  <td class="amount">{{ formatCurrency(order.total_price) }}</td>
-                  <td>
-                    <span :class="['badge', getStatusClass(order.status)]">
-                      {{ getStatusLabel(order.status) }}
-                    </span>
-                  </td>
-                  <td class="datetime">{{ formatDate(order.created_at) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
+            <DataTable v-else :value="orderHistory" stripedRows>
+              <Column field="id" header="ID">
+                <template #body="slotProps">
+                  #{{ slotProps.data.id }}
+                </template>
+              </Column>
+              <Column field="tenant.name" header="Kantin" />
+              <Column header="Items">
+                <template #body="slotProps">
+                  {{ slotProps.data.items?.length || 0 }} item
+                </template>
+              </Column>
+              <Column header="Total">
+                <template #body="slotProps">
+                  <span class="amount">{{ formatCurrency(slotProps.data.total_price) }}</span>
+                </template>
+              </Column>
+              <Column header="Status">
+                <template #body="slotProps">
+                  <Tag 
+                    :value="getStatusLabel(slotProps.data.status)"
+                    :severity="getTagSeverity(slotProps.data.status)"
+                  />
+                </template>
+              </Column>
+              <Column header="Tanggal">
+                <template #body="slotProps">
+                  <span class="datetime">{{ formatDate(slotProps.data.created_at) }}</span>
+                </template>
+              </Column>
+            </DataTable>
+          </template>
+        </Card>
       </div>
     </main>
   </div>
@@ -188,7 +211,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { RefreshCw, Store } from 'lucide-vue-next';
 import { useAuth } from '../../composables/useAuth';
 import Sidebar from '../../components/dashboard/Sidebar.vue';
 import StatsCard from '../../components/dashboard/StatsCard.vue';
@@ -196,6 +218,13 @@ import { CustomerService } from '../../services/customerService';
 import api from '../../config/api';
 import { CUSTOMER_MENU_ITEMS } from '../../constants/menuItems';
 import { showSuccess, showError, showConfirm } from '../../utils/sweetAlert';
+import Button from 'primevue/button';
+import Card from 'primevue/card';
+import Tag from 'primevue/tag';
+import Badge from 'primevue/badge';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import ProgressSpinner from 'primevue/progressspinner';
 
 const { currentUser } = useAuth();
 
@@ -231,18 +260,6 @@ const formatDate = (date: string) => {
   });
 };
 
-const getStatusClass = (status: string) => {
-  const map: Record<string, string> = {
-    created: 'badge-warning',
-    preparing: 'badge-info',
-    ready_for_pickup: 'badge-success',
-    picked_up: 'badge-success',
-    completed: 'badge-success',
-    cancelled: 'badge-danger',
-  };
-  return map[status] || 'badge-secondary';
-};
-
 const getStatusLabel = (status: string) => {
   const map: Record<string, string> = {
     created: 'Dibuat',
@@ -253,6 +270,18 @@ const getStatusLabel = (status: string) => {
     cancelled: 'Dibatalkan',
   };
   return map[status] || status;
+};
+
+const getTagSeverity = (status: string) => {
+  const map: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
+    created: 'warning',
+    preparing: 'info',
+    ready_for_pickup: 'success',
+    picked_up: 'success',
+    completed: 'success',
+    cancelled: 'danger',
+  };
+  return map[status] || 'info';
 };
 
 const fetchStats = async () => {
@@ -357,7 +386,7 @@ onMounted(() => {
 
 .dashboard-main {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 280px;
   padding: 2rem;
 }
 
@@ -469,7 +498,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
+  border-top-color: #22c55e;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
@@ -482,7 +511,7 @@ onMounted(() => {
 .btn-primary {
   margin-top: 1rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -506,7 +535,7 @@ onMounted(() => {
 }
 
 .order-card.active-order {
-  border-color: #667eea;
+  border-color: #22c55e;
   background: linear-gradient(to bottom, #f7faff 0%, white 100%);
 }
 
@@ -553,7 +582,7 @@ onMounted(() => {
 }
 
 .progress-step.active .step-icon {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
   animation: pulse 2s infinite;
 }
@@ -631,7 +660,7 @@ onMounted(() => {
 
 .item-qty {
   font-weight: 700;
-  color: #667eea;
+  color: #22c55e;
 }
 
 .order-footer {
@@ -672,7 +701,7 @@ onMounted(() => {
 
 .btn-pickup {
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
   border: none;
   border-radius: 6px;
@@ -768,8 +797,8 @@ onMounted(() => {
 .btn-view-all {
   padding: 0.5rem 1rem;
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: #22c55e;
+  border: 2px solid #22c55e;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -779,7 +808,7 @@ onMounted(() => {
 }
 
 .btn-view-all:hover {
-  background: #667eea;
+  background: #22c55e;
   color: white;
   transform: translateY(-2px);
 }

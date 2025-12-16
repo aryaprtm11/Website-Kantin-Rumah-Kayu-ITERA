@@ -29,7 +29,7 @@
             :value="stats.totalTenants"
             label="Total Kantin"
             subtitle="Kantin terdaftar"
-            color="#667eea"
+            color="#22c55e"
           />
           <StatsCard
             icon="Users"
@@ -304,7 +304,7 @@ onMounted(() => {
 
 .dashboard-main {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 280px;
   padding: 2rem;
   transition: margin-left 0.3s;
 }
@@ -338,7 +338,7 @@ onMounted(() => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1rem;
-  background: linear-gradient(90deg, #667eea 0%, #5568d3 100%);
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -405,14 +405,14 @@ onMounted(() => {
 }
 
 .link-view-all {
-  color: #667eea;
+  color: #22c55e;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s;
 }
 
 .link-view-all:hover {
-  color: #5568d3;
+  color: #16a34a;
 }
 
 .loading,
@@ -426,7 +426,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
+  border-top-color: #22c55e;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;

@@ -341,7 +341,7 @@ onMounted(() => {
 
 .dashboard-main {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 280px;
   padding: 2rem;
 }
 
@@ -363,7 +363,7 @@ onMounted(() => {
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -392,7 +392,7 @@ onMounted(() => {
   width: 50px;
   height: 50px;
   border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
+  border-top-color: #22c55e;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
@@ -420,7 +420,7 @@ onMounted(() => {
 
 .btn-retry {
   padding: 0.75rem 1.5rem;
-  background: #667eea;
+  background: #22c55e;
   color: white;
   border: none;
   border-radius: 8px;
@@ -602,7 +602,7 @@ onMounted(() => {
 }
 
 .btn-pickup {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
 }
 
@@ -797,13 +797,13 @@ onMounted(() => {
 
 @media (max-width: 1024px) {
   .dashboard-main {
-    margin-left: 80px;
+    margin-left: 100px;
   }
 }
 
 @media (max-width: 768px) {
   .dashboard-main {
-    margin-left: 0;
+    margin-left: 90px;
     padding: 1rem;
   }
 

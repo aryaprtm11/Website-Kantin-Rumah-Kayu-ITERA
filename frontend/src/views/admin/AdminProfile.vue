@@ -262,7 +262,7 @@ onMounted(() => {
 .dashboard-main {
   flex: 1;
   padding: 2rem;
-  margin-left: 250px;
+  margin-left: 280px;
 }
 
 .dashboard-header {
@@ -311,7 +311,7 @@ onMounted(() => {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -394,7 +394,7 @@ onMounted(() => {
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #22c55e;
 }
 
 .form-group input:disabled {
@@ -405,7 +405,7 @@ onMounted(() => {
 .btn-primary {
   width: 100%;
   padding: 0.625rem 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -452,7 +452,7 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .dashboard-main {
-    margin-left: 0;
+    margin-left: 90px;
     padding: 1rem;
   }
 

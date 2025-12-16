@@ -29,7 +29,7 @@
             :value="stats.todayOrders"
             label="Pesanan Hari Ini"
             subtitle="Total pesanan"
-            color="#667eea"
+            color="#22c55e"
           />
           <StatsCard
             icon="DollarSign"
@@ -380,7 +380,7 @@ onMounted(() => {
 
 .dashboard-main {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 280px;
   padding: 2rem;
 }
 
@@ -448,7 +448,7 @@ onMounted(() => {
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -496,7 +496,7 @@ onMounted(() => {
 }
 
 .link-view-all {
-  color: #667eea;
+  color: #22c55e;
   text-decoration: none;
   font-weight: 600;
 }
@@ -516,7 +516,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
+  border-top-color: #22c55e;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
@@ -597,7 +597,7 @@ onMounted(() => {
 
 .item-qty {
   font-weight: 700;
-  color: #667eea;
+  color: #22c55e;
 }
 
 .order-footer {
@@ -672,7 +672,7 @@ onMounted(() => {
 .menu-image {
   width: 100%;
   height: 140px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   display: flex;
   align-items: center;
   justify-content: center;

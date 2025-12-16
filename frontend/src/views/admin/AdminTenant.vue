@@ -434,7 +434,7 @@ onMounted(() => {
 
 .dashboard-main {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 280px;
   padding: 2rem;
 }
 
@@ -504,7 +504,7 @@ onMounted(() => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1rem;
-  background: linear-gradient(90deg, #667eea 0%, #5568d3 100%);
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -545,7 +545,7 @@ onMounted(() => {
 
 .search-box input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #22c55e;
 }
 
 .filter-buttons {
@@ -565,14 +565,14 @@ onMounted(() => {
 }
 
 .filter-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #22c55e;
+  color: #22c55e;
 }
 
 .filter-btn.active {
-  background: #667eea;
+  background: #22c55e;
   color: white;
-  border-color: #667eea;
+  border-color: #22c55e;
 }
 
 .section-card {
@@ -593,7 +593,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
+  border-top-color: #22c55e;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
@@ -748,8 +748,8 @@ onMounted(() => {
 }
 
 .btn-page:hover:not(:disabled) {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #22c55e;
+  color: #22c55e;
 }
 
 .btn-page:disabled {
@@ -843,7 +843,7 @@ onMounted(() => {
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #22c55e;
 }
 
 .form-row {
@@ -896,7 +896,7 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .dashboard-main {
-    margin-left: 0;
+    margin-left: 90px;
     padding: 1rem;
   }
 

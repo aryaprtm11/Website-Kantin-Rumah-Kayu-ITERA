@@ -532,7 +532,7 @@ onMounted(() => {
 
 .dashboard-main {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 280px;
   padding: 2rem;
 }
 
@@ -748,7 +748,7 @@ onMounted(() => {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: linear-gradient(90deg, #667eea 0%, #5568d3 100%);
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
   color: white;
   display: inline-flex;
   align-items: center;
@@ -1011,7 +1011,7 @@ onMounted(() => {
 }
 
 .btn-ready:hover {
-  background: #5568d3;
+  background: #16a34a;
 }
 
 .btn-cancel {
@@ -1171,13 +1171,13 @@ onMounted(() => {
 
 @media (max-width: 1024px) {
   .dashboard-main {
-    margin-left: 80px;
+    margin-left: 100px;
   }
 }
 
 @media (max-width: 768px) {
   .dashboard-main {
-    margin-left: 0;
+    margin-left: 90px;
     padding: 1rem;
   }
 
