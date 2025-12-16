@@ -1,30 +1,30 @@
 <template>
-  <div class="login-page">
-    <div class="login-container">
+  <div class="min-h-screen flex items-center justify-center bg-gray-100 p-8">
+    <div class="w-full max-w-7xl min-h-[600px] grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] bg-white rounded-3xl overflow-hidden shadow-2xl">
       <!-- Left Side - Login Form -->
-      <div class="login-form-section">
-        <div class="form-wrapper">
+      <div class="px-8 py-12 lg:px-16 flex items-center justify-center bg-white">
+        <div class="w-full max-w-md">
           <!-- Logo -->
-          <div class="logo-section">
-            <img src="/logo.png" alt="Kantin RK" class="logo" />
+          <div class="mb-10">
+            <img src="/logo.png" alt="Kantin RK" class="w-12 h-12 object-contain" />
           </div>
 
           <!-- Form Header -->
-          <div class="form-header">
-            <h1 class="form-title">Selamat Datang Kembali!</h1>
-            <p class="form-subtitle">Masukkan detail Anda di bawah untuk melanjutkan</p>
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2 leading-tight">Selamat Datang Kembali!</h1>
+            <p class="text-[15px] text-gray-600 leading-relaxed">Masukkan detail Anda di bawah untuk melanjutkan</p>
           </div>
 
           <!-- Error Message -->
-          <Message v-if="error" severity="error" :closable="false" class="error-message">
+          <Message v-if="error" severity="error" :closable="false" class="mb-6">
             {{ error }}
           </Message>
 
           <!-- Login Form -->
-          <form @submit.prevent="handleSubmit" class="login-form">
+          <form @submit.prevent="handleSubmit" class="flex flex-col gap-5">
             <!-- Email Field -->
-            <div class="form-field">
-              <label for="email">Email</label>
+            <div class="flex flex-col gap-2">
+              <label for="email" class="text-sm font-semibold text-gray-700">Email</label>
               <InputText
                 id="email"
                 v-model="formData.email"
@@ -35,8 +35,8 @@
             </div>
 
             <!-- Password Field -->
-            <div class="form-field">
-              <label for="password">Password</label>
+            <div class="flex flex-col gap-2">
+              <label for="password" class="text-sm font-semibold text-gray-700">Password</label>
               <Password
                 id="password"
                 v-model="formData.password"
@@ -44,16 +44,17 @@
                 :disabled="loading"
                 :feedback="false"
                 toggleMask
+                inputClass="w-full"
               />
             </div>
 
             <!-- Remember Me & Forgot Password -->
-            <div class="form-options">
-              <div class="checkbox-wrapper">
+            <div class="flex items-center justify-between -mt-1">
+              <div class="flex items-center gap-2">
                 <Checkbox v-model="rememberMe" inputId="remember" :binary="true" />
-                <label for="remember">Ingat saya</label>
+                <label for="remember" class="text-sm text-gray-600 cursor-pointer font-medium">Ingat saya</label>
               </div>
-              <a href="#" class="link-forgot">Lupa password?</a>
+              <a href="#" class="text-sm text-gray-600 hover:text-primary-500 font-medium transition-colors">Lupa password?</a>
             </div>
 
             <!-- Submit Button -->
@@ -61,15 +62,15 @@
               type="submit" 
               label="Masuk"
               :loading="loading"
-              class="btn-submit"
+              class="w-full !bg-primary-500 hover:!bg-primary-600 !border-primary-500 !py-3.5 !rounded-lg !font-semibold !text-[15px] mt-2 transition-all"
             />
           </form>
 
           <!-- Register Link -->
-          <div class="form-footer">
-            <p>
+          <div class="text-center mt-6">
+            <p class="text-sm text-gray-600">
               Belum punya akun? 
-              <router-link to="/register" class="link-register">
+              <router-link to="/register" class="text-primary-500 hover:text-primary-600 font-semibold hover:underline transition-colors">
                 Daftar
               </router-link>
             </p>
@@ -78,9 +79,9 @@
       </div>
 
       <!-- Right Side - Image -->
-      <div class="login-image-section">
-        <img src="/image.png" alt="Kantin RK ITERA" class="kantin-image" />
-        <div class="image-overlay"></div>
+      <div class="relative overflow-hidden bg-gray-100 hidden lg:block">
+        <img src="/image.png" alt="Kantin RK ITERA" class="w-full h-full object-cover object-center" />
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 pointer-events-none"></div>
       </div>
     </div>
   </div>
@@ -133,268 +134,28 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-.login-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f5f5f5;
-  padding: 2rem;
-}
-
-.login-container {
-  width: 100%;
-  max-width: 1400px;
-  height: auto;
-  min-height: 600px;
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  background: white;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
-
-/* Left Side - Login Form */
-.login-form-section {
-  padding: 3rem 4rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-}
-
-.form-wrapper {
-  width: 100%;
-  max-width: 420px;
-}
-
-.logo-section {
-  margin-bottom: 2.5rem;
-}
-
-.logo {
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-}
-
-.form-header {
-  margin-bottom: 2rem;
-}
-
-.form-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0 0 0.5rem 0;
-  line-height: 1.2;
-}
-
-.form-subtitle {
-  font-size: 0.9375rem;
-  color: #737373;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.error-message {
-  margin-bottom: 1.5rem;
-}
-
-/* Login Form */
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-field label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #404040;
-}
-
 :deep(.p-inputtext) {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #d4d4d4;
-  border-radius: 8px;
-  font-size: 0.9375rem;
-  transition: all 0.2s;
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg text-[15px] transition-all;
 }
 
 :deep(.p-inputtext:enabled:hover) {
-  border-color: #a3a3a3;
+  @apply border-gray-400;
 }
 
 :deep(.p-inputtext:enabled:focus) {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  @apply border-primary-500 ring-4 ring-primary-500/10;
 }
 
 :deep(.p-password) {
-  width: 100%;
+  @apply w-full;
+  display: flex !important;
+}
+
+:deep(.p-password-input) {
+  @apply w-full flex-1;
 }
 
 :deep(.p-password .p-inputtext) {
-  width: 100%;
-  padding-right: 2.5rem;
-}
-
-.form-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: -0.25rem;
-}
-
-.checkbox-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.checkbox-wrapper label {
-  font-size: 0.875rem;
-  color: #525252;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.link-forgot {
-  font-size: 0.875rem;
-  color: #525252;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.link-forgot:hover {
-  color: #22c55e;
-}
-
-.btn-submit {
-  width: 100%;
-  padding: 0.875rem;
-  background: #22c55e;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 0.5rem;
-}
-
-.btn-submit:hover:not(:disabled) {
-  background: #16a34a;
-}
-
-.btn-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.form-footer {
-  text-align: center;
-  margin-top: 1.5rem;
-}
-
-.form-footer p {
-  font-size: 0.875rem;
-  color: #525252;
-  margin: 0;
-}
-
-.link-register {
-  color: #22c55e;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.2s;
-}
-
-.link-register:hover {
-  color: #16a34a;
-  text-decoration: underline;
-}
-
-/* Right Side - Image Section */
-.login-image-section {
-  position: relative;
-  overflow: hidden;
-  background: #f5f5f5;
-}
-
-.kantin-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.image-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.05) 100%
-  );
-  pointer-events: none;
-}
-
-/* Responsive */
-@media (max-width: 968px) {
-  .login-page {
-    padding: 1rem;
-  }
-
-  .login-container {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
-
-  .login-image-section {
-    display: none;
-  }
-
-  .login-form-section {
-    padding: 2rem;
-  }
-
-  .form-wrapper {
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .login-page {
-    padding: 0;
-  }
-
-  .login-container {
-    border-radius: 0;
-    box-shadow: none;
-  }
-
-  .login-form-section {
-    padding: 1.5rem;
-  }
-
-  .form-title {
-    font-size: 1.5rem;
-  }
-
-  .form-subtitle {
-    font-size: 0.875rem;
-  }
+  @apply w-full pr-10;
 }
 </style>

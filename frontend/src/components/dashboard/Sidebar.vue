@@ -1,16 +1,46 @@
 <template>
-  <aside class="sidebar" :class="{ 'sidebar-collapsed': isCollapsed }">
+  <!-- Mobile Toggle Button -->
+  <Button 
+    v-if="isMobile"
+    @click="toggleMobileSidebar" 
+    icon="pi pi-bars"
+    class="mobile-toggle"
+    rounded
+    text
+  />
+
+  <!-- Overlay for mobile -->
+  <div 
+    v-if="isMobile && showMobileSidebar" 
+    class="sidebar-overlay"
+    @click="closeMobileSidebar"
+  ></div>
+
+  <aside class="sidebar" :class="{ 
+    'sidebar-collapsed': isCollapsed && !isMobile,
+    'sidebar-mobile-open': showMobileSidebar && isMobile,
+    'sidebar-mobile-closed': !showMobileSidebar && isMobile
+  }">
     <Card class="sidebar-card">
       <template #header>
         <div class="sidebar-header">
-          <div v-if="!isCollapsed" class="sidebar-title">
+          <div v-if="!isCollapsed || isMobile" class="sidebar-title">
             <img src="/logo.png" alt="Kantin RK" class="logo-img" />
             <span>Kantin RK</span>
           </div>
           <img v-else src="/logo.png" alt="Kantin RK" class="logo-img-collapsed" />
           <Button 
+            v-if="!isMobile"
             @click="toggleSidebar" 
             :icon="isCollapsed ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"
+            text
+            rounded
+            class="btn-toggle"
+          />
+          <Button 
+            v-else
+            @click="closeMobileSidebar" 
+            icon="pi pi-times"
             text
             rounded
             class="btn-toggle"
@@ -25,16 +55,17 @@
             :key="item.path"
             :to="item.path"
             class="nav-item"
+            @click="handleNavClick"
           >
             <component :is="getIcon(item.icon)" :size="20" class="nav-icon" />
-            <span v-if="!isCollapsed" class="nav-label">{{ item.label }}</span>
+            <span v-if="!isCollapsed || isMobile" class="nav-label">{{ item.label }}</span>
           </router-link>
         </nav>
       </template>
 
       <template #footer>
         <div class="sidebar-footer">
-          <div v-if="!isCollapsed" class="user-info">
+          <div v-if="!isCollapsed || isMobile" class="user-info">
             <Avatar 
               :label="userInitial" 
               class="user-avatar"
@@ -47,14 +78,14 @@
           </div>
           <Button 
             @click="handleLogout" 
-            label="Logout"
+            :label="(!isCollapsed || isMobile) ? 'Logout' : ''"
             icon="pi pi-sign-out"
             severity="danger"
             text
             class="btn-logout"
-            :class="{ 'btn-logout-collapsed': isCollapsed }"
+            :class="{ 'btn-logout-collapsed': isCollapsed && !isMobile }"
           >
-            <template v-if="isCollapsed" #icon>
+            <template v-if="isCollapsed && !isMobile" #icon>
               <LogOut :size="20" />
             </template>
           </Button>
@@ -65,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "../../composables/useAuth";
 import Card from 'primevue/card';
@@ -86,6 +117,8 @@ const router = useRouter();
 const { currentUser, logout } = useAuth();
 
 const isCollapsed = ref(false);
+const isMobile = ref(false);
+const showMobileSidebar = ref(false);
 
 defineProps<{
   menuItems: Array<{
@@ -112,14 +145,44 @@ const userName = computed(() => currentUser.value?.name || "User");
 const userRole = computed(() => currentUser.value?.role || "customer");
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase());
 
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768;
+  if (!isMobile.value) {
+    showMobileSidebar.value = false;
+  }
+};
+
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value;
+};
+
+const toggleMobileSidebar = () => {
+  showMobileSidebar.value = !showMobileSidebar.value;
+};
+
+const closeMobileSidebar = () => {
+  showMobileSidebar.value = false;
+};
+
+const handleNavClick = () => {
+  if (isMobile.value) {
+    closeMobileSidebar();
+  }
 };
 
 const handleLogout = async () => {
   await logout();
   router.push("/login");
 };
+
+onMounted(() => {
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile);
+});
 </script>
 
 <style scoped>
@@ -356,12 +419,58 @@ const handleLogout = async () => {
   padding: 0.5rem;
 }
 
+.mobile-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  background: white !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @media (max-width: 768px) {
   .sidebar {
-    width: 80px;
-    left: 0.5rem;
-    top: 0.5rem;
-    height: calc(100vh - 1rem);
+    width: 280px;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    margin: 0;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+
+  .sidebar-mobile-closed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar-mobile-open {
+    transform: translateX(0);
+  }
+
+  :deep(.sidebar-card) {
+    border-radius: 0;
+    height: 100%;
+  }
+
+  :deep(.sidebar-card .p-card-header) {
+    border-radius: 0;
   }
 }
 </style>

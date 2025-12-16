@@ -1,47 +1,48 @@
 <template>
-  <div class="dashboard-layout">
+  <div class="flex min-h-screen bg-gray-50">
     <Sidebar :menuItems="ADMIN_MENU_ITEMS" />
     
-    <main class="dashboard-main">
-      <div class="dashboard-header">
+    <main class="flex-1 ml-0 lg:ml-[280px] p-4 lg:p-8">
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
         <div>
-          <h1 class="dashboard-title">Kelola Tenant</h1>
-          <p class="dashboard-subtitle">Manajemen semua kantin di sistem</p>
+          <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">Kelola Tenant</h1>
+          <p class="text-gray-600">Manajemen semua kantin di sistem</p>
         </div>
-        <div class="header-actions">
+        <div class="flex gap-3 items-center">
           <button
-            class="btn-refresh"
+            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-50 to-blue-100 text-gray-900 border border-gray-200 rounded-xl font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-75 disabled:cursor-not-allowed"
             :disabled="isRefreshing"
             @click="refreshTenants"
             aria-label="Refresh tenants"
           >
-            <RefreshCw :size="16" class="refresh-icon" :class="{ spin: isRefreshing }" />
-            <span class="btn-label">{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
+            <RefreshCw :size="16" :class="{ 'animate-spin': isRefreshing }" />
+            <span>{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
           </button>
 
-          <button class="btn-primary btn-add" @click="openAddModal">
-            <Plus :size="14" class="add-icon" />
+          <button class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-xl font-bold transition-all hover:-translate-y-0.5 hover:shadow-lg" @click="openAddModal">
+            <Plus :size="14" />
             <span>Tambah Kantin</span>
           </button>
         </div>
       </div>
 
-      <div class="dashboard-content">
+      <div class="flex flex-col gap-6">
         <!-- Search & Filter -->
-        <div class="filter-section">
-          <div class="search-box">
+        <div class="bg-white rounded-xl p-6 shadow-md flex gap-4 flex-wrap items-center">
+          <div class="flex-1 min-w-[250px]">
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Cari kantin..."
               @input="handleSearch"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-600 transition-colors"
             />
           </div>
-          <div class="filter-buttons">
+          <div class="flex gap-2 flex-wrap">
             <button
               v-for="status in statusFilters"
               :key="status.value"
-              :class="['filter-btn', { active: currentFilter === status.value }]"
+              :class="['px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all', currentFilter === status.value ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 border border-gray-300 hover:border-green-600 hover:text-green-600']"
               @click="filterByStatus(status.value)"
             >
               {{ status.label }}
@@ -50,76 +51,76 @@
         </div>
 
         <!-- Tenants Table -->
-        <div class="section-card">
-          <div v-if="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Memuat data...</p>
+        <div class="bg-white rounded-xl p-6 shadow-md">
+          <div v-if="loading" class="text-center py-12">
+            <div class="w-10 h-10 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-gray-600">Memuat data...</p>
           </div>
 
-          <div v-else-if="tenants.length === 0" class="empty-state">
+          <div v-else-if="tenants.length === 0" class="text-center py-12 text-gray-600">
             <p>Tidak ada data kantin</p>
           </div>
 
           <div v-else>
-            <div class="table-container">
-              <table class="data-table">
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Nama Kantin</th>
-                    <th>Pemilik</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Jam Operasional</th>
-                    <th>Menu</th>
-                    <th>Pesanan</th>
-                    <th>Aksi</th>
+                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">ID</th>
+                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Nama Kantin</th>
+                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Pemilik</th>
+                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Email</th>
+                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Status</th>
+                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Jam Operasional</th>
+                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Menu</th>
+                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Pesanan</th>
+                    <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200 whitespace-nowrap">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="tenant in tenants" :key="tenant.id">
-                    <td>#{{ tenant.id }}</td>
-                    <td class="tenant-name">
-                      <div class="tenant-info">
-                        <strong>{{ tenant.name }}</strong>
-                        <small>{{ tenant.location || '-' }}</small>
+                  <tr v-for="tenant in tenants" :key="tenant.id" class="hover:bg-gray-50 transition-colors">
+                    <td class="py-4 px-4 border-b border-gray-200 text-gray-900">#{{ tenant.id }}</td>
+                    <td class="py-4 px-4 border-b border-gray-200">
+                      <div class="flex flex-col gap-1">
+                        <strong class="font-semibold text-gray-900">{{ tenant.name }}</strong>
+                        <small class="text-gray-600 text-xs">{{ tenant.location || '-' }}</small>
                       </div>
                     </td>
-                    <td>{{ tenant.user?.name || '-' }}</td>
-                    <td>{{ tenant.user?.email || '-' }}</td>
-                    <td>
-                      <span :class="['badge', tenant.is_active ? 'badge-success' : 'badge-danger']">
+                    <td class="py-4 px-4 border-b border-gray-200 text-gray-900">{{ tenant.user?.name || '-' }}</td>
+                    <td class="py-4 px-4 border-b border-gray-200 text-gray-900">{{ tenant.user?.email || '-' }}</td>
+                    <td class="py-4 px-4 border-b border-gray-200">
+                      <span :class="['inline-block px-3 py-1 rounded-xl text-xs font-semibold', tenant.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800']">
                         {{ tenant.is_active ? '🟢 Aktif' : '🔴 Nonaktif' }}
                       </span>
                     </td>
-                    <td>
-                      <div class="time-range">
+                    <td class="py-4 px-4 border-b border-gray-200">
+                      <div class="text-sm text-gray-700">
                         {{ tenant.opens_at }} - {{ tenant.closes_at }}
                       </div>
                     </td>
-                    <td>
-                      <span class="badge badge-info">{{ tenant.menus_count || 0 }}</span>
+                    <td class="py-4 px-4 border-b border-gray-200">
+                      <span class="inline-block px-3 py-1 rounded-xl text-xs font-semibold bg-blue-100 text-blue-800">{{ tenant.menus_count || 0 }}</span>
                     </td>
-                    <td>
-                      <span class="badge badge-secondary">{{ tenant.orders_count || 0 }}</span>
+                    <td class="py-4 px-4 border-b border-gray-200">
+                      <span class="inline-block px-3 py-1 rounded-xl text-xs font-semibold bg-gray-200 text-gray-700">{{ tenant.orders_count || 0 }}</span>
                     </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="btn-action btn-edit" @click="openEditModal(tenant)" title="Edit">
-                          <Edit :size="16" class="action-icon" />
+                    <td class="py-4 px-4 border-b border-gray-200">
+                      <div class="flex gap-2">
+                        <button class="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 text-blue-900 transition-all hover:-translate-y-0.5 hover:shadow-md" @click="openEditModal(tenant)" title="Edit">
+                          <Edit :size="16" />
                         </button>
 
                         <button
-                          :class="['btn-action', tenant.is_active ? 'btn-deactivate' : 'btn-activate']"
+                          :class="['w-9 h-9 inline-flex items-center justify-center rounded-lg transition-all hover:-translate-y-0.5 hover:shadow-md', tenant.is_active ? 'bg-gradient-to-r from-red-50 to-red-100 text-red-900' : 'bg-gradient-to-r from-green-50 to-green-100 text-green-900']"
                           @click="toggleStatus(tenant)"
                           :title="tenant.is_active ? 'Nonaktifkan' : 'Aktifkan'"
                         >
-                          <Lock v-if="tenant.is_active" :size="16" class="action-icon" />
-                          <Unlock v-else :size="16" class="action-icon" />
+                          <Lock v-if="tenant.is_active" :size="16" />
+                          <Unlock v-else :size="16" />
                         </button>
 
-                        <button class="btn-action btn-delete" @click="deleteTenant(tenant)" title="Hapus">
-                          <Trash :size="16" class="action-icon" />
+                        <button class="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-red-50 to-red-100 text-red-900 transition-all hover:-translate-y-0.5 hover:shadow-md" @click="deleteTenant(tenant)" title="Hapus">
+                          <Trash :size="16" />
                         </button>
                       </div>
                     </td>
@@ -129,19 +130,19 @@
             </div>
 
             <!-- Pagination -->
-            <div class="pagination">
+            <div class="flex justify-center items-center gap-4 mt-6 pt-6 border-t border-gray-200">
               <button 
-                class="btn-page" 
+                class="px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium cursor-pointer transition-all hover:border-green-600 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed" 
                 :disabled="currentPage === 1"
                 @click="changePage(currentPage - 1)"
               >
                 ← Prev
               </button>
-              <span class="page-info">
+              <span class="text-gray-700 font-medium">
                 Page {{ currentPage }} of {{ totalPages }}
               </span>
               <button 
-                class="btn-page" 
+                class="px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium cursor-pointer transition-all hover:border-green-600 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed" 
                 :disabled="currentPage === totalPages"
                 @click="changePage(currentPage + 1)"
               >
@@ -154,87 +155,93 @@
     </main>
 
     <!-- Modal Add/Edit Tenant -->
-    <div v-if="showModal" class="modal-overlay" @click="closeModal">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h2>{{ isEditMode ? 'Edit Kantin' : 'Tambah Kantin Baru' }}</h2>
-          <button class="btn-close" @click="closeModal">✕</button>
+    <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" @click="closeModal">
+      <div class="bg-white rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold text-gray-900">{{ isEditMode ? 'Edit Kantin' : 'Tambah Kantin Baru' }}</h2>
+          <button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-600 text-2xl" @click="closeModal">✕</button>
         </div>
 
         <form @submit.prevent="handleSubmit">
-          <div class="form-group">
-            <label for="name">Nama Kantin *</label>
+          <div class="mb-4">
+            <label for="name" class="block font-medium text-gray-700 mb-2 text-sm">Nama Kantin *</label>
             <input
               id="name"
               v-model="formData.name"
               type="text"
               required
               placeholder="Contoh: Warung Nusantara"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-600"
             />
           </div>
 
-          <div class="form-group">
-            <label for="location">Lokasi</label>
+          <div class="mb-4">
+            <label for="location" class="block font-medium text-gray-700 mb-2 text-sm">Lokasi</label>
             <input
               id="location"
               v-model="formData.location"
               type="text"
               placeholder="Contoh: Gedung A Lantai 1"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-600"
             />
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="opens_at">Jam Buka *</label>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label for="opens_at" class="block font-medium text-gray-700 mb-2 text-sm">Jam Buka *</label>
               <input
                 id="opens_at"
                 v-model="formData.opens_at"
                 type="time"
                 required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-600"
               />
             </div>
 
-            <div class="form-group">
-              <label for="closes_at">Jam Tutup *</label>
+            <div>
+              <label for="closes_at" class="block font-medium text-gray-700 mb-2 text-sm">Jam Tutup *</label>
               <input
                 id="closes_at"
                 v-model="formData.closes_at"
                 type="time"
                 required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-600"
               />
             </div>
           </div>
 
-          <div class="form-group" v-if="!isEditMode">
-            <label for="user_id">Pemilik (User ID) *</label>
+          <div class="mb-4" v-if="!isEditMode">
+            <label for="user_id" class="block font-medium text-gray-700 mb-2 text-sm">Pemilik (User ID) *</label>
             <input
               id="user_id"
               v-model="formData.user_id"
               type="number"
               required
               placeholder="ID user yang akan menjadi pemilik"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-green-600"
             />
           </div>
 
-          <div class="form-group">
-            <label class="checkbox-label">
+          <div class="mb-4">
+            <label class="flex items-center gap-2 cursor-pointer">
               <input
                 v-model="formData.is_active"
                 type="checkbox"
+                class="w-auto cursor-pointer"
               />
-              <span>Kantin Aktif</span>
+              <span class="font-medium text-gray-700 text-sm">Kantin Aktif</span>
             </label>
           </div>
 
-          <div v-if="formError" class="error-message">
+          <div v-if="formError" class="px-4 py-3 bg-red-100 text-red-900 rounded-lg mb-4 text-sm">
             {{ formError }}
           </div>
 
-          <div class="modal-actions">
-            <button type="button" class="btn-secondary" @click="closeModal">
+          <div class="flex gap-4 mt-6">
+            <button type="button" class="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-lg font-semibold cursor-pointer transition-all hover:bg-gray-50" @click="closeModal">
               Batal
             </button>
-            <button type="submit" class="btn-primary" :disabled="submitting">
+            <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-lg font-semibold transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed" :disabled="submitting">
               {{ submitting ? 'Menyimpan...' : (isEditMode ? 'Update' : 'Tambah') }}
             </button>
           </div>
@@ -426,491 +433,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.dashboard-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f7fafc;
-}
-
-.dashboard-main {
-  flex: 1;
-  margin-left: 280px;
-  padding: 2rem;
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-}
-
-.dashboard-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #2d3748;
-  margin: 0 0 0.5rem 0;
-}
-
-.dashboard-subtitle {
-  color: #718096;
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.btn-refresh {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.9rem;
-  background: linear-gradient(90deg, #edf2ff 0%, #e6eefc 100%);
-  color: #2d3748;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
-}
-
-.btn-refresh:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(99,102,241,0.12);
-}
-
-.btn-refresh:disabled {
-  opacity: 0.75;
-  cursor: not-allowed;
-}
-
-.refresh-icon {
-  color: #334155;
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-.btn-label {
-  font-weight: 700;
-}
-
-.btn-primary.btn-add {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
-}
-
-.add-icon { color: white; }
-
-.dashboard-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.filter-section {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.search-box {
-  flex: 1;
-  min-width: 250px;
-}
-
-.search-box input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.95rem;
-}
-
-.search-box input:focus {
-  outline: none;
-  border-color: #22c55e;
-}
-
-.filter-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.filter-btn {
-  padding: 0.5rem 1rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.filter-btn:hover {
-  border-color: #22c55e;
-  color: #22c55e;
-}
-
-.filter-btn.active {
-  background: #22c55e;
-  color: white;
-  border-color: #22c55e;
-}
-
-.section-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.loading,
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #718096;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #22c55e;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th {
-  text-align: left;
-  padding: 0.75rem 1rem;
-  background: #f7fafc;
-  color: #4a5568;
-  font-weight: 600;
-  font-size: 0.875rem;
-  border-bottom: 2px solid #e2e8f0;
-  white-space: nowrap;
-}
-
-.data-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  color: #2d3748;
-}
-
-.data-table tr:hover {
-  background: #f7fafc;
-}
-
-.tenant-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.tenant-info strong {
-  font-weight: 600;
-}
-
-.tenant-info small {
-  color: #718096;
-  font-size: 0.8rem;
-}
-
-.time-range {
-  font-size: 0.875rem;
-  color: #4a5568;
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-}
-
-.badge-success {
-  background: #c6f6d5;
-  color: #22543d;
-}
-
-.badge-danger {
-  background: #fed7d7;
-  color: #742a2a;
-}
-
-.badge-info {
-  background: #bee3f8;
-  color: #2c5282;
-}
-
-.badge-secondary {
-  background: #e2e8f0;
-  color: #4a5568;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-action {
-  width: 36px;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
-  background: transparent;
-}
-
-.btn-action:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(15,23,42,0.06);
-}
-
-.btn-edit {
-  background: linear-gradient(90deg, #e6f2ff 0%, #dbe9ff 100%);
-  color: #1e3a8a;
-}
-
-.btn-activate {
-  background: linear-gradient(90deg, #e6ffef 0%, #dcfbe6 100%);
-  color: #166534;
-}
-
-.btn-deactivate {
-  background: linear-gradient(90deg, #fff2f2 0%, #ffe6e6 100%);
-  color: #b91c1c;
-}
-
-.btn-delete {
-  background: linear-gradient(90deg, #fff2f2 0%, #ffe6e6 100%);
-  color: #b91c1c;
-}
-
-.action-icon { color: inherit; }
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-}
-
-.btn-page {
-  padding: 0.5rem 1rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-page:hover:not(:disabled) {
-  border-color: #22c55e;
-  color: #22c55e;
-}
-
-.btn-page:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.page-info {
-  color: #4a5568;
-  font-weight: 500;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 1rem;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  max-width: 600px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #2d3748;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #718096;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-}
-
-.btn-close:hover {
-  background: #f7fafc;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 500;
-  color: #4a5568;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.95rem;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #22c55e;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: auto;
-  cursor: pointer;
-}
-
-.error-message {
-  padding: 0.75rem;
-  background: #fed7d7;
-  color: #742a2a;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.btn-secondary {
-  flex: 1;
-  padding: 0.75rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-secondary:hover {
-  background: #f7fafc;
-}
-
-@media (max-width: 768px) {
-  .dashboard-main {
-    margin-left: 90px;
-    padding: 1rem;
-  }
-
-  .filter-section {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-box {
-    width: 100%;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
+/* Minimal custom styles - using Tailwind */
 </style>

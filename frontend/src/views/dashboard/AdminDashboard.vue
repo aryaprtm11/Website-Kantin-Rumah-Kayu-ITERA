@@ -1,29 +1,29 @@
 <template>
-  <div class="dashboard-layout">
+  <div class="flex min-h-screen bg-gray-50">
     <Sidebar :menuItems="ADMIN_MENU_ITEMS" />
     
-    <main class="dashboard-main">
-      <div class="dashboard-header">
+    <main class="flex-1 ml-0 lg:ml-[280px] p-4 lg:p-8 transition-all">
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
         <div>
-          <h1 class="dashboard-title">Dashboard Admin</h1>
-          <p class="dashboard-subtitle">Selamat datang kembali, {{ userName }}!</p>
+          <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">Dashboard Admin</h1>
+          <p class="text-gray-600">Selamat datang kembali, {{ userName }}!</p>
         </div>
-        <div class="header-actions">
+        <div class="flex gap-4">
           <button
-            class="btn-refresh"
+            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-xl font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
             :disabled="isRefreshing"
             @click="refreshData"
             aria-label="Refresh data"
           >
-            <RefreshCw :size="18" class="refresh-icon" :class="{ spin: isRefreshing }" />
-            <span class="btn-label">{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
+            <RefreshCw :size="18" :class="{ 'animate-spin': isRefreshing }" />
+            <span>{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
           </button>
         </div>
       </div>
 
-      <div class="dashboard-content">
+      <div class="flex flex-col gap-8">
         <!-- Stats Overview - Hanya 2 Stats -->
-        <section class="stats-grid">
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           <StatsCard
             icon="Store"
             :value="stats.totalTenants"
@@ -41,47 +41,47 @@
         </section>
 
         <!-- Recent Tenants -->
-        <section class="section-card">
-          <div class="section-header">
-            <h2 class="section-title">🏪 Kantin Terbaru</h2>
-            <router-link to="/admin/tenants" class="link-view-all">
+        <section class="bg-white rounded-xl p-6 shadow-md">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900">🏪 Kantin Terbaru</h2>
+            <router-link to="/admin/tenants" class="text-green-600 no-underline font-semibold hover:text-green-700 transition-colors">
               Lihat Semua →
             </router-link>
           </div>
           
-          <div v-if="loadingTenants" class="loading">
-            <div class="spinner"></div>
+          <div v-if="loadingTenants" class="text-center py-12 text-gray-600">
+            <div class="w-10 h-10 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
             <p>Memuat data...</p>
           </div>
 
-          <div v-else-if="recentTenants.length === 0" class="empty-state">
+          <div v-else-if="recentTenants.length === 0" class="text-center py-12 text-gray-600">
             <p>Belum ada kantin terdaftar</p>
           </div>
 
-          <div v-else class="table-container">
-            <table class="data-table">
+          <div v-else class="overflow-x-auto">
+            <table class="w-full border-collapse">
               <thead>
                 <tr>
-                  <th>Nama Kantin</th>
-                  <th>Pemilik</th>
-                  <th>Status</th>
-                  <th>Jam Operasional</th>
-                  <th>Info</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Nama Kantin</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Pemilik</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Status</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Jam Operasional</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Info</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="tenant in recentTenants" :key="tenant.id">
-                  <td class="tenant-name">{{ tenant.name }}</td>
-                  <td>{{ tenant.user?.name || '-' }}</td>
-                  <td>
-                    <span class="badge badge-success">
+                <tr v-for="tenant in recentTenants" :key="tenant.id" class="hover:bg-gray-50 transition-colors">
+                  <td class="py-4 px-4 border-b border-gray-200 text-gray-900 font-semibold">{{ tenant.name }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200 text-gray-900">{{ tenant.user?.name || '-' }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200">
+                    <span class="inline-block px-3 py-1 rounded-xl text-xs font-semibold bg-green-100 text-green-800">
                       🟢 Aktif
                     </span>
                   </td>
-                  <td>{{ tenant.opens_at }} - {{ tenant.closes_at }}</td>
-                  <td>
-                    <span class="badge badge-info">{{ tenant.menus_count || 0 }} menu</span>
-                    <span class="badge badge-secondary">{{ tenant.orders_count || 0 }} order</span>
+                  <td class="py-4 px-4 border-b border-gray-200 text-gray-900">{{ tenant.opens_at }} - {{ tenant.closes_at }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200">
+                    <span class="inline-block px-3 py-1 rounded-xl text-xs font-semibold bg-blue-100 text-blue-800 mr-2">{{ tenant.menus_count || 0 }} menu</span>
+                    <span class="inline-block px-3 py-1 rounded-xl text-xs font-semibold bg-gray-200 text-gray-700">{{ tenant.orders_count || 0 }} order</span>
                   </td>
                 </tr>
               </tbody>
@@ -90,53 +90,53 @@
         </section>
 
         <!-- Recent Orders -->
-        <section class="section-card">
-          <div class="section-header">
-            <h2 class="section-title">📦 Pesanan Terbaru</h2>
-            <a href="#" class="link-view-all" @click.prevent="() => {}">
+        <section class="bg-white rounded-xl p-6 shadow-md">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900">📦 Pesanan Terbaru</h2>
+            <a href="#" class="text-green-600 no-underline font-semibold hover:text-green-700 transition-colors" @click.prevent="() => {}">
               Lihat Semua →
             </a>
           </div>
 
-          <div v-if="loadingOrders" class="loading">
-            <div class="spinner"></div>
+          <div v-if="loadingOrders" class="text-center py-12 text-gray-600">
+            <div class="w-10 h-10 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
             <p>Memuat data...</p>
           </div>
 
-          <div v-else-if="recentOrders.length === 0" class="empty-state">
+          <div v-else-if="recentOrders.length === 0" class="text-center py-12 text-gray-600">
             <p>Belum ada pesanan</p>
           </div>
 
-          <div v-else class="table-container">
-            <table class="data-table">
+          <div v-else class="overflow-x-auto">
+            <table class="w-full border-collapse">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Customer</th>
-                  <th>Kantin</th>
-                  <th>Total</th>
-                  <th>Status Order</th>
-                  <th>Status Bayar</th>
-                  <th>Waktu</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">ID</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Customer</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Kantin</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Total</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Status Order</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Status Bayar</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Waktu</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="order in recentOrders" :key="order.id">
-                  <td>#{{ order.id }}</td>
-                  <td>{{ order.user?.name || '-' }}</td>
-                  <td>{{ order.tenant?.name || '-' }}</td>
-                  <td class="amount">{{ formatCurrency(order.total_price) }}</td>
-                  <td>
-                    <span :class="['badge', getStatusClass(order.status)]">
+                <tr v-for="order in recentOrders" :key="order.id" class="hover:bg-gray-50 transition-colors">
+                  <td class="py-4 px-4 border-b border-gray-200 text-gray-900">#{{ order.id }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200 text-gray-900">{{ order.user?.name || '-' }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200 text-gray-900">{{ order.tenant?.name || '-' }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200 font-bold text-green-600">{{ formatCurrency(order.total_price) }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200">
+                    <span :class="['inline-block px-3 py-1 rounded-xl text-xs font-semibold', getStatusClass(order.status)]">
                       {{ formatStatus(order.status) }}
                     </span>
                   </td>
-                  <td>
-                    <span :class="['badge', getPaymentStatusClass(order.payment_status)]">
+                  <td class="py-4 px-4 border-b border-gray-200">
+                    <span :class="['inline-block px-3 py-1 rounded-xl text-xs font-semibold', getPaymentStatusClass(order.payment_status)]">
                       {{ formatPaymentStatus(order.payment_status) }}
                     </span>
                   </td>
-                  <td class="datetime">{{ formatDate(order.created_at) }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200 text-sm text-gray-600">{{ formatDate(order.created_at) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -193,25 +193,25 @@ const formatDate = (date: string) => {
 
 const getStatusClass = (status: string) => {
   const statusMap: Record<string, string> = {
-    created: 'badge-info',
-    preparing: 'badge-warning',
-    ready_for_pickup: 'badge-success',
-    picked_up: 'badge-success',
-    completed: 'badge-success',
-    cancelled: 'badge-danger',
+    created: 'bg-blue-100 text-blue-800',
+    preparing: 'bg-yellow-100 text-yellow-800',
+    ready_for_pickup: 'bg-green-100 text-green-800',
+    picked_up: 'bg-green-100 text-green-800',
+    completed: 'bg-green-100 text-green-800',
+    cancelled: 'bg-red-100 text-red-800',
   };
-  return statusMap[status] || 'badge-secondary';
+  return statusMap[status] || 'bg-gray-200 text-gray-700';
 };
 
 const getPaymentStatusClass = (status: string) => {
   const statusMap: Record<string, string> = {
-    unpaid: 'badge-danger',
-    pending: 'badge-warning',
-    paid: 'badge-success',
-    failed: 'badge-danger',
-    expired: 'badge-secondary',
+    unpaid: 'bg-red-100 text-red-800',
+    pending: 'bg-yellow-100 text-yellow-800',
+    paid: 'bg-green-100 text-green-800',
+    failed: 'bg-red-100 text-red-800',
+    expired: 'bg-gray-200 text-gray-700',
   };
-  return statusMap[status] || 'badge-secondary';
+  return statusMap[status] || 'bg-gray-200 text-gray-700';
 };
 
 const formatStatus = (status: string) => {
@@ -296,246 +296,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.dashboard-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f7fafc;
-}
-
-.dashboard-main {
-  flex: 1;
-  margin-left: 280px;
-  padding: 2rem;
-  transition: margin-left 0.3s;
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-}
-
-.dashboard-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #2d3748;
-  margin: 0 0 0.5rem 0;
-}
-
-.dashboard-subtitle {
-  color: #718096;
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.btn-refresh {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-}
-
-.btn-refresh:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(85,104,211,0.18);
-}
-
-.btn-refresh:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.refresh-icon {
-  color: white;
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-.btn-label {
-  display: inline-block;
-}
-
-.dashboard-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-.section-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0;
-}
-
-.link-view-all {
-  color: #22c55e;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.3s;
-}
-
-.link-view-all:hover {
-  color: #16a34a;
-}
-
-.loading,
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #718096;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #22c55e;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th {
-  text-align: left;
-  padding: 0.75rem 1rem;
-  background: #f7fafc;
-  color: #4a5568;
-  font-weight: 600;
-  font-size: 0.875rem;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.data-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  color: #2d3748;
-}
-
-.data-table tr:hover {
-  background: #f7fafc;
-}
-
-.tenant-name {
-  font-weight: 600;
-}
-
-.amount {
-  font-weight: 700;
-  color: #48bb78;
-}
-
-.datetime {
-  font-size: 0.875rem;
-  color: #718096;
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  margin-right: 0.5rem;
-}
-
-.badge-success {
-  background: #c6f6d5;
-  color: #22543d;
-}
-
-.badge-danger {
-  background: #fed7d7;
-  color: #742a2a;
-}
-
-.badge-warning {
-  background: #fef5e7;
-  color: #975a16;
-}
-
-.badge-info {
-  background: #bee3f8;
-  color: #2c5282;
-}
-
-.badge-secondary {
-  background: #e2e8f0;
-  color: #4a5568;
-}
-
-@media (max-width: 1024px) {
-  .dashboard-main {
-    margin-left: 80px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-main {
-    margin-left: 0;
-    padding: 1rem;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* Minimal custom styles - using Tailwind */
 </style>

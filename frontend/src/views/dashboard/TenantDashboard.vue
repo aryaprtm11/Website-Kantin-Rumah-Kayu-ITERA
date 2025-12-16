@@ -1,29 +1,29 @@
 <template>
-  <div class="dashboard-layout">
+  <div class="flex min-h-screen bg-gray-50">
     <Sidebar :menuItems="TENANT_MENU_ITEMS" />
 
-    <main class="dashboard-main">
-      <div class="dashboard-header">
+    <main class="flex-1 ml-0 lg:ml-[280px] p-4 lg:p-8">
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
         <div>
-          <h1 class="dashboard-title">Dashboard Kantin</h1>
-          <p class="dashboard-subtitle">{{ tenantName }}</p>
+          <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">Dashboard Kantin</h1>
+          <p class="text-gray-600 text-lg">{{ tenantName }}</p>
         </div>
-        <div class="header-actions">
+        <div class="flex gap-3 items-center">
           <button
-            class="btn-refresh"
+            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-50 to-blue-100 text-gray-900 border border-gray-200 rounded-xl font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-75 disabled:cursor-not-allowed"
             :disabled="isRefreshing"
             @click="refreshData"
             aria-label="Refresh data"
           >
-            <RefreshCw :size="18" class="refresh-icon" :class="{ spin: isRefreshing }" />
-            <span class="btn-label">{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
+            <RefreshCw :size="18" :class="{ 'animate-spin': isRefreshing }" />
+            <span>{{ isRefreshing ? 'Memuat...' : 'Refresh' }}</span>
           </button>
         </div>
       </div>
 
-      <div class="dashboard-content">
+      <div class="flex flex-col gap-8">
         <!-- Stats Overview - Hanya 2 Stats -->
-        <section class="stats-grid">
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           <StatsCard
             icon="Package"
             :value="stats.todayOrders"
@@ -41,53 +41,53 @@
         </section>
 
         <!-- Pending Orders - Priority -->
-        <section class="section-card" v-if="pendingOrders.length > 0">
-          <div class="section-header">
-            <h2 class="section-title">
-              <Bell :size="20" class="inline-icon" />
+        <section class="bg-white rounded-xl p-6 shadow-md" v-if="pendingOrders.length > 0">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <Bell :size="20" />
               Pesanan Perlu Diproses
             </h2>
-            <span class="badge badge-danger"
+            <span class="inline-block px-3 py-1 rounded-xl text-xs font-semibold bg-red-100 text-red-800"
               >{{ pendingOrders.length }} pesanan</span
             >
           </div>
 
-          <div class="orders-grid">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div
               v-for="order in pendingOrders"
               :key="order.id"
-              class="order-card urgent"
+              class="bg-red-50 border-2 border-red-200 rounded-xl p-5 transition-all hover:shadow-lg"
             >
-              <div class="order-header">
-                <h3 class="order-id">#{{ order.id }}</h3>
-                <span class="order-time">{{
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-gray-900">#{{ order.id }}</h3>
+                <span class="text-sm text-gray-600">{{
                   formatTime(order.created_at)
                 }}</span>
               </div>
-              <div class="order-customer">
-                <User :size="16" class="customer-icon" />
+              <div class="flex items-center gap-2 mb-3 font-semibold text-gray-700">
+                <User :size="16" />
                 {{ order.user?.name }}
               </div>
-              <div class="order-items">
+              <div class="mb-4">
                 <p
                   v-for="item in order.items"
                   :key="item.id"
-                  class="order-item"
+                  class="my-1 text-sm text-gray-700"
                 >
-                  <span class="item-qty">{{ item.quantity }}x</span>
+                  <span class="font-bold text-green-600">{{ item.quantity }}x</span>
                   {{ item.menu?.name }}
                 </p>
               </div>
-              <div class="order-footer">
-                <span class="order-total">{{
+              <div class="flex justify-between items-center pt-4 border-t border-red-200">
+                <span class="text-lg font-bold text-green-600">{{
                   formatCurrency(order.total_price)
                 }}</span>
-                <div class="order-actions">
-                  <button class="btn-accept" @click="acceptOrder(order.id)">
+                <div class="flex gap-2">
+                  <button class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold text-sm transition-all hover:bg-green-700 flex items-center gap-1" @click="acceptOrder(order.id)">
                     <Check :size="16" />
                     Terima
                   </button>
-                  <button class="btn-reject" @click="rejectOrder(order.id)">
+                  <button class="px-4 py-2 bg-red-100 text-red-800 rounded-lg font-semibold text-sm transition-all hover:bg-red-200 hover:text-white flex items-center gap-1" @click="rejectOrder(order.id)">
                     <X :size="16" />
                     Tolak
                   </button>
@@ -98,36 +98,36 @@
         </section>
 
         <!-- Menu Management -->
-        <section class="section-card">
-          <div class="section-header">
-            <h2 class="section-title">
-              <UtensilsCrossed :size="20" class="inline-icon" />
+        <section class="bg-white rounded-xl p-6 shadow-md">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <UtensilsCrossed :size="20" />
               Menu Kantin
             </h2>
-            <router-link to="/tenant/menus" class="link-view-all">
+            <router-link to="/tenant/menus" class="text-green-600 no-underline font-semibold hover:text-green-700 transition-colors">
               Kelola Menu →
             </router-link>
           </div>
 
-          <div v-if="loadingMenus" class="loading">
-            <div class="spinner"></div>
+          <div v-if="loadingMenus" class="text-center py-12 text-gray-600">
+            <div class="w-10 h-10 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
             <p>Memuat menu...</p>
           </div>
 
-          <div v-else-if="menus.length === 0" class="empty-state">
+          <div v-else-if="menus.length === 0" class="text-center py-12 text-gray-600">
             <p>Belum ada menu. Tambahkan menu pertama Anda!</p>
           </div>
 
-          <div v-else class="menu-grid">
-            <div v-for="menu in menus" :key="menu.id" class="menu-card">
-                <div class="menu-image">
-                  <img :src="menu.image || nasigoreng" :alt="menu.name" />
+          <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <div v-for="menu in menus" :key="menu.id" class="bg-white border border-gray-200 rounded-xl overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
+                <div class="w-full h-32 bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center">
+                  <img :src="menu.image || nasigoreng" :alt="menu.name" class="w-full h-full object-cover" />
                 </div>
-              <div class="menu-info">
-                <h3 class="menu-name">{{ menu.name }}</h3>
-                <p class="menu-price">{{ formatCurrency(menu.price) }}</p>
-                <div class="menu-stock">
-                  <span :class="['stock-badge', getStockClass(menu.stock)]">
+              <div class="p-4">
+                <h3 class="text-base font-bold text-gray-900 mb-2 line-clamp-1">{{ menu.name }}</h3>
+                <p class="text-lg font-bold text-green-600 mb-3">{{ formatCurrency(menu.price) }}</p>
+                <div>
+                  <span :class="['inline-block px-3 py-1 rounded-xl text-xs font-semibold', getStockClass(menu.stock)]">
                     Stok: {{ menu.stock }}
                   </span>
                 </div>
@@ -137,49 +137,49 @@
         </section>
 
         <!-- Recent Orders History -->
-        <section class="section-card">
-          <div class="section-header">
-            <h2 class="section-title">📋 Riwayat Pesanan</h2>
-            <router-link to="/tenant/orders" class="link-view-all">
+        <section class="bg-white rounded-xl p-6 shadow-md">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900">📋 Riwayat Pesanan</h2>
+            <router-link to="/tenant/orders" class="text-green-600 no-underline font-semibold hover:text-green-700 transition-colors">
               Lihat Semua →
             </router-link>
           </div>
 
-          <div v-if="loadingOrders" class="loading">
-            <div class="spinner"></div>
+          <div v-if="loadingOrders" class="text-center py-12 text-gray-600">
+            <div class="w-10 h-10 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
             <p>Memuat pesanan...</p>
           </div>
 
-          <div v-else-if="recentOrders.length === 0" class="empty-state">
+          <div v-else-if="recentOrders.length === 0" class="text-center py-12 text-gray-600">
             <p>Belum ada pesanan</p>
           </div>
 
-          <div v-else class="table-container">
-            <table class="data-table">
+          <div v-else class="overflow-x-auto">
+            <table class="w-full border-collapse">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Customer</th>
-                  <th>Items</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Waktu</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">ID</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Customer</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Items</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Total</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Status</th>
+                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold text-sm border-b-2 border-gray-200">Waktu</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="order in recentOrders" :key="order.id">
-                  <td>#{{ order.id }}</td>
-                  <td>{{ order.user?.name }}</td>
-                  <td>{{ order.items?.length || 0 }} item</td>
-                  <td class="amount">
+                <tr v-for="order in recentOrders" :key="order.id" class="hover:bg-gray-50 transition-colors">
+                  <td class="py-4 px-4 border-b border-gray-200 text-gray-900">#{{ order.id }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200 text-gray-900">{{ order.user?.name }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200 text-gray-900">{{ order.items?.length || 0 }} item</td>
+                  <td class="py-4 px-4 border-b border-gray-200 font-bold text-green-600">
                     {{ formatCurrency(order.total_price) }}
                   </td>
-                  <td>
-                    <span :class="['badge', getStatusClass(order.status)]">
+                  <td class="py-4 px-4 border-b border-gray-200">
+                    <span :class="['inline-block px-3 py-1 rounded-xl text-xs font-semibold', getStatusClass(order.status)]">
                       {{ getStatusLabel(order.status) }}
                     </span>
                   </td>
-                  <td class="datetime">{{ formatDate(order.created_at) }}</td>
+                  <td class="py-4 px-4 border-b border-gray-200 text-sm text-gray-600">{{ formatDate(order.created_at) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -239,21 +239,21 @@ const formatTime = (date: string) => {
 };
 
 const getStockClass = (stock: number) => {
-  if (stock === 0) return "stock-empty";
-  if (stock < 5) return "stock-low";
-  return "stock-ok";
+  if (stock === 0) return "bg-red-100 text-red-800";
+  if (stock < 5) return "bg-yellow-100 text-yellow-800";
+  return "bg-green-100 text-green-800";
 };
 
 const getStatusClass = (status: string) => {
   const map: Record<string, string> = {
-    created: "badge-warning",
-    preparing: "badge-info",
-    ready_for_pickup: "badge-success",
-    picked_up: "badge-success",
-    completed: "badge-success",
-    cancelled: "badge-danger",
+    created: "bg-yellow-100 text-yellow-800",
+    preparing: "bg-blue-100 text-blue-800",
+    ready_for_pickup: "bg-green-100 text-green-800",
+    picked_up: "bg-green-100 text-green-800",
+    completed: "bg-green-100 text-green-800",
+    cancelled: "bg-red-100 text-red-800",
   };
-  return map[status] || "badge-secondary";
+  return map[status] || "bg-gray-200 text-gray-700";
 };
 
 const getStatusLabel = (status: string) => {
@@ -365,471 +365,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Reuse styles from AdminDashboard */
-.inline-icon {
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 0.5rem;
-}
-
-.dashboard-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f7fafc;
-}
-
-.dashboard-main {
-  flex: 1;
-  margin-left: 280px;
-  padding: 2rem;
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-}
-
-.dashboard-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #2d3748;
-  margin: 0 0 0.5rem 0;
-}
-
-.dashboard-subtitle {
-  color: #718096;
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.btn-refresh {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.9rem;
-  background: linear-gradient(90deg, #edf2ff 0%, #e6eefc 100%);
-  color: #2d3748;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
-}
-
-.btn-refresh:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(99,102,241,0.12);
-}
-
-.btn-refresh:disabled {
-  opacity: 0.75;
-  cursor: not-allowed;
-}
-
-.refresh-icon {
-  color: #334155;
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-.btn-label {
-  font-weight: 700;
-}
-
-.btn-primary {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.dashboard-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-.section-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0;
-}
-
-.link-view-all {
-  color: #22c55e;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.link-view-all:hover {
-  text-decoration: underline;
-}
-
-.loading,
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #718096;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #22c55e;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Orders Grid */
-.orders-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
-.order-card {
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.25rem;
-  transition: all 0.3s;
-}
-
-.order-card.urgent {
-  border-color: #fc8181;
-  background: #fff5f5;
-}
-
-.order-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.order-id {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0;
-}
-
-.order-time {
-  font-size: 0.875rem;
-  color: #718096;
-}
-
-.order-customer {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  font-weight: 600;
-  color: #4a5568;
-}
-
-.customer-icon {
-  flex-shrink: 0;
-  margin-right: 0.5rem;
-}
-
-.order-items {
-  margin-bottom: 1rem;
-}
-
-.order-item {
-  margin: 0.25rem 0;
-  font-size: 0.9rem;
-  color: #4a5568;
-}
-
-.item-qty {
-  font-weight: 700;
-  color: #22c55e;
-}
-
-.order-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
-}
-
-.order-total {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #48bb78;
-}
-
-.order-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-accept,
-.btn-reject {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-accept {
-  background: #48bb78;
-  color: white;
-}
-
-.btn-accept:hover {
-  background: #38a169;
-}
-
-.btn-reject {
-  background: #fed7d7;
-  color: #742a2a;
-}
-
-.btn-reject:hover {
-  background: #fc8181;
-  color: white;
-}
-
-/* Menu Grid */
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-.menu-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.3s;
-}
-
-.menu-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-4px);
-}
-
-.menu-image {
-  width: 100%;
-  height: 140px;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.menu-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.menu-placeholder {
-  font-size: 4rem;
-  color: white;
-}
-
-.menu-info {
-  padding: 1rem;
-}
-
-.menu-name {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0 0 0.5rem 0;
-}
-
-.menu-price {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #48bb78;
-  margin: 0 0 0.75rem 0;
-}
-
-.menu-stock {
-  margin-bottom: 0.5rem;
-}
-
-.stock-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.stock-ok {
-  background: #c6f6d5;
-  color: #22543d;
-}
-
-.stock-low {
-  background: #fef5e7;
-  color: #975a16;
-}
-
-.stock-empty {
-  background: #fed7d7;
-  color: #742a2a;
-}
-
-/* Table */
-.table-container {
-  overflow-x: auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th {
-  text-align: left;
-  padding: 0.75rem 1rem;
-  background: #f7fafc;
-  color: #4a5568;
-  font-weight: 600;
-  font-size: 0.875rem;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.data-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.data-table tr:hover {
-  background: #f7fafc;
-}
-
-.amount {
-  font-weight: 700;
-  color: #48bb78;
-}
-
-.datetime {
-  font-size: 0.875rem;
-  color: #718096;
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-}
-
-.badge-success {
-  background: #c6f6d5;
-  color: #22543d;
-}
-
-.badge-danger {
-  background: #fed7d7;
-  color: #742a2a;
-}
-
-.badge-warning {
-  background: #fef5e7;
-  color: #975a16;
-}
-
-.badge-info {
-  background: #bee3f8;
-  color: #2c5282;
-}
-
-.badge-secondary {
-  background: #e2e8f0;
-  color: #4a5568;
-}
-
-@media (max-width: 1024px) {
-  .dashboard-main {
-    margin-left: 80px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-main {
-    margin-left: 0;
-    padding: 1rem;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .orders-grid,
-  .menu-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* Minimal custom styles - using Tailwind */
 </style>

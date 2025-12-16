@@ -1,42 +1,136 @@
-:root {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  line-height: 1.6;
-  font-weight: 400;
-  
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-white text-gray-800;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  #app {
+    @apply min-h-screen;
+  }
+
+  /* Ensure all images are responsive */
+  img {
+    @apply max-w-full h-auto;
+  }
+
+  /* Responsive tables */
+  table {
+    @apply w-full;
+  }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer utilities {
+  /* Mobile-first responsive utilities */
+  .container-responsive {
+    @apply w-full px-4 mx-auto;
+    @apply sm:px-6 lg:px-8;
+    @apply max-w-7xl;
+  }
+
+  /* Touch-friendly button sizes on mobile */
+  .btn-touch {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Prevent text overflow on mobile */
+  .text-truncate-mobile {
+    @apply truncate sm:whitespace-normal;
+  }
+
+  /* Hide on mobile */
+  .hide-mobile {
+    @apply hidden md:block;
+  }
+
+  /* Show only on mobile */
+  .show-mobile {
+    @apply block md:hidden;
+  }
+
+  /* Responsive spacing */
+  .section-spacing {
+    @apply py-8 md:py-12 lg:py-16;
+  }
+
+  /* Responsive grid gaps */
+  .grid-gap-responsive {
+    @apply gap-4 md:gap-6 lg:gap-8;
+  }
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background-color: #ffffff;
-  color: #2d3748;
+/* PrimeVue component responsive overrides */
+@layer components {
+  /* Make PrimeVue dialogs responsive */
+  .p-dialog {
+    @apply max-w-[95vw] md:max-w-[90vw] lg:max-w-[50vw];
+  }
+
+  /* Responsive data tables */
+  .p-datatable {
+    @apply overflow-x-auto;
+  }
+
+  /* Responsive buttons */
+  .p-button {
+    @apply text-sm md:text-base;
+  }
+
+  /* Responsive cards */
+  .p-card {
+    @apply w-full;
+  }
 }
 
-#app {
-  min-height: 100vh;
+/* Mobile menu animations */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
 }
 
-button {
-  font-family: inherit;
-}
+/* Ensure proper touch targets on mobile */
+@media (max-width: 768px) {
+  button, a, input, select, textarea {
+    @apply min-h-[44px];
+  }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+  /* Increase font size slightly on mobile for better readability */
+  body {
+    font-size: 16px;
+  }
+
+  /* Prevent zoom on input focus on iOS */
+  input, select, textarea {
+    font-size: 16px;
+  }
 }

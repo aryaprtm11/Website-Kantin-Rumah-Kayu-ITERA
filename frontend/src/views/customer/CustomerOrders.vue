@@ -1,79 +1,79 @@
 <template>
-  <div class="dashboard-layout">
+  <div class="flex min-h-screen bg-gray-50">
     <Sidebar :menuItems="CUSTOMER_MENU_ITEMS" />
     
-    <main class="dashboard-main">
-      <div class="dashboard-header">
+    <main class="flex-1 ml-0 lg:ml-[280px] p-4 lg:p-8">
+      <div class="mb-8">
         <div>
-          <h1 class="dashboard-title">Pesanan Saya</h1>
-          <p class="dashboard-subtitle">Kelola dan pantau pesanan Anda</p>
+          <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">Pesanan Saya</h1>
+          <p class="text-gray-600">Kelola dan pantau pesanan Anda</p>
         </div>
       </div>
 
-      <div class="dashboard-content">
+      <div class="min-h-[400px]">
         <!-- Loading State -->
-        <div v-if="loading" class="loading">
-          <div class="spinner"></div>
-          <p>Memuat pesanan...</p>
+        <div v-if="loading" class="text-center py-16">
+          <div class="w-12 h-12 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p class="text-gray-600">Memuat pesanan...</p>
         </div>
 
         <!-- Error State -->
-        <div v-else-if="error" class="error-state">
-          <p>❌ {{ error }}</p>
-          <button class="btn-retry" @click="fetchOrders">Coba Lagi</button>
+        <div v-else-if="error" class="text-center py-16">
+          <p class="text-red-600 mb-4">❌ {{ error }}</p>
+          <button class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors" @click="fetchOrders">Coba Lagi</button>
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="orders.length === 0" class="empty-state">
-          <div class="empty-icon">📦</div>
-          <h3>Belum Ada Pesanan</h3>
-          <p>Anda belum melakukan pemesanan</p>
-          <button class="btn-primary" @click="goToHome">
+        <div v-else-if="orders.length === 0" class="text-center py-16">
+          <div class="text-7xl mb-4">📦</div>
+          <h3 class="text-2xl text-gray-900 font-bold mb-2">Belum Ada Pesanan</h3>
+          <p class="text-gray-600 mb-8">Anda belum melakukan pemesanan</p>
+          <button class="px-6 py-3 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-lg font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all" @click="goToHome">
             🏠 Mulai Pesan
           </button>
         </div>
 
         <!-- Orders List -->
-        <div v-else class="orders-list">
-          <div v-for="order in orders" :key="order.id" class="order-card">
+        <div v-else class="flex flex-col gap-6">
+          <div v-for="order in orders" :key="order.id" class="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-xl">
             <!-- Order Header -->
-            <div class="order-header">
-              <div class="order-info">
-                <h3 class="order-tenant">{{ order.tenant?.name || 'Kantin' }}</h3>
-                <p class="order-id">Order #{{ order.id }}</p>
-                <p class="order-date">{{ formatDate(order.created_at) }}</p>
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 border-b border-gray-200 gap-4">
+              <div class="flex-1">
+                <h3 class="text-xl font-bold text-gray-900 mb-1">{{ order.tenant?.name || 'Kantin' }}</h3>
+                <p class="text-sm text-gray-600 mb-1">Order #{{ order.id }}</p>
+                <p class="text-xs text-gray-500">{{ formatDate(order.created_at) }}</p>
               </div>
-              <div class="order-badges">
-                <span :class="['status-badge', getStatusColor(order.status)]">
+              <div class="flex flex-col gap-2 items-start lg:items-end">
+                <span :class="['px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap', getStatusColor(order.status)]">
                   {{ formatStatus(order.status) }}
                 </span>
-                <span :class="['payment-badge', getPaymentStatusColor(order.payment_status)]">
+                <span :class="['px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap', getPaymentStatusColor(order.payment_status)]">
                   {{ formatPaymentStatus(order.payment_status) }}
                 </span>
               </div>
             </div>
 
             <!-- Order Items -->
-            <div class="order-items">
-              <div v-for="item in order.items" :key="item.id" class="order-item">
-                <div class="item-info">
-                  <span class="item-name">{{ item.menu?.name || 'Menu' }}</span>
-                  <span class="item-quantity">x{{ item.quantity }}</span>
+            <div class="p-6 border-b border-gray-200">
+              <div v-for="item in order.items" :key="item.id" class="flex justify-between items-center py-3 border-b border-dashed border-gray-200 last:border-0">
+                <div class="flex items-center gap-3">
+                  <span class="font-semibold text-gray-900">{{ item.menu?.name || 'Menu' }}</span>
+                  <span class="text-gray-600 text-sm">x{{ item.quantity }}</span>
                 </div>
-                <span class="item-price">{{ formatCurrency(item.subtotal) }}</span>
+                <span class="font-bold text-green-600">{{ formatCurrency(item.subtotal) }}</span>
               </div>
             </div>
 
             <!-- Order Footer -->
-            <div class="order-footer">
-              <div class="order-total">
-                <span class="total-label">Total:</span>
-                <span class="total-amount">{{ formatCurrency(order.total_price) }}</span>
+            <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center p-6 bg-gray-50 gap-4">
+              <div class="flex flex-col">
+                <span class="text-sm text-gray-600 mb-1">Total:</span>
+                <span class="text-2xl font-extrabold text-gray-900">{{ formatCurrency(order.total_price) }}</span>
               </div>
-              <div class="order-actions">
+              <div class="flex gap-2 flex-wrap">
                 <button 
                   v-if="order.payment_status === 'pending' || order.payment_status === 'unpaid'"
-                  class="btn-action btn-pay"
+                  class="px-4 py-2.5 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-lg text-sm font-semibold transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   @click="handlePayOrder(order)"
                   :disabled="actionLoading === order.id"
                 >
@@ -81,7 +81,7 @@
                 </button>
                 <button 
                   v-if="order.status === 'ready_for_pickup'"
-                  class="btn-action btn-pickup"
+                  class="px-4 py-2.5 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-lg text-sm font-semibold transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   @click="handlePickupOrder(order)"
                   :disabled="actionLoading === order.id"
                 >
@@ -89,14 +89,14 @@
                 </button>
                 <button 
                   v-if="order.status === 'picked_up' && !order.completed_by_user"
-                  class="btn-action btn-complete"
+                  class="px-4 py-2.5 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-lg text-sm font-semibold transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   @click="handleCompleteOrder(order)"
                   :disabled="actionLoading === order.id"
                 >
                   ✅ {{ actionLoading === order.id ? 'Memproses...' : 'Selesai' }}
                 </button>
                 <button 
-                  class="btn-action btn-detail"
+                  class="px-4 py-2.5 bg-gray-200 text-gray-900 rounded-lg text-sm font-semibold transition-all hover:-translate-y-0.5 hover:bg-gray-300 whitespace-nowrap"
                   @click="viewOrderDetail(order)"
                 >
                   👁️ Detail
@@ -109,74 +109,74 @@
     </main>
 
     <!-- Order Detail Modal -->
-    <div v-if="showDetailModal && selectedOrder" class="modal-overlay" @click="closeDetailModal">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h2>Detail Pesanan #{{ selectedOrder.id }}</h2>
-          <button class="btn-close" @click="closeDetailModal">✕</button>
+    <div v-if="showDetailModal && selectedOrder" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] overflow-y-auto p-8" @click="closeDetailModal">
+      <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl" @click.stop>
+        <div class="flex justify-between items-center p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+          <h2 class="text-2xl font-bold text-gray-900">Detail Pesanan #{{ selectedOrder.id }}</h2>
+          <button class="text-2xl text-gray-600 hover:text-gray-900 px-2 py-1" @click="closeDetailModal">✕</button>
         </div>
         
-        <div class="modal-body">
+        <div class="p-8">
           <!-- Tenant Info -->
-          <div class="detail-section">
-            <h3 class="section-title">Informasi Kantin</h3>
-            <p class="section-text"><strong>Nama:</strong> {{ selectedOrder.tenant?.name }}</p>
-            <p class="section-text"><strong>Jam Buka:</strong> {{ selectedOrder.tenant?.opens_at }} - {{ selectedOrder.tenant?.closes_at }}</p>
+          <div class="mb-8">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">Informasi Kantin</h3>
+            <p class="text-gray-700 mb-2 leading-relaxed"><strong>Nama:</strong> {{ selectedOrder.tenant?.name }}</p>
+            <p class="text-gray-700 mb-2 leading-relaxed"><strong>Jam Buka:</strong> {{ selectedOrder.tenant?.opens_at }} - {{ selectedOrder.tenant?.closes_at }}</p>
           </div>
 
           <!-- Order Info -->
-          <div class="detail-section">
-            <h3 class="section-title">Status Pesanan</h3>
-            <div class="status-row">
-              <span :class="['status-badge', getStatusColor(selectedOrder.status)]">
+          <div class="mb-8">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">Status Pesanan</h3>
+            <div class="flex gap-3 mb-4">
+              <span :class="['px-3.5 py-1.5 rounded-full text-xs font-semibold', getStatusColor(selectedOrder.status)]">
                 {{ formatStatus(selectedOrder.status) }}
               </span>
-              <span :class="['payment-badge', getPaymentStatusColor(selectedOrder.payment_status)]">
+              <span :class="['px-3.5 py-1.5 rounded-full text-xs font-semibold', getPaymentStatusColor(selectedOrder.payment_status)]">
                 {{ formatPaymentStatus(selectedOrder.payment_status) }}
               </span>
             </div>
-            <p class="section-text"><strong>Tipe:</strong> {{ selectedOrder.type }}</p>
-            <p class="section-text"><strong>Tanggal:</strong> {{ formatDate(selectedOrder.created_at) }}</p>
-            <p class="section-text" v-if="selectedOrder.picked_up_at">
+            <p class="text-gray-700 mb-2 leading-relaxed"><strong>Tipe:</strong> {{ selectedOrder.type }}</p>
+            <p class="text-gray-700 mb-2 leading-relaxed"><strong>Tanggal:</strong> {{ formatDate(selectedOrder.created_at) }}</p>
+            <p class="text-gray-700 mb-2 leading-relaxed" v-if="selectedOrder.picked_up_at">
               <strong>Diambil:</strong> {{ formatDate(selectedOrder.picked_up_at) }}
             </p>
-            <p class="section-text" v-if="selectedOrder.completed_at">
+            <p class="text-gray-700 mb-2 leading-relaxed" v-if="selectedOrder.completed_at">
               <strong>Selesai:</strong> {{ formatDate(selectedOrder.completed_at) }}
             </p>
           </div>
 
           <!-- Items -->
-          <div class="detail-section">
-            <h3 class="section-title">Item Pesanan</h3>
-            <div class="detail-items">
-              <div v-for="item in selectedOrder.items" :key="item.id" class="detail-item">
-                <div class="detail-item-info">
-                  <p class="detail-item-name">{{ item.menu?.name }}</p>
-                  <p class="detail-item-meta">
+          <div class="mb-8">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">Item Pesanan</h3>
+            <div class="flex flex-col gap-4">
+              <div v-for="item in selectedOrder.items" :key="item.id" class="flex justify-between items-start p-4 bg-gray-50 rounded-lg">
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-900 mb-1">{{ item.menu?.name }}</p>
+                  <p class="text-sm text-gray-600">
                     {{ item.quantity }} x {{ formatCurrency(item.unit_price) }}
                   </p>
                 </div>
-                <p class="detail-item-price">{{ formatCurrency(item.subtotal) }}</p>
+                <p class="font-bold text-green-600 text-lg">{{ formatCurrency(item.subtotal) }}</p>
               </div>
             </div>
           </div>
 
           <!-- Payment -->
-          <div class="detail-section">
-            <h3 class="section-title">Pembayaran</h3>
-            <div class="payment-row">
+          <div class="mb-0">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">Pembayaran</h3>
+            <div class="flex justify-between items-center py-3 text-base text-gray-700">
               <span>Total Harga:</span>
-              <span class="price-value">{{ formatCurrency(selectedOrder.total_price) }}</span>
+              <span class="font-bold text-gray-900 text-xl">{{ formatCurrency(selectedOrder.total_price) }}</span>
             </div>
-            <div class="payment-row" v-if="selectedOrder.payment_status === 'paid'">
+            <div class="flex justify-between items-center py-3 border-t-2 border-gray-200 mt-2 pt-4 font-bold" v-if="selectedOrder.payment_status === 'paid'">
               <span>Dibayar:</span>
-              <span class="price-value paid">{{ formatCurrency(selectedOrder.paid_amount) }}</span>
+              <span class="text-green-600 text-xl">{{ formatCurrency(selectedOrder.paid_amount) }}</span>
             </div>
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="closeDetailModal">Tutup</button>
+        <div class="p-6 border-t border-gray-200 flex justify-end sticky bottom-0 bg-white">
+          <button class="px-6 py-3 bg-gray-200 text-gray-900 rounded-lg font-semibold hover:bg-gray-300 transition-colors" @click="closeDetailModal">Tutup</button>
         </div>
       </div>
     </div>
@@ -333,510 +333,18 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.dashboard-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f7fafc;
-}
-
-.dashboard-main {
-  flex: 1;
-  margin-left: 280px;
-  padding: 2rem;
-}
-
-.dashboard-header {
-  margin-bottom: 2rem;
-}
-
-.dashboard-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #2d3748;
-  margin: 0 0 0.5rem 0;
-}
-
-.dashboard-subtitle {
-  color: #718096;
-  margin: 0;
-}
-
-.btn-primary {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.dashboard-content {
-  min-height: 400px;
-}
-
-.loading,
-.error-state,
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #22c55e;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.empty-icon {
-  font-size: 5rem;
-  margin-bottom: 1rem;
-}
-
-.empty-state h3 {
-  font-size: 1.5rem;
-  color: #2d3748;
-  margin: 1rem 0;
-}
-
-.empty-state p {
-  color: #718096;
-  margin-bottom: 2rem;
-}
-
-.btn-retry {
-  padding: 0.75rem 1.5rem;
-  background: #22c55e;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* Orders List */
-.orders-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.order-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: all 0.3s;
-}
-
-.order-card:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-}
-
-.order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.order-info {
-  flex: 1;
-}
-
-.order-tenant {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0 0 0.25rem 0;
-}
-
-.order-id {
-  font-size: 0.9rem;
-  color: #718096;
-  margin: 0.25rem 0;
-}
-
-.order-date {
-  font-size: 0.85rem;
-  color: #a0aec0;
-  margin: 0.25rem 0 0 0;
-}
-
-.order-badges {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-end;
-}
-
-.status-badge,
-.payment-badge {
-  padding: 0.375rem 0.875rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-/* Status Colors */
-.status-created { background: #feebc8; color: #c05621; }
-.status-preparing { background: #bee3f8; color: #2c5282; }
-.status-ready { background: #c6f6d5; color: #22543d; }
-.status-picked { background: #d6bcfa; color: #553c9a; }
-.status-completed { background: #9ae6b4; color: #22543d; }
-.status-cancelled { background: #fed7d7; color: #742a2a; }
-
-.payment-unpaid { background: #fed7d7; color: #742a2a; }
-.payment-pending { background: #feebc8; color: #c05621; }
-.payment-paid { background: #9ae6b4; color: #22543d; }
-.payment-failed { background: #fc8181; color: #742a2a; }
-.payment-expired { background: #e2e8f0; color: #4a5568; }
-
-.order-items {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.order-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-}
-
-.order-item:not(:last-child) {
-  border-bottom: 1px dashed #e2e8f0;
-}
-
-.item-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.item-name {
-  font-weight: 600;
-  color: #2d3748;
-}
-
-.item-quantity {
-  color: #718096;
-  font-size: 0.9rem;
-}
-
-.item-price {
-  font-weight: 700;
-  color: #48bb78;
-}
-
-.order-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  background: #f7fafc;
-}
-
-.order-total {
-  display: flex;
-  flex-direction: column;
-}
-
-.total-label {
-  font-size: 0.9rem;
-  color: #718096;
-  margin-bottom: 0.25rem;
-}
-
-.total-amount {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #2d3748;
-}
-
-.order-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.btn-action {
-  padding: 0.625rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-
-.btn-action:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-action:not(:disabled):hover {
-  transform: translateY(-2px);
-}
-
-.btn-pay {
-  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-  color: white;
-}
-
-.btn-pickup {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  color: white;
-}
-
-.btn-complete {
-  background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
-  color: white;
-}
-
-.btn-detail {
-  background: #e2e8f0;
-  color: #2d3748;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  overflow-y: auto;
-  padding: 2rem;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
-  position: sticky;
-  top: 0;
-  background: white;
-  z-index: 10;
-}
-
-.modal-header h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #718096;
-  padding: 0.25rem 0.5rem;
-}
-
-.btn-close:hover {
-  color: #2d3748;
-}
-
-.modal-body {
-  padding: 2rem;
-}
-
-.detail-section {
-  margin-bottom: 2rem;
-}
-
-.detail-section:last-child {
-  margin-bottom: 0;
-}
-
-.section-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.section-text {
-  color: #4a5568;
-  margin: 0.5rem 0;
-  line-height: 1.6;
-}
-
-.status-row {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.detail-items {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.detail-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1rem;
-  background: #f7fafc;
-  border-radius: 8px;
-}
-
-.detail-item-info {
-  flex: 1;
-}
-
-.detail-item-name {
-  font-weight: 600;
-  color: #2d3748;
-  margin: 0 0 0.25rem 0;
-}
-
-.detail-item-meta {
-  font-size: 0.9rem;
-  color: #718096;
-  margin: 0;
-}
-
-.detail-item-price {
-  font-weight: 700;
-  color: #48bb78;
-  font-size: 1.1rem;
-  margin: 0;
-}
-
-.payment-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  font-size: 1rem;
-  color: #4a5568;
-}
-
-.payment-row:last-child {
-  border-top: 2px solid #e2e8f0;
-  margin-top: 0.5rem;
-  padding-top: 1rem;
-  font-weight: 700;
-}
-
-.price-value {
-  font-weight: 700;
-  color: #2d3748;
-  font-size: 1.2rem;
-}
-
-.price-value.paid {
-  color: #48bb78;
-}
-
-.modal-footer {
-  padding: 1.5rem 2rem;
-  border-top: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: flex-end;
-  position: sticky;
-  bottom: 0;
-  background: white;
-}
-
-.btn-secondary {
-  padding: 0.75rem 1.5rem;
-  background: #e2e8f0;
-  color: #2d3748;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-secondary:hover {
-  background: #cbd5e0;
-}
-
-@media (max-width: 1024px) {
-  .dashboard-main {
-    margin-left: 100px;
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-main {
-    margin-left: 90px;
-    padding: 1rem;
-  }
-
-  .order-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .order-badges {
-    align-items: flex-start;
-  }
-
-  .order-footer {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-
-  .order-actions {
-    justify-content: stretch;
-  }
-
-  .btn-action {
-    flex: 1;
-  }
-
-  .modal-overlay {
-    padding: 1rem;
-  }
-
-  .modal-body {
-    padding: 1.5rem;
-  }
-}
+/* Status Colors - using Tailwind classes */
+.status-created { @apply bg-orange-100 text-orange-800; }
+.status-preparing { @apply bg-blue-100 text-blue-800; }
+.status-ready { @apply bg-green-100 text-green-800; }
+.status-picked { @apply bg-purple-100 text-purple-800; }
+.status-completed { @apply bg-green-200 text-green-900; }
+.status-cancelled { @apply bg-red-100 text-red-800; }
+
+.payment-unpaid { @apply bg-red-100 text-red-800; }
+.payment-pending { @apply bg-orange-100 text-orange-800; }
+.payment-paid { @apply bg-green-200 text-green-900; }
+.payment-failed { @apply bg-red-200 text-red-900; }
+.payment-expired { @apply bg-gray-200 text-gray-700; }
 </style>
 

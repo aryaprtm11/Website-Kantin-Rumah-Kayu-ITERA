@@ -1,21 +1,20 @@
 <template>
-  <div class="dashboard-layout">
+  <div class="flex min-h-screen bg-gray-50">
     <Sidebar :menuItems="CUSTOMER_MENU_ITEMS" />
     
-    <main class="dashboard-main">
-      <div class="dashboard-header">
+    <main class="flex-1 ml-0 lg:ml-[280px] p-4 lg:p-8">
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
         <div>
-          <h1 class="dashboard-title">Dashboard</h1>
-          <p class="dashboard-subtitle">Selamat datang, {{ userName }}!</p>
+          <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">Dashboard</h1>
+          <p class="text-gray-600">Selamat datang, {{ userName }}!</p>
         </div>
-        <div class="header-actions">
+        <div class="flex gap-3">
           <Button
             :label="isRefreshing ? 'Memuat...' : 'Refresh'"
             icon="pi pi-refresh"
             :loading="isRefreshing"
             @click="refreshData"
             outlined
-            class="btn-refresh"
           />
           <Button
             label="Jelajahi Kantin"
@@ -27,9 +26,9 @@
         </div>
       </div>
 
-      <div class="dashboard-content">
+      <div class="flex flex-col gap-8">
         <!-- Quick Stats -->
-        <section class="stats-grid">
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           <StatsCard
             icon="📦"
             :value="stats.totalOrders"
@@ -61,61 +60,55 @@
         </section>
 
         <!-- Active Orders -->
-        <Card v-if="activeOrders.length > 0" class="section-card">
+        <Card v-if="activeOrders.length > 0" class="!bg-white !rounded-xl !shadow-md">
           <template #header>
-            <div class="section-header">
-              <h2 class="section-title">🔔 Pesanan Aktif</h2>
+            <div class="flex justify-between items-center p-6 pb-0">
+              <h2 class="text-xl font-bold text-gray-900">🔔 Pesanan Aktif</h2>
               <Badge :value="activeOrders.length" severity="info" />
             </div>
           </template>
           
           <template #content>
-            <div class="orders-grid">
-            <div v-for="order in activeOrders" :key="order.id" class="order-card active-order">
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div v-for="order in activeOrders" :key="order.id" class="bg-gradient-to-b from-blue-50 to-white border-2 border-green-500 rounded-xl p-5 transition-all hover:shadow-lg">
               <!-- Order Progress Tracker -->
-              <div class="order-progress">
-                <div class="progress-step" :class="{ active: true, completed: true }">
-                  <div class="step-icon">📝</div>
-                  <div class="step-label">Dibuat</div>
+              <div class="flex items-center justify-between px-4 pt-6 pb-4 mb-4">
+                <div class="flex flex-col items-center gap-2 relative transition-all" :class="{ 'opacity-40': false, 'opacity-100': true }">
+                  <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all shadow-md bg-gradient-to-br from-green-400 to-green-600 text-white scale-110">📝</div>
+                  <div class="text-xs font-semibold text-gray-900">Dibuat</div>
                 </div>
-                <div class="progress-line" :class="{ completed: ['preparing', 'ready_for_pickup', 'picked_up'].includes(order.status) }"></div>
-                <div class="progress-step" :class="{ 
-                  active: ['preparing', 'ready_for_pickup', 'picked_up'].includes(order.status),
-                  completed: ['ready_for_pickup', 'picked_up'].includes(order.status)
-                }">
-                  <div class="step-icon">👨‍🍳</div>
-                  <div class="step-label">Diproses</div>
+                <div class="flex-1 h-0.5 mx-2 -mt-6 transition-all" :class="['preparing', 'ready_for_pickup', 'picked_up'].includes(order.status) ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gray-300'"></div>
+                <div class="flex flex-col items-center gap-2 relative transition-all" :class="{ 'opacity-40': !['preparing', 'ready_for_pickup', 'picked_up'].includes(order.status), 'opacity-100': ['preparing', 'ready_for_pickup', 'picked_up'].includes(order.status) }">
+                  <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all shadow-md" :class="['ready_for_pickup', 'picked_up'].includes(order.status) ? 'bg-gradient-to-br from-green-400 to-green-600 text-white scale-110' : (['preparing', 'ready_for_pickup', 'picked_up'].includes(order.status) ? 'bg-gradient-to-br from-green-500 to-green-700 text-white animate-pulse' : 'bg-gray-300')">👨‍🍳</div>
+                  <div class="text-xs font-semibold" :class="['preparing', 'ready_for_pickup', 'picked_up'].includes(order.status) ? 'text-gray-900' : 'text-gray-600'">Diproses</div>
                 </div>
-                <div class="progress-line" :class="{ completed: ['ready_for_pickup', 'picked_up'].includes(order.status) }"></div>
-                <div class="progress-step" :class="{ 
-                  active: ['ready_for_pickup', 'picked_up'].includes(order.status),
-                  completed: order.status === 'picked_up'
-                }">
-                  <div class="step-icon">✅</div>
-                  <div class="step-label">Siap</div>
+                <div class="flex-1 h-0.5 mx-2 -mt-6 transition-all" :class="['ready_for_pickup', 'picked_up'].includes(order.status) ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gray-300'"></div>
+                <div class="flex flex-col items-center gap-2 relative transition-all" :class="{ 'opacity-40': !['ready_for_pickup', 'picked_up'].includes(order.status), 'opacity-100': ['ready_for_pickup', 'picked_up'].includes(order.status) }">
+                  <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all shadow-md" :class="order.status === 'picked_up' ? 'bg-gradient-to-br from-green-400 to-green-600 text-white scale-110' : (['ready_for_pickup', 'picked_up'].includes(order.status) ? 'bg-gradient-to-br from-green-500 to-green-700 text-white animate-pulse' : 'bg-gray-300')">✅</div>
+                  <div class="text-xs font-semibold" :class="['ready_for_pickup', 'picked_up'].includes(order.status) ? 'text-gray-900' : 'text-gray-600'">Siap</div>
                 </div>
               </div>
 
-              <div class="order-header">
-                <h3 class="order-id">#{{ order.id }}</h3>
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-gray-900">#{{ order.id }}</h3>
                 <Tag 
                   :value="getStatusLabel(order.status)"
                   :severity="getTagSeverity(order.status)"
                 />
               </div>
-              <div class="order-tenant">
-                <span class="tenant-icon">🏪</span>
+              <div class="flex items-center gap-2 mb-3 font-semibold text-gray-700">
+                <span class="text-xl">🏪</span>
                 {{ order.tenant?.name || 'Kantin' }}
               </div>
-              <div class="order-items">
-                <p v-for="item in order.items" :key="item.id" class="order-item">
-                  <span class="item-qty">{{ item.quantity }}x</span>
+              <div class="mb-4">
+                <p v-for="item in order.items" :key="item.id" class="my-1 text-sm text-gray-700">
+                  <span class="font-bold text-green-600">{{ item.quantity }}x</span>
                   {{ item.menu?.name }}
                 </p>
               </div>
-              <div class="order-footer">
-                <span class="order-total">{{ formatCurrency(order.total_price) }}</span>
-                <div class="order-actions">
+              <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                <span class="text-lg font-bold text-green-600">{{ formatCurrency(order.total_price) }}</span>
+                <div class="flex gap-2">
                   <Button 
                     v-if="order.payment_status === 'pending' || order.payment_status === 'unpaid'"
                     label="Bayar"
@@ -140,10 +133,10 @@
         </Card>
 
         <!-- Order History -->
-        <Card class="section-card">
+        <Card class="!bg-white !rounded-xl !shadow-md">
           <template #header>
-            <div class="section-header">
-              <h2 class="section-title">📋 Riwayat Pesanan</h2>
+            <div class="flex justify-between items-center p-6 pb-0">
+              <h2 class="text-xl font-bold text-gray-900">📋 Riwayat Pesanan</h2>
               <Button
                 label="Lihat Semua"
                 icon="pi pi-arrow-right"
@@ -155,13 +148,13 @@
           </template>
 
           <template #content>
-            <div v-if="loadingOrders" class="loading">
+            <div v-if="loadingOrders" class="text-center py-12 text-gray-600">
               <ProgressSpinner />
-              <p>Memuat pesanan...</p>
+              <p class="mt-4">Memuat pesanan...</p>
             </div>
 
-            <div v-else-if="orderHistory.length === 0" class="empty-state">
-              <p>Belum ada riwayat pesanan</p>
+            <div v-else-if="orderHistory.length === 0" class="text-center py-12 text-gray-600">
+              <p class="mb-4">Belum ada riwayat pesanan</p>
               <Button
                 label="Mulai Pesan"
                 icon="pi pi-shopping-cart"
@@ -171,10 +164,10 @@
               />
             </div>
 
-            <DataTable v-else :value="orderHistory" stripedRows>
+            <DataTable v-else :value="orderHistory" stripedRows class="text-sm">
               <Column field="id" header="ID">
                 <template #body="slotProps">
-                  #{{ slotProps.data.id }}
+                  <span class="font-semibold">#{{ slotProps.data.id }}</span>
                 </template>
               </Column>
               <Column field="tenant.name" header="Kantin" />
@@ -185,7 +178,7 @@
               </Column>
               <Column header="Total">
                 <template #body="slotProps">
-                  <span class="amount">{{ formatCurrency(slotProps.data.total_price) }}</span>
+                  <span class="font-bold text-green-600">{{ formatCurrency(slotProps.data.total_price) }}</span>
                 </template>
               </Column>
               <Column header="Status">
@@ -198,7 +191,7 @@
               </Column>
               <Column header="Tanggal">
                 <template #body="slotProps">
-                  <span class="datetime">{{ formatDate(slotProps.data.created_at) }}</span>
+                  <span class="text-xs text-gray-600">{{ formatDate(slotProps.data.created_at) }}</span>
                 </template>
               </Column>
             </DataTable>
@@ -378,462 +371,18 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.dashboard-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f7fafc;
-}
-
-.dashboard-main {
-  flex: 1;
-  margin-left: 280px;
-  padding: 2rem;
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-}
-
-.dashboard-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #2d3748;
-  margin: 0 0 0.5rem 0;
-}
-
-.dashboard-subtitle {
-  color: #718096;
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.btn-refresh {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.55rem 0.9rem;
-  background: linear-gradient(90deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(15,23,42,0.06);
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
-}
-
-.btn-refresh:disabled { opacity: 0.6; cursor: wait; }
-
-.refresh-icon { color: #06b6d4; }
-.btn-label { font-weight: 700; color: #0f172a; }
-
-.btn-browse {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 1rem;
-  background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
-  color: white;
-  border: none;
-  border-radius: 999px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-}
-
-.btn-browse:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(99,102,241,0.12); }
-.browse-icon { color: rgba(255,255,255,0.95); }
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-.spin { animation: spin 1s linear infinite; }
-
-.dashboard-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.section-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0;
-}
-
-.loading,
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #718096;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #22c55e;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.btn-primary {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.orders-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
-.order-card {
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.25rem;
-  transition: all 0.3s;
-}
-
-.order-card.active-order {
-  border-color: #22c55e;
-  background: linear-gradient(to bottom, #f7faff 0%, white 100%);
-}
-
-/* Order Progress Tracker */
-.order-progress {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 1rem 1rem;
-  margin-bottom: 1rem;
-}
-
-.progress-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  position: relative;
-  opacity: 0.4;
-  transition: all 0.3s;
-}
-
-.progress-step.active {
-  opacity: 1;
-}
-
-.progress-step.completed .step-icon {
-  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-  color: white;
-  transform: scale(1.1);
-}
-
-.step-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.progress-step.active .step-icon {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  color: white;
-  animation: pulse 2s infinite;
-}
-
+/* Minimal custom styles for animations */
 @keyframes pulse {
   0%, 100% {
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
   }
   50% {
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.6);
   }
 }
 
-.step-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #718096;
-  text-align: center;
-}
-
-.progress-step.active .step-label {
-  color: #2d3748;
-}
-
-.progress-line {
-  flex: 1;
-  height: 3px;
-  background: #e2e8f0;
-  margin: 0 0.5rem;
-  position: relative;
-  top: -12px;
-  transition: all 0.3s;
-}
-
-.progress-line.completed {
-  background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
-}
-
-.order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.order-id {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0;
-}
-
-.order-tenant {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  font-weight: 600;
-  color: #4a5568;
-}
-
-.tenant-icon {
-  font-size: 1.2rem;
-}
-
-.order-items {
-  margin-bottom: 1rem;
-}
-
-.order-item {
-  margin: 0.25rem 0;
-  font-size: 0.9rem;
-  color: #4a5568;
-}
-
-.item-qty {
-  font-weight: 700;
-  color: #22c55e;
-}
-
-.order-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
-}
-
-.order-total {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #48bb78;
-}
-
-.order-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-pay {
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-pay:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
-}
-
-.btn-pickup {
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-pickup:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th {
-  text-align: left;
-  padding: 0.75rem 1rem;
-  background: #f7fafc;
-  color: #4a5568;
-  font-weight: 600;
-  font-size: 0.875rem;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.data-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.data-table tr:hover {
-  background: #f7fafc;
-}
-
-.amount {
-  font-weight: 700;
-  color: #48bb78;
-}
-
-.datetime {
-  font-size: 0.875rem;
-  color: #718096;
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-}
-
-.badge-success {
-  background: #c6f6d5;
-  color: #22543d;
-}
-
-.badge-danger {
-  background: #fed7d7;
-  color: #742a2a;
-}
-
-.badge-warning {
-  background: #fef5e7;
-  color: #975a16;
-}
-
-.badge-info {
-  background: #bee3f8;
-  color: #2c5282;
-}
-
-.badge-secondary {
-  background: #e2e8f0;
-  color: #4a5568;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-}
-
-.btn-view-all {
-  padding: 0.5rem 1rem;
-  background: white;
-  color: #22c55e;
-  border: 2px solid #22c55e;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  display: inline-block;
-  transition: all 0.3s;
-}
-
-.btn-view-all:hover {
-  background: #22c55e;
-  color: white;
-  transform: translateY(-2px);
-}
-
-@media (max-width: 1024px) {
-  .dashboard-main {
-    margin-left: 80px;
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-main {
-    margin-left: 0;
-    padding: 1rem;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .stats-grid,
-  .orders-grid {
-    grid-template-columns: 1fr;
-  }
+.animate-pulse {
+  animation: pulse 2s infinite;
 }
 </style>
 

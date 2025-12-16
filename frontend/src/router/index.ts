@@ -18,11 +18,17 @@ const routes = [
     path: "/",
     name: "Home",
     component: Home,
+    meta: {
+      title: "Beranda - Kantin Digital"
+    }
   },
   {
     path: "/tenants/:id",
     name: "TenantDetail",
     component: TenantDetail,
+    meta: {
+      title: "Detail Kantin - Kantin Digital"
+    }
   },
   {
     path: "/login",
@@ -30,6 +36,7 @@ const routes = [
     component: Login,
     meta: {
       requiresGuest: true,
+      title: "Login - Kantin Digital"
     },
   },
   {
@@ -38,6 +45,7 @@ const routes = [
     component: Register,
     meta: {
       requiresGuest: true,
+      title: "Daftar - Kantin Digital"
     },
   },
 
@@ -49,6 +57,7 @@ const routes = [
     meta: {
       requiresAuth: true,
       requiresRole: "superadmin",
+      title: "Dashboard Admin - Kantin Digital"
     },
   },
   {
@@ -57,7 +66,8 @@ const routes = [
     component: () => import('../views/admin/AdminTenant.vue'),
     meta: { 
       requiresAuth: true, 
-      requiresRole: 'superadmin' 
+      requiresRole: 'superadmin',
+      title: "Kelola Kantin - Admin"
     }
   },
   {
@@ -66,7 +76,8 @@ const routes = [
     component: () => import('../views/admin/AdminUsers.vue'),
     meta: { 
       requiresAuth: true, 
-      requiresRole: 'superadmin' 
+      requiresRole: 'superadmin',
+      title: "Kelola Pengguna - Admin"
     }
   },
   {
@@ -75,7 +86,8 @@ const routes = [
     component: () => import('../views/admin/AdminProfile.vue'),
     meta: { 
       requiresAuth: true, 
-      requiresRole: 'superadmin' 
+      requiresRole: 'superadmin',
+      title: "Profil Admin - Kantin Digital"
     }
   },
 
@@ -87,6 +99,7 @@ const routes = [
     meta: {
       requiresAuth: true,
       requiresRole: "tenant_admin",
+      title: "Dashboard Kantin - Kantin Digital"
     },
   },
   {
@@ -96,6 +109,7 @@ const routes = [
     meta: {
       requiresAuth: true,
       requiresRole: "tenant_admin",
+      title: "Kelola Menu - Kantin Digital"
     },
   },
   {
@@ -105,6 +119,7 @@ const routes = [
     meta: {
       requiresAuth: true,
       requiresRole: "tenant_admin",
+      title: "Kelola Pesanan - Kantin Digital"
     },
   },
   {
@@ -113,7 +128,8 @@ const routes = [
     component: () => import('../views/tenant/TenantProfile.vue'),
     meta: { 
       requiresAuth: true, 
-      requiresRole: 'tenant_admin' 
+      requiresRole: 'tenant_admin',
+      title: "Profil Kantin - Kantin Digital"
     }
   },
 
@@ -125,6 +141,7 @@ const routes = [
     meta: {
       requiresAuth: true,
       requiresRole: "customer",
+      title: "Dashboard - Kantin Digital"
     },
   },
   {
@@ -134,6 +151,7 @@ const routes = [
     meta: {
       requiresAuth: true,
       requiresRole: "customer",
+      title: "Pesanan Saya - Kantin Digital"
     },
   },
   {
@@ -142,7 +160,8 @@ const routes = [
     component: () => import('../views/customer/CustomerProfile.vue'),
     meta: { 
       requiresAuth: true, 
-      requiresRole: 'customer' 
+      requiresRole: 'customer',
+      title: "Profil Saya - Kantin Digital"
     }
   },
 ];
@@ -160,6 +179,9 @@ router.beforeEach((to, _from, next) => {
   const isAuthenticated = AuthService.isAuthenticated();
   const currentUser = AuthService.getUser();
   const userRole = currentUser ? getRoleValue(currentUser.role) : "";
+
+  // Update page title
+  document.title = (to.meta.title as string) || "Kantin Digital";
 
   // Redirect authenticated users away from guest-only pages
   if (to.meta.requiresGuest && isAuthenticated) {

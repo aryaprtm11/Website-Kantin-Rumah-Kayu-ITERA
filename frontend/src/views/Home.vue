@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="min-h-screen">
     <Navbar />
     <HeroSection />
     <HowToOrder />
@@ -17,9 +17,7 @@ import Footer from '../components/Footer.vue';
 </script>
 
 <style scoped>
-.home {
-  min-height: 100vh;
-}
+/* No custom styles needed - using Tailwind */
 </style>
 
 
