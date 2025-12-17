@@ -244,15 +244,19 @@ class AdminController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id|unique:tenants,user_id',
             'name' => 'required|string|max:100',
+            'location' => 'nullable|string|max:255',
             'opens_at' => 'required',
             'closes_at' => 'required',
+            'is_active' => 'boolean',
         ]);
 
         $tenant = Tenant::create([
             'user_id' => $request->user_id,
             'name' => $request->name,
+            'location' => $request->location,
             'opens_at' => $request->opens_at,
             'closes_at' => $request->closes_at,
+            'is_active' => $request->is_active ?? true,
         ]);
 
         return response()->json([
@@ -268,11 +272,13 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|nullable|string',
-            'image' => 'sometimes|nullable|string',
+            'location' => 'sometimes|nullable|string|max:255',
+            'opens_at' => 'sometimes',
+            'closes_at' => 'sometimes',
+            'is_active' => 'sometimes|boolean',
         ]);
 
-        $tenant->update($request->only(['name', 'description', 'image']));
+        $tenant->update($request->only(['name', 'location', 'opens_at', 'closes_at', 'is_active']));
 
         return response()->json([
             'message' => 'Tenant berhasil diupdate.',

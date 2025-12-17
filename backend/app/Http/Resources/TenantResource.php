@@ -20,13 +20,17 @@ class TenantResource extends JsonResource
         $now = Carbon::now();
         $opensAt = $this->opens_at ? Carbon::createFromTimeString($this->opens_at->format('H:i:s')) : null;
         $closesAt = $this->closes_at ? Carbon::createFromTimeString($this->closes_at->format('H:i:s')) : null;
-        $isOpen = $opensAt && $closesAt ? $now->between($opensAt, $closesAt) : null;
+
+        $isTimeOpen = $opensAt && $closesAt ? $now->between($opensAt, $closesAt) : false;
+        $isOpen = $this->is_active && $isTimeOpen;
 
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'location' => $this->location,
             'opens_at' => $this->opens_at?->format('H:i:s'),
             'closes_at' => $this->closes_at?->format('H:i:s'),
+            'is_active' => (bool) $this->is_active,
             'is_open' => $isOpen,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

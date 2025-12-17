@@ -20,6 +20,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
+        'http://localhost:5173',
         'https://kantin-frontend-104030083079.asia-southeast2.run.app',
         'https://kantin-rk.my.id',
         'https://www.kantin-rk.my.id',

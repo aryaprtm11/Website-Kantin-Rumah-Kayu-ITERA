@@ -17,8 +17,10 @@ class Tenant extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'location',
         'opens_at',
         'closes_at',
+        'is_active',
     ];
 
     /**
@@ -29,6 +31,7 @@ class Tenant extends Model
         return [
             'opens_at' => 'datetime:H:i:s',
             'closes_at' => 'datetime:H:i:s',
+            'is_active' => 'boolean',
         ];
     }
 
