@@ -51,7 +51,7 @@ class TenantOrderController extends Controller
 
         $this->authorize('manage', $tenant);
 
-        $query = $tenant->orders()->with(['items.menu', 'tenant'])->latest();
+        $query = $tenant->orders()->with(['items.menu', 'tenant', 'user'])->latest();
 
         if ($status = $request->string('status')->toString()) {
             $statusEnum = OrderStatus::tryFrom($status);

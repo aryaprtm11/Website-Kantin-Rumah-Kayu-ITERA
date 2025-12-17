@@ -19,6 +19,7 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
+            'user' => new UserResource($this->whenLoaded('user')),
             'tenant_id' => $this->tenant_id,
             'tenant' => new TenantResource($this->whenLoaded('tenant')),
             'type' => $this->type,
