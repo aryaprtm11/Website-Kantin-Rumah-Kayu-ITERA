@@ -55,6 +55,7 @@ Route::prefix('v1')->group(function (): void {
             Route::post('tenants', [\App\Http\Controllers\Api\V1\AdminController::class, 'createTenant']);
             Route::get('users', [\App\Http\Controllers\Api\V1\AdminController::class, 'users']);
             Route::post('users', [\App\Http\Controllers\Api\V1\AdminController::class, 'createUser']);
+            Route::put('users/{user}', [\App\Http\Controllers\Api\V1\AdminController::class, 'updateUser']);
             Route::get('orders', [\App\Http\Controllers\Api\V1\AdminController::class, 'orders']);
             Route::get('activities', [\App\Http\Controllers\Api\V1\AdminController::class, 'recentActivities']);
             Route::patch('users/{user}/role', [\App\Http\Controllers\Api\V1\AdminController::class, 'updateUserRole']);

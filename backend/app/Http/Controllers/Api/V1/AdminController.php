@@ -199,6 +199,26 @@ class AdminController extends Controller
     }
 
     /**
+     * Update user
+     */
+    public function updateUser(Request $request, User $user): JsonResponse
+    {
+        $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'role' => 'sometimes|in:customer,tenant_admin,superadmin',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        $user->update($request->only(['name', 'email', 'role', 'is_active']));
+
+        return response()->json([
+            'message' => 'User berhasil diupdate.',
+            'data' => $user,
+        ]);
+    }
+
+    /**
      * Update user role
      */
     public function updateUserRole(Request $request, User $user): JsonResponse
