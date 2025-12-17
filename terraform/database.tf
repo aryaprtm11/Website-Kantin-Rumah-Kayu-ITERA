@@ -1,7 +1,7 @@
 resource "google_sql_database_instance" "instance" {
   name             = "kantin-db-instance-tf"
   region           = var.region
-  database_version = "POSTGRES_15" # Menggunakan PostgreSQL sesuai setup terakhir
+  database_version = "POSTGRES_17" # Menggunakan PostgreSQL sesuai setup terakhir
 
   depends_on = [google_service_networking_connection.private_vpc_connection]
 
