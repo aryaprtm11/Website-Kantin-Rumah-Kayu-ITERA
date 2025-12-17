@@ -30,6 +30,7 @@ class AdminController extends Controller
 
             // Orders by status
             $ordersByStatus = Order::select('status', DB::raw('count(*) as count'))
+                ->toBase()
                 ->groupBy('status')
                 ->get()
                 ->pluck('count', 'status');

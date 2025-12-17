@@ -5,23 +5,41 @@
     <main class="flex-1 ml-0 lg:ml-[280px] p-4 lg:p-8">
       <!-- Header Section -->
       <div class="mb-8">
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+        <div
+          class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6"
+        >
           <div>
-            <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">Kelola Pesanan</h1>
-            <p class="text-sm text-gray-500">Kelola dan proses pesanan dari pelanggan</p>
+            <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
+              Kelola Pesanan
+            </h1>
+            <p class="text-sm text-gray-500">
+              Kelola dan proses pesanan dari pelanggan
+            </p>
           </div>
           <div class="flex gap-2 flex-wrap">
             <!-- View Toggle -->
-            <div class="inline-flex bg-gray-50 rounded-lg p-0.5 border border-gray-200">
+            <div
+              class="inline-flex bg-gray-50 rounded-lg p-0.5 border border-gray-200"
+            >
               <button
                 @click="viewMode = 'card'"
-                :class="['px-3 py-2 rounded-md font-medium text-sm transition-all', viewMode === 'card' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-600 hover:text-gray-900']"
+                :class="[
+                  'px-3 py-2 rounded-md font-medium text-sm transition-all',
+                  viewMode === 'card'
+                    ? 'bg-white text-green-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900',
+                ]"
               >
                 <LayoutGrid :size="16" class="inline" />
               </button>
               <button
                 @click="viewMode = 'table'"
-                :class="['px-3 py-2 rounded-md font-medium text-sm transition-all', viewMode === 'table' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-600 hover:text-gray-900']"
+                :class="[
+                  'px-3 py-2 rounded-md font-medium text-sm transition-all',
+                  viewMode === 'table'
+                    ? 'bg-white text-green-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900',
+                ]"
               >
                 <LayoutList :size="16" class="inline" />
               </button>
@@ -34,53 +52,76 @@
               @click="refreshOrders"
               aria-label="Segarkan pesanan"
             >
-              <RefreshCw
-                :size="16"
-                :class="{ 'animate-spin': isRefreshing }"
-              />
-              <span class="hidden sm:inline text-sm">{{ isRefreshing ? "Memuat..." : "Refresh" }}</span>
+              <RefreshCw :size="16" :class="{ 'animate-spin': isRefreshing }" />
+              <span class="hidden sm:inline text-sm">{{
+                isRefreshing ? "Memuat..." : "Refresh"
+              }}</span>
             </button>
           </div>
         </div>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all">
+          <div
+            class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all"
+          >
             <div class="flex items-center justify-between mb-2">
-              <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+              <div
+                class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center"
+              >
                 <List :size="18" class="text-green-600" />
               </div>
-              <span class="text-2xl font-bold text-gray-900">{{ orders.length }}</span>
+              <span class="text-2xl font-bold text-gray-900">{{
+                orders.length
+              }}</span>
             </div>
             <p class="text-xs font-medium text-gray-600">Total Pesanan</p>
           </div>
 
-          <div class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all">
+          <div
+            class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all"
+          >
             <div class="flex items-center justify-between mb-2">
-              <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+              <div
+                class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center"
+              >
                 <AlertCircle :size="18" class="text-green-600" />
               </div>
-              <span class="text-2xl font-bold text-gray-900">{{ orders.filter(o => o.status === 'created').length }}</span>
+              <span class="text-2xl font-bold text-gray-900">{{
+                orders.filter((o) => o.status === "created").length
+              }}</span>
             </div>
             <p class="text-xs font-medium text-gray-600">Pesanan Baru</p>
           </div>
 
-          <div class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all">
+          <div
+            class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all"
+          >
             <div class="flex items-center justify-between mb-2">
-              <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+              <div
+                class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center"
+              >
                 <Loader2 :size="18" class="text-green-600" />
               </div>
-              <span class="text-2xl font-bold text-gray-900">{{ orders.filter(o => o.status === 'preparing').length }}</span>
+              <span class="text-2xl font-bold text-gray-900">{{
+                orders.filter((o) => o.status === "preparing").length
+              }}</span>
             </div>
             <p class="text-xs font-medium text-gray-600">Diproses</p>
           </div>
 
-          <div class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all">
+          <div
+            class="bg-white rounded-lg p-4 border border-gray-200 hover:border-green-500 transition-all"
+          >
             <div class="flex items-center justify-between mb-2">
-              <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+              <div
+                class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center"
+              >
                 <CheckCircle :size="18" class="text-green-600" />
               </div>
-              <span class="text-2xl font-bold text-gray-900">{{ orders.filter(o => o.status === 'ready_for_pickup').length }}</span>
+              <span class="text-2xl font-bold text-gray-900">{{
+                orders.filter((o) => o.status === "ready_for_pickup").length
+              }}</span>
             </div>
             <p class="text-xs font-medium text-gray-600">Siap Diambil</p>
           </div>
@@ -93,16 +134,25 @@
           <button
             v-for="filter in filters"
             :key="filter.value"
-            :class="['inline-flex items-center gap-2 px-4 py-2.5 rounded-md font-medium cursor-pointer transition-all whitespace-nowrap text-sm', activeFilter === filter.value ? 'bg-green-600 text-white' : 'text-gray-700 hover:bg-gray-50']"
+            :class="[
+              'inline-flex items-center gap-2 px-4 py-2.5 rounded-md font-medium cursor-pointer transition-all whitespace-nowrap text-sm',
+              activeFilter === filter.value
+                ? 'bg-green-600 text-white'
+                : 'text-gray-700 hover:bg-gray-50',
+            ]"
             @click="setFilter(filter.value)"
           >
-            <component
-              v-if="filter.icon"
-              :is="filter.icon"
-              :size="16"
-            />
+            <component v-if="filter.icon" :is="filter.icon" :size="16" />
             <span>{{ filter.label }}</span>
-            <span v-if="filter.count > 0" :class="['inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold', activeFilter === filter.value ? 'bg-white/20 text-white' : 'bg-green-100 text-green-700']">
+            <span
+              v-if="filter.count > 0"
+              :class="[
+                'inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold',
+                activeFilter === filter.value
+                  ? 'bg-white/20 text-white'
+                  : 'bg-green-100 text-green-700',
+              ]"
+            >
               {{ filter.count }}
             </span>
           </button>
@@ -110,40 +160,61 @@
       </div>
 
       <div class="flex flex-col gap-6">
-
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
-          <div class="w-10 h-10 border-3 border-gray-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <div
+            class="w-10 h-10 border-3 border-gray-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4"
+          ></div>
           <p class="text-sm text-gray-600">Memuat pesanan...</p>
         </div>
 
         <!-- Error State -->
         <div v-else-if="error" class="text-center py-16">
           <p class="text-sm text-red-600 mb-4">{{ error }}</p>
-          <button class="px-5 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors" @click="fetchOrders">Coba Lagi</button>
+          <button
+            class="px-5 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+            @click="fetchOrders"
+          >
+            Coba Lagi
+          </button>
         </div>
 
         <!-- Empty State -->
         <div v-else-if="filteredOrders.length === 0" class="text-center py-16">
-          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div
+            class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
             <Package :size="32" class="text-gray-400" />
           </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-1">Belum Ada Pesanan</h3>
-          <p class="text-sm text-gray-500" v-if="activeFilter === 'all'">Belum ada pesanan masuk</p>
-          <p class="text-sm text-gray-500" v-else>Tidak ada pesanan dengan status ini</p>
+          <h3 class="text-lg font-semibold text-gray-900 mb-1">
+            Belum Ada Pesanan
+          </h3>
+          <p class="text-sm text-gray-500" v-if="activeFilter === 'all'">
+            Belum ada pesanan masuk
+          </p>
+          <p class="text-sm text-gray-500" v-else>
+            Tidak ada pesanan dengan status ini
+          </p>
         </div>
 
         <!-- Card View -->
-        <div v-else-if="viewMode === 'card'" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div
+          v-else-if="viewMode === 'card'"
+          class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4"
+        >
           <div
             v-for="order in filteredOrders"
             :key="order.id"
             class="bg-white rounded-lg p-5 border border-gray-200 transition-all hover:border-green-500 hover:shadow-sm"
           >
             <!-- Order Header -->
-            <div class="flex justify-between items-start gap-4 mb-4 pb-4 border-b border-gray-100">
+            <div
+              class="flex justify-between items-start gap-4 mb-4 pb-4 border-b border-gray-100"
+            >
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">
+                <div
+                  class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm"
+                >
                   {{
                     order.user?.name
                       ? order.user.name.charAt(0).toUpperCase()
@@ -151,7 +222,9 @@
                   }}
                 </div>
                 <div>
-                  <h3 class="text-base font-bold text-gray-900">#{{ order.id }}</h3>
+                  <h3 class="text-base font-bold text-gray-900">
+                    #{{ order.id }}
+                  </h3>
                   <p class="text-sm text-gray-600">
                     {{ order.user?.name || "Customer" }}
                   </p>
@@ -159,9 +232,13 @@
               </div>
 
               <div class="flex flex-col items-end gap-1.5">
-                <span :class="['px-3 py-1 rounded-full text-xs font-medium', getStatusClass(order.status)]">{{
-                  getStatusLabel(order.status)
-                }}</span>
+                <span
+                  :class="[
+                    'px-3 py-1 rounded-full text-xs font-medium',
+                    getStatusClass(order.status),
+                  ]"
+                  >{{ getStatusLabel(order.status) }}</span
+                >
                 <div class="text-xs text-gray-500">
                   {{ formatDateTime(order.created_at) }}
                 </div>
@@ -177,25 +254,34 @@
                   :key="item.id"
                   class="flex justify-between items-center text-sm"
                 >
-                  <span class="font-semibold text-green-600 min-w-[30px]">{{ item.quantity }}x</span>
-                  <span class="flex-1 text-gray-900">{{ item.menu?.name }}</span>
+                  <span class="font-semibold text-green-600 min-w-[30px]"
+                    >{{ item.quantity }}x</span
+                  >
+                  <span class="flex-1 text-gray-900">{{
+                    item.menu?.name
+                  }}</span>
                   <span class="font-medium text-gray-900">{{
                     formatCurrency(item.subtotal)
                   }}</span>
                 </div>
-                <div v-if="order.items.length > 2" class="text-xs text-gray-500 pt-1">
+                <div
+                  v-if="order.items.length > 2"
+                  class="text-xs text-gray-500 pt-1"
+                >
                   +{{ order.items.length - 2 }} item lainnya
                 </div>
               </div>
             </div>
 
             <!-- Total & Payment -->
-            <div class="flex justify-between items-center mb-4 pt-3 border-t border-gray-100">
+            <div
+              class="flex justify-between items-center mb-4 pt-3 border-t border-gray-100"
+            >
               <div>
                 <p class="text-xs text-gray-500">Total</p>
-                <p class="text-xl font-bold text-gray-900">{{
-                  formatCurrency(order.total_price)
-                }}</p>
+                <p class="text-xl font-bold text-gray-900">
+                  {{ formatCurrency(order.total_price) }}
+                </p>
               </div>
               <span
                 :class="[
@@ -246,42 +332,95 @@
         </div>
 
         <!-- Table View -->
-        <div v-else class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div
+          v-else
+          class="bg-white rounded-lg border border-gray-200 overflow-hidden"
+        >
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">ID</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Pelanggan</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Items</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Total</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Status</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Pembayaran</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Waktu</th>
-                  <th class="px-4 py-3 text-center text-xs font-semibold text-gray-700">Aksi</th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-gray-700"
+                  >
+                    ID
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-gray-700"
+                  >
+                    Pelanggan
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-gray-700"
+                  >
+                    Items
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-gray-700"
+                  >
+                    Total
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-gray-700"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-gray-700"
+                  >
+                    Pembayaran
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-gray-700"
+                  >
+                    Waktu
+                  </th>
+                  <th
+                    class="px-4 py-3 text-center text-xs font-semibold text-gray-700"
+                  >
+                    Aksi
+                  </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
-                <tr v-for="order in filteredOrders" :key="order.id" class="hover:bg-gray-50 transition-colors">
+                <tr
+                  v-for="order in filteredOrders"
+                  :key="order.id"
+                  class="hover:bg-gray-50 transition-colors"
+                >
                   <td class="px-4 py-3 whitespace-nowrap">
-                    <span class="font-semibold text-sm text-gray-900">#{{ order.id }}</span>
+                    <span class="font-semibold text-sm text-gray-900"
+                      >#{{ order.id }}</span
+                    >
                   </td>
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-2">
-                      <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-semibold text-xs">
-                        {{ order.user?.name ? order.user.name.charAt(0).toUpperCase() : "C" }}
+                      <div
+                        class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-semibold text-xs"
+                      >
+                        {{
+                          order.user?.name
+                            ? order.user.name.charAt(0).toUpperCase()
+                            : "C"
+                        }}
                       </div>
                       <div>
-                        <div class="font-medium text-sm text-gray-900">{{ order.user?.name || "Customer" }}</div>
-                        <div class="text-xs text-gray-500">{{ order.type === "pickup" ? "Ambil" : "Delivery" }}</div>
+                        <div class="font-medium text-sm text-gray-900">
+                          {{ order.user?.name || "Customer" }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                          {{ order.type === "pickup" ? "Ambil" : "Delivery" }}
+                        </div>
                       </div>
                     </div>
                   </td>
                   <td class="px-4 py-3">
                     <div class="text-sm">
-                      <div class="font-medium text-gray-900">{{ order.items.length }} item</div>
+                      <div class="font-medium text-gray-900">
+                        {{ order.items.length }} item
+                      </div>
                       <div class="text-xs text-gray-500 truncate max-w-[120px]">
-                        {{ order.items.map(i => i.menu?.name).join(', ') }}
+                        {{ order.items.map((i) => i.menu?.name).join(", ") }}
                       </div>
                     </div>
                   </td>
@@ -291,12 +430,22 @@
                     </div>
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap">
-                    <span :class="['px-2.5 py-1 rounded-full text-xs font-medium', getStatusClass(order.status)]">
+                    <span
+                      :class="[
+                        'px-2.5 py-1 rounded-full text-xs font-medium',
+                        getStatusClass(order.status),
+                      ]"
+                    >
                       {{ getStatusLabel(order.status) }}
                     </span>
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap">
-                    <span :class="['px-2.5 py-1 rounded-full text-xs font-medium', getPaymentClass(order.payment_status)]">
+                    <span
+                      :class="[
+                        'px-2.5 py-1 rounded-full text-xs font-medium',
+                        getPaymentClass(order.payment_status),
+                      ]"
+                    >
                       {{ getPaymentLabel(order.payment_status) }}
                     </span>
                   </td>
@@ -347,17 +496,35 @@
     </main>
 
     <!-- Order Detail Modal -->
-    <div v-if="selectedOrder" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-4" @click="closeDetail">
-      <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl" @click.stop>
-        <div class="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 class="text-2xl font-bold text-gray-900">Detail Pesanan #{{ selectedOrder.id }}</h2>
-          <button class="text-2xl text-gray-600 hover:text-gray-900" @click="closeDetail">✕</button>
+    <div
+      v-if="selectedOrder"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-4"
+      @click="closeDetail"
+    >
+      <div
+        class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+        @click.stop
+      >
+        <div
+          class="flex justify-between items-center p-6 border-b border-gray-200"
+        >
+          <h2 class="text-2xl font-bold text-gray-900">
+            Detail Pesanan #{{ selectedOrder.id }}
+          </h2>
+          <button
+            class="text-2xl text-gray-600 hover:text-gray-900"
+            @click="closeDetail"
+          >
+            ✕
+          </button>
         </div>
 
         <div class="p-8">
           <!-- Order Info -->
           <div class="mb-8">
-            <h4 class="text-lg font-bold text-gray-900 mb-4">Informasi Pesanan</h4>
+            <h4 class="text-lg font-bold text-gray-900 mb-4">
+              Informasi Pesanan
+            </h4>
             <div class="flex justify-between py-3 border-b border-gray-100">
               <span class="font-semibold text-gray-700">Status:</span>
               <span
@@ -385,7 +552,9 @@
 
           <!-- Customer Info -->
           <div class="mb-8">
-            <h4 class="text-lg font-bold text-gray-900 mb-4">Informasi Pelanggan</h4>
+            <h4 class="text-lg font-bold text-gray-900 mb-4">
+              Informasi Pelanggan
+            </h4>
             <div class="flex justify-between py-3 border-b border-gray-100">
               <span class="font-semibold text-gray-700">Nama:</span>
               <span class="text-gray-900">{{ selectedOrder.user?.name }}</span>
@@ -402,27 +571,55 @@
             <table class="w-full border-collapse">
               <thead>
                 <tr>
-                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold border-b-2 border-gray-200">Item</th>
-                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold border-b-2 border-gray-200">Qty</th>
-                  <th class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold border-b-2 border-gray-200">Harga</th>
-                  <th class="text-right py-3 px-4 bg-gray-50 text-gray-700 font-semibold border-b-2 border-gray-200">Subtotal</th>
+                  <th
+                    class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold border-b-2 border-gray-200"
+                  >
+                    Item
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold border-b-2 border-gray-200"
+                  >
+                    Qty
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 bg-gray-50 text-gray-700 font-semibold border-b-2 border-gray-200"
+                  >
+                    Harga
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 bg-gray-50 text-gray-700 font-semibold border-b-2 border-gray-200"
+                  >
+                    Subtotal
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="item in selectedOrder.items" :key="item.id">
-                  <td class="py-3 px-4 border-b border-gray-100">{{ item.menu?.name }}</td>
-                  <td class="py-3 px-4 border-b border-gray-100">{{ item.quantity }}</td>
-                  <td class="py-3 px-4 border-b border-gray-100">{{ formatCurrency(item.unit_price) }}</td>
-                  <td class="py-3 px-4 border-b border-gray-100 font-bold text-green-600 text-right">{{ formatCurrency(item.subtotal) }}</td>
+                  <td class="py-3 px-4 border-b border-gray-100">
+                    {{ item.menu?.name }}
+                  </td>
+                  <td class="py-3 px-4 border-b border-gray-100">
+                    {{ item.quantity }}
+                  </td>
+                  <td class="py-3 px-4 border-b border-gray-100">
+                    {{ formatCurrency(item.unit_price) }}
+                  </td>
+                  <td
+                    class="py-3 px-4 border-b border-gray-100 font-bold text-green-600 text-right"
+                  >
+                    {{ formatCurrency(item.subtotal) }}
+                  </td>
                 </tr>
               </tbody>
               <tfoot>
                 <tr>
-                  <td colspan="3" class="py-4 px-4 border-t-2 border-gray-200"><strong class="text-lg">Total</strong></td>
-                  <td class="py-4 px-4 border-t-2 border-gray-200 font-extrabold text-green-600 text-lg text-right">
-                    {{
-                      formatCurrency(selectedOrder.total_price)
-                    }}
+                  <td colspan="3" class="py-4 px-4 border-t-2 border-gray-200">
+                    <strong class="text-lg">Total</strong>
+                  </td>
+                  <td
+                    class="py-4 px-4 border-t-2 border-gray-200 font-extrabold text-green-600 text-lg text-right"
+                  >
+                    {{ formatCurrency(selectedOrder.total_price) }}
                   </td>
                 </tr>
               </tfoot>
@@ -431,9 +628,13 @@
 
           <!-- Payment Info -->
           <div class="mb-0">
-            <h4 class="text-lg font-bold text-gray-900 mb-4">Informasi Pembayaran</h4>
+            <h4 class="text-lg font-bold text-gray-900 mb-4">
+              Informasi Pembayaran
+            </h4>
             <div class="flex justify-between py-3 border-b border-gray-100">
-              <span class="font-semibold text-gray-700">Status Pembayaran:</span>
+              <span class="font-semibold text-gray-700"
+                >Status Pembayaran:</span
+              >
               <span
                 :class="[
                   'px-4 py-1 rounded-full text-sm font-semibold',
@@ -443,7 +644,10 @@
                 {{ getPaymentLabel(selectedOrder.payment_status) }}
               </span>
             </div>
-            <div class="flex justify-between py-3 border-b border-gray-100" v-if="selectedOrder.paid_amount > 0">
+            <div
+              class="flex justify-between py-3 border-b border-gray-100"
+              v-if="selectedOrder.paid_amount > 0"
+            >
               <span class="font-semibold text-gray-700">Jumlah Dibayar:</span>
               <span class="text-gray-900">{{
                 formatCurrency(selectedOrder.paid_amount)
@@ -453,7 +657,12 @@
         </div>
 
         <div class="p-6 border-t border-gray-200 text-right">
-          <button class="px-6 py-3 bg-gray-200 text-gray-900 rounded-lg font-semibold hover:bg-gray-300 transition-colors" @click="closeDetail">Tutup</button>
+          <button
+            class="px-6 py-3 bg-gray-200 text-gray-900 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+            @click="closeDetail"
+          >
+            Tutup
+          </button>
         </div>
       </div>
     </div>
@@ -480,13 +689,38 @@ import {
   CheckCircle,
 } from "lucide-vue-next";
 
-const orders = ref<any[]>([]);
+interface OrderItem {
+  id: number;
+  menu?: {
+    name: string;
+  };
+  quantity: number;
+  unit_price: number;
+  subtotal: number;
+}
+
+interface Order {
+  id: number;
+  user?: {
+    name: string;
+    email: string;
+  };
+  type: string;
+  items: OrderItem[];
+  total_price: number;
+  status: string;
+  payment_status: string;
+  created_at: string;
+  paid_amount: number;
+}
+
+const orders = ref<Order[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const activeFilter = ref("all");
-const selectedOrder = ref<any>(null);
+const selectedOrder = ref<Order | null>(null);
 const isRefreshing = ref(false);
-const viewMode = ref<'card' | 'table'>('card');
+const viewMode = ref<"card" | "table">("card");
 
 const refreshOrders = async () => {
   isRefreshing.value = true;
@@ -644,7 +878,7 @@ const cancelOrder = async (orderId: number) => {
   }
 };
 
-const showOrderDetail = (order: any) => {
+const showOrderDetail = (order: Order) => {
   selectedOrder.value = order;
 };
 
