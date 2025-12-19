@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+// Terapkan middleware 'frontend.only'
+Route::middleware(['frontend.only'])->get('/', function () {
     return view('welcome');
 });

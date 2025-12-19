@@ -58,5 +58,7 @@ api.interceptors.response.use(
   }
 );
 
+api.defaults.headers.common['X-Kantin-Key'] = 'rahasia-kantin-12345';
+
 export default api;
 
