@@ -6,13 +6,12 @@ Dokumen ini merangkum arsitektur yang diterapkan pada aplikasi Kantin RK ITERA. 
 
 ## ☁️ Arsitektur GCP
 
-- **Domain**: https://komaiterasi3.gotiketku.online mengarah ke IP publik milik HTTPS Load Balancer (sesuai pada diagram).
-- **Load Balancer (HTTPS)**: IP statis yang membagi trafik ke dua service Cloud Run (frontend dan backend) seperti cabang ganda di diagram.
-- **Cloud Run Frontend**: Vue + Nginx dengan Firebase Authentication (Google Sign-In); menerima trafik dari LB lalu memanggil API backend via HTTPS sesuai alur panah pada diagram.
-- **Cloud Run Backend**: Laravel API (Sanctum + RBAC) yang menerima request hanya via LB dan meneruskan query ke database melalui koneksi privat.
-- **Cloud SQL (PostgreSQL)**: database terpusat yang terhubung privat dari backend; tidak diekspos ke internet sesuai blok database di diagram.
+ - **Load Balancer (HTTPS)**: IP statis untuk DNS; meneruskan trafik hanya ke Cloud Run Frontend (sesuai diagram).
+ - **Cloud Run Frontend**: Vue.js + Nginx; men-serve UI dan memanggil REST API Cloud Run Backend via HTTPS.
+ - **Cloud Run Backend**: Laravel API; menerima request dari Frontend dan mengakses database melalui **Serverless VPC Connector** (private).
+ - **Cloud SQL (PostgreSQL)**: basis data terpusat; diakses hanya oleh Backend melalui Serverless VPC Connector; tidak diekspos ke internet.
 
-![Diagram Arsitektur GCP](../frontend/src/assets/arsitekturcloud.png)
+<img src="../frontend/src/assets/arsitekturcloud.png" alt="Diagram Arsitektur GCP" style="max-width: 100%; height: auto;" />
 
 
 ### Ringkasan Alur
@@ -25,8 +24,7 @@ Dokumen ini merangkum arsitektur yang diterapkan pada aplikasi Kantin RK ITERA. 
 
 ## 🏛️ Arsitektur Sistem (3-Tier)
 
-![Diagram Arsitektur Sistem](../frontend/src/assets/arsitekturdiagram.png)
-
+<img src="../frontend/src/assets/arsitekturdiagram.png" alt="Diagram Arsitektur Sistem" style="max-width: 100%; height: auto;" />
 
 
 ### Presentation Tier
