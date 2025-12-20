@@ -1,6 +1,7 @@
 steps:
   # 1. Buat file .env production secara otomatis
   - name: 'gcr.io/cloud-builders/gcloud'
+    dir: 'frontend'
     entrypoint: 'bash'
     args:
       - '-c'
@@ -11,6 +12,7 @@ steps:
 
   # 2. Build Docker Image (File .env sudah ada, jadi Vite bisa membacanya)
   - name: 'gcr.io/cloud-builders/docker'
+    dir: 'frontend'
     args: ['build', '-t', 'asia-southeast2-docker.pkg.dev/master-dreamer-473612-m6/kantin-repo-new/frontend:latest', '.']
 
   # 3. Push Image

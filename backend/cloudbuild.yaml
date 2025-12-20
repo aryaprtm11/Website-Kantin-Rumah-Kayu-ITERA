@@ -1,6 +1,7 @@
 steps:
   # 1. Build Docker Image
   - name: 'gcr.io/cloud-builders/docker'
+    dir: 'backend'
     args: ['build', '-t', 'asia-southeast2-docker.pkg.dev/master-dreamer-473612-m6/kantin-repo-new/backend:latest', '.']
 
   # 2. Push Image ke Registry
