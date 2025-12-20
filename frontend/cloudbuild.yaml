@@ -6,9 +6,9 @@ steps:
     args:
       - '-c'
       - |
-        echo "VITE_API_BASE_URL=https://kantin-backend-104030083079.asia-southeast2.run.app/api/v1" > .env
+        echo "VITE_API_BASE_URL=$$API_URL" > .env
         echo "VITE_FRONTEND_SECRET_KEY=$$SECRET_KEY" >> .env
-    secretEnv: ['SECRET_KEY']
+    secretEnv: ['SECRET_KEY', 'API_URL']
 
   # 2. Build Docker Image (File .env sudah ada, jadi Vite bisa membacanya)
   - name: 'gcr.io/cloud-builders/docker'
@@ -38,6 +38,8 @@ availableSecrets:
   secretManager:
   - versionName: projects/master-dreamer-473612-m6/secrets/FRONTEND_KEY_SECRET/versions/latest
     env: 'SECRET_KEY'
+  - versionName: projects/master-dreamer-473612-m6/secrets/VITE_API_BASE_URL_SECRET/versions/latest
+    env: 'API_URL'
 
 images:
   - 'asia-southeast2-docker.pkg.dev/master-dreamer-473612-m6/kantin-repo-new/frontend:latest'
