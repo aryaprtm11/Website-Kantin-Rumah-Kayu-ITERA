@@ -13,7 +13,7 @@ steps:
   # 2. Build Docker Image (File .env sudah ada, jadi Vite bisa membacanya)
   - name: 'gcr.io/cloud-builders/docker'
     dir: 'frontend'
-    args: ['build','--build-arg', 'VITE_API_BASE_URL=$$API_URL', '--build-arg', 'VITE_FRONTEND_SECRET_KEY=$$SECRET_KEY', '-t', 'asia-southeast2-docker.pkg.dev/master-dreamer-473612-m6/kantin-repo-new/frontend:latest', '.']
+    args: ['build', '-t', 'asia-southeast2-docker.pkg.dev/master-dreamer-473612-m6/kantin-repo-new/frontend:latest', '.']
 
   # 3. Push Image
   - name: 'gcr.io/cloud-builders/docker'
