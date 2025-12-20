@@ -1,40 +1,33 @@
-/**
- * Axios configuration for API requests
- * Centralized API client with interceptors
- */
+import axios from "axios";
 
-import axios from 'axios';
-
-// API Configuration
 const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1',
-  TIMEOUT: 10000, // 10 seconds
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1",
+  TIMEOUT: 10000,
   HEADERS: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 };
 
-// Create axios instance
 const api = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   timeout: API_CONFIG.TIMEOUT,
-  headers: {
-    ...API_CONFIG.HEADERS,
-    'Accept': 'application/json',
-  },
-  withCredentials: false,
+  headers: API_CONFIG.HEADERS,
+  withCredentials: true,
 });
 
-/**
- * Request interceptor
- * Adds authentication token if available
- */
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    const frontendSecretKey = import.meta.env.VITE_FRONTEND_SECRET_KEY;
+    if (frontendSecretKey && config.headers) {
+      config.headers["X-Kantin-Key"] = frontendSecretKey;
+    }
+
     return config;
   },
   (error) => {
@@ -42,23 +35,19 @@ api.interceptors.request.use(
   }
 );
 
-/**
- * Response interceptor
- * Handles global error responses
- */
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle common errors (401, 403, 500, etc)
     if (error.response?.status === 401) {
-      // Unauthorized - could redirect to login
-      console.error('Unauthorized access');
+      console.error("Unauthorized access - Session expired");
+    }
+    if (error.response?.status === 403) {
+      console.error(
+        "Forbidden access - Cek konfigurasi Secret Key atau User Role"
+      );
     }
     return Promise.reject(error);
   }
 );
 
-api.defaults.headers.common['X-Kantin-Key'] = 'rahasia-kantin-12345';
-
 export default api;
-

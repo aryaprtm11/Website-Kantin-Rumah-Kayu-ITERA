@@ -1,0 +1,41 @@
+steps:
+  # 1. Buat file .env production secara otomatis
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "VITE_API_BASE_URL=https://kantin-backend-104030083079.asia-southeast2.run.app/api/v1" > .env
+        echo "VITE_FRONTEND_SECRET_KEY=$$SECRET_KEY" >> .env
+    secretEnv: ['SECRET_KEY']
+
+  # 2. Build Docker Image (File .env sudah ada, jadi Vite bisa membacanya)
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-southeast2-docker.pkg.dev/master-dreamer-473612-m6/kantin-repo-new/frontend:latest', '.']
+
+  # 3. Push Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-southeast2-docker.pkg.dev/master-dreamer-473612-m6/kantin-repo-new/frontend:latest']
+
+  # 4. Deploy ke Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'kantin-frontend'
+      - '--image'
+      - 'asia-southeast2-docker.pkg.dev/master-dreamer-473612-m6/kantin-repo-new/frontend:latest'
+      - '--region'
+      - 'asia-southeast2'
+      - '--platform'
+      - 'managed'
+
+# Definisi Secret yang mau diambil
+availableSecrets:
+  secretManager:
+  - versionName: projects/master-dreamer-473612-m6/secrets/FRONTEND_KEY_SECRET/versions/latest
+    env: 'SECRET_KEY'
+
+images:
+  - 'asia-southeast2-docker.pkg.dev/master-dreamer-473612-m6/kantin-repo-new/frontend:latest'
