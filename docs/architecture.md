@@ -19,7 +19,7 @@ Dokumen ini merangkum arsitektur yang diterapkan pada aplikasi Kantin RK ITERA. 
 2. Load Balancer meneruskan trafik ke layanan Cloud Run Frontend.
 3. Frontend menjalankan Google Sign-In via Firebase Auth dan menyimpan ID token di sisi client.
 4. Frontend memanggil REST API Cloud Run Backend melalui HTTPS sambil mengirim header `Authorization: Bearer <token>`.
-5. Backend memvalidasi token, menjalankan logika bisnis, dan mengakses Cloud SQL (PostgreSQL) melalui koneksi privat.
+5. Backend memvalidasi token, menjalankan logika bisnis, dan mengakses Cloud SQL (PostgreSQL) melalui koneksi privat via Serverless VPC Connector.
 6. Backend mengembalikan HTTP JSON response ke frontend untuk ditampilkan kepada pengguna.
 
 ## 🏛️ Arsitektur Sistem (3-Tier)
@@ -56,6 +56,6 @@ Dokumen ini merangkum arsitektur yang diterapkan pada aplikasi Kantin RK ITERA. 
 | Identity (client) | Firebase Authentication | Google Sign-In, ID token |
 | Application | Laravel 12, PHP 8.2, Sanctum, Spatie Permission | REST API, auth, RBAC |
 | Database | Cloud SQL (PostgreSQL) | Penyimpanan terpusat |
-| Infrastruktur | Cloud Run, HTTPS Load Balancer, Cloud Build, Nginx | Hosting container, IP publik, CI/CD |
+| Infrastruktur | Cloud Run, HTTPS Load Balancer, Serverless VPC Connector, Cloud Build, Nginx (Frontend), Apache (Backend) | Hosting container, IP publik, koneksi privat DB, CI/CD |
 | DevOps | Docker, Git | Packaging, version control |
 
