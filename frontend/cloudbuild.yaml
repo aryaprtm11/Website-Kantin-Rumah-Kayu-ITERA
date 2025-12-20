@@ -39,3 +39,6 @@ availableSecrets:
 
 images:
   - 'asia-southeast2-docker.pkg.dev/master-dreamer-473612-m6/kantin-repo-new/frontend:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
